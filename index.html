@@ -11,12 +11,11 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .purple-gradient { background: linear-gradient(135deg, #1E0038 0%, #3B0066 50%, #6300A3 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="text-slate-800 h-full flex flex-col justify-between max-w-md mx-auto shadow-2xl relative overflow-x-hidden border-x border-slate-200">
 
-    <!-- Top Navigation Header (Dark Premium SaaS Style) -->
+    <!-- Top Navigation Header -->
     <header class="sticky top-0 z-50 bg-[#0F051D] text-white px-4 py-3 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-2">
             <div class="w-9 h-9 purple-gradient rounded-xl flex items-center justify-center font-extrabold text-white text-sm shadow-md border border-purple-400/30">
@@ -30,11 +29,11 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <!-- Language Selector -->
-            <button onclick="alert('Language switch')" class="flex items-center gap-1 text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-full border border-white/10 text-purple-200 transition">
+            <!-- Language Switcher -->
+            <button onclick="alert('Language: اردو / English active')" class="flex items-center gap-1 text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded-full border border-white/10 text-purple-200 transition">
                 <span>🌐</span> <span class="font-bold">اردو</span>
             </button>
-            <!-- Notifications -->
+            <!-- Notifications with Badge -->
             <button class="relative p-1.5 bg-white/10 rounded-full text-purple-200">
                 🔔 <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-purple-500 rounded-full animate-ping"></span>
             </button>
@@ -50,7 +49,6 @@
 
         <!-- 1. HOME TAB -->
         <div id="tab-home" class="tab-content active space-y-4">
-            
             <!-- User Welcome & Streak Banner -->
             <div class="bg-white p-4 rounded-3xl border border-purple-100 shadow-sm space-y-3">
                 <div class="flex items-center justify-between">
@@ -79,32 +77,27 @@
                 </div>
             </div>
 
-            <!-- Focus & Tasks Preview -->
+            <!-- Family Connect Circle Preview with Call/Chat -->
             <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-extrabold text-slate-900 text-sm">Today's Focus & Rhythm</h3>
-                    <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">2/5 Completed</span>
+                    <h3 class="font-extrabold text-slate-900 text-sm">Family Connect Circle</h3>
+                    <span onclick="switchTab('family')" class="text-xs font-bold text-purple-600 cursor-pointer">View All ↗</span>
                 </div>
 
-                <div class="space-y-2 pt-1">
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
-                            <span class="text-xs font-bold text-slate-400 line-through">Review International Wealth Allocation</span>
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">DJ</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">David Jenkins <span class="text-[10px] text-slate-400 font-normal">(Spouse)</span></h4>
+                            <p class="text-[10px] text-slate-500">📍 Lahore · ⚡ 89% Battery</p>
                         </div>
-                        <span class="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-md">HIGH</span>
                     </div>
-
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-200/60">
-                        <div class="flex items-center space-x-3">
-                            <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
-                            <span class="text-xs font-bold text-slate-800">Lead Architecture System Review for V8.0</span>
-                        </div>
-                        <span class="text-[10px] bg-purple-100 text-purple-700 font-bold px-2 py-0.5 rounded-md">AI PRIORITY</span>
+                    <div class="flex space-x-1.5">
+                        <button onclick="alert('Calling David via Secure WebRTC...')" class="p-2 bg-white rounded-xl border border-slate-200 text-purple-600 text-xs shadow-xs">📞</button>
+                        <button onclick="alert('Opening encrypted chat with David...')" class="p-2 bg-purple-600 rounded-xl text-white text-xs shadow-xs">💬</button>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- 2. TASKS TAB -->
@@ -112,10 +105,10 @@
             <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
                 <div class="flex justify-between items-center">
                     <h3 class="font-extrabold text-slate-900 text-sm">Task Execution Engine</h3>
-                    <button onclick="alert('AI Assistant Generating Tasks...')" class="bg-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs">✨ AI Assistant</button>
+                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-1 rounded-full">5 Tasks Pending</span>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-                    <p class="text-xs font-bold text-slate-800">Family Budget & SaaS Renewal</p>
+                    <p class="text-xs font-bold text-slate-800">Review International Wealth Allocation</p>
                     <p class="text-[10px] text-slate-400">Due Today · High Priority</p>
                 </div>
             </div>
@@ -123,21 +116,19 @@
 
         <!-- 3. MONEY TAB (Exact Multi-Currency Match) -->
         <div id="tab-money" class="tab-content space-y-4">
-            
             <div class="bg-white p-4 rounded-3xl border border-purple-100 shadow-sm space-y-4">
                 <div>
                     <h2 class="font-black text-slate-900 text-base">Income & Expense Tracker</h2>
                     <p class="text-[11px] text-slate-400 font-medium">November 2026</p>
                 </div>
 
-                <!-- Currency Selector Bar -->
+                <!-- All Supported Currencies Grid -->
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">All Supported Currencies</span>
+                        <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">ALL SUPPORTED CURRENCIES</span>
                         <span class="text-xs font-bold text-purple-600 cursor-pointer">Close</span>
                     </div>
 
-                    <!-- Grid of Currencies (PKR, USD, EUR, GBP, SAR, AED, CAD, AUD, INR) -->
                     <div class="grid grid-cols-3 gap-2">
                         <div class="p-2.5 rounded-2xl border-2 border-purple-600 bg-purple-50/50 flex items-center space-x-2">
                             <span class="text-lg">🇵🇰</span>
@@ -146,7 +137,6 @@
                                 <p class="text-[10px] text-purple-600 font-semibold">Rs</p>
                             </div>
                         </div>
-
                         <div class="p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center space-x-2">
                             <span class="text-lg">🇺🇸</span>
                             <div>
@@ -154,7 +144,6 @@
                                 <p class="text-[10px] text-slate-400 font-semibold">$</p>
                             </div>
                         </div>
-
                         <div class="p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center space-x-2">
                             <span class="text-lg">🇪🇺</span>
                             <div>
@@ -162,7 +151,6 @@
                                 <p class="text-[10px] text-slate-400 font-semibold">€</p>
                             </div>
                         </div>
-
                         <div class="p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center space-x-2">
                             <span class="text-lg">🇬🇧</span>
                             <div>
@@ -170,7 +158,6 @@
                                 <p class="text-[10px] text-slate-400 font-semibold">£</p>
                             </div>
                         </div>
-
                         <div class="p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center space-x-2">
                             <span class="text-lg">🇸🇦</span>
                             <div>
@@ -178,7 +165,6 @@
                                 <p class="text-[10px] text-slate-400 font-semibold">SAR</p>
                             </div>
                         </div>
-
                         <div class="p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center space-x-2">
                             <span class="text-lg">🇦🇪</span>
                             <div>
@@ -198,7 +184,7 @@
                 <!-- Balance Display -->
                 <div class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-1">
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">Available Balance</span>
+                        <span class="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase">AVAILABLE BALANCE</span>
                         <span class="text-xs font-bold text-purple-600 bg-purple-100/60 px-2.5 py-0.5 rounded-full">0% Savings Rate</span>
                     </div>
                     <h2 class="text-3xl font-black text-slate-900 tracking-tight">-Rs 680</h2>
@@ -210,31 +196,47 @@
                         <p class="text-[11px] font-bold text-emerald-800">📈 Monthly Inflow</p>
                         <p class="text-base font-black text-emerald-700">Rs 481,000</p>
                     </div>
-
                     <div class="bg-rose-50/60 border border-rose-100 p-3 rounded-2xl space-y-1">
                         <p class="text-[11px] font-bold text-rose-800">📉 Monthly Outflow</p>
                         <p class="text-base font-black text-rose-700">Rs 481,680</p>
                     </div>
                 </div>
-
             </div>
         </div>
 
         <!-- 4. FAMILY TAB -->
         <div id="tab-family" class="tab-content space-y-4">
             <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
-                <h3 class="font-extrabold text-slate-900 text-sm">Family Connect Circle</h3>
-                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center">DJ</div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800">David Jenkins</h4>
-                            <p class="text-[10px] text-slate-500">📍 Lahore · ⚡ 89% Battery</p>
+                <h3 class="font-extrabold text-slate-900 text-sm">Family Connect Circle Hub</h3>
+                <p class="text-xs text-slate-500">Live GPS tracking, emergency ping, and encrypted communication suite.</p>
+                
+                <div class="space-y-2 pt-1">
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">DJ</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">David Jenkins <span class="text-[10px] text-slate-400">(Spouse)</span></h4>
+                                <p class="text-[10px] text-emerald-600 font-medium">📍 Lahore · ⚡ 89% Battery · Online</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-1.5">
+                            <button onclick="alert('Calling David via secure WebRTC...')" class="p-2 bg-white rounded-xl border border-slate-200 text-purple-600 text-xs shadow-xs">📞</button>
+                            <button onclick="alert('Opening encrypted live chat...')" class="p-2 bg-purple-600 rounded-xl text-white text-xs shadow-xs">💬</button>
                         </div>
                     </div>
-                    <div class="flex space-x-1.5">
-                        <button onclick="alert('Secure voice call')" class="p-2 bg-white rounded-xl border border-slate-200 text-purple-600 text-xs shadow-xs">📞</button>
-                        <button onclick="alert('Live chat')" class="p-2 bg-purple-600 rounded-xl text-white text-xs shadow-xs">💬</button>
+
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">SA</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">Sarah Ahmed <span class="text-[10px] text-slate-400">(Sister)</span></h4>
+                                <p class="text-[10px] text-emerald-600 font-medium">📍 Multan · ⚡ 94% Battery · Online</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-1.5">
+                            <button onclick="alert('Calling Sarah...')" class="p-2 bg-white rounded-xl border border-slate-200 text-purple-600 text-xs shadow-xs">📞</button>
+                            <button onclick="alert('Opening chat with Sarah...')" class="p-2 bg-purple-600 rounded-xl text-white text-xs shadow-xs">💬</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -246,12 +248,13 @@
                 <div class="w-16 h-16 bg-purple-100 text-purple-700 font-extrabold text-xl rounded-2xl flex items-center justify-center mx-auto border-2 border-purple-600">MA</div>
                 <h3 class="font-extrabold text-slate-900 text-sm">Mohammad Adnan</h3>
                 <p class="text-xs text-purple-600 font-bold">Enterprise Pro Plan Active</p>
+                <p class="text-[11px] text-slate-400">Kahror Pakka, Pakistan</p>
             </div>
         </div>
 
     </main>
 
-    <!-- Bottom Navigation Bar (Matched with SVG Icons & Notification Badges) -->
+    <!-- Bottom Navigation Bar (Matched with Notification Badges & Icons) -->
     <footer class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50 shadow-xl">
         <nav class="flex justify-around py-2.5">
             <button onclick="switchTab('home')" id="btn-home" class="nav-btn flex flex-col items-center text-purple-600 transition">
@@ -278,7 +281,7 @@
         </nav>
     </footer>
 
-    <!-- Tab Switching Engine -->
+    <!-- Tab Switching Engine Script -->
     <script>
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {

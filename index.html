@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOne SaaS V8.0 - Productivity & Family Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .purple-gradient { background: linear-gradient(135deg, #6d28d9 0%, #4c1d95 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+    </style>
+</head>
+<body class="text-slate-800 antialiased pb-24 md:pb-10">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 purple-gradient text-white font-extrabold rounded-xl flex items-center justify-center shadow-md">L1</div>
+            <div>
+                <h1 class="font-extrabold text-base text-slate-900 leading-none">LifeOne <span class="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded-md">V8.0</span></h1>
+                <span id="user-tier-badge" class="text-[10px] text-slate-500 font-semibold">Free Plan (Max 3 Members)</span>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <!-- Language/Flag Switcher -->
+            <div class="flex items-center space-x-1 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold">
+                <span>🌐</span> <span>🇵🇰</span> <span class="text-slate-700">UR</span>
+            </div>
+
+            <!-- Profile Avatar with Upload -->
+            <label for="dp-upload" class="relative cursor-pointer">
+                <div class="w-9 h-9 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center overflow-hidden border-2 border-purple-300 shadow-sm">
+                    <img id="user-dp-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" alt="DP" class="w-full h-full object-cover">
+                </div>
+                <input type="file" id="dp-upload" class="hidden" accept="image/*" onchange="updateProfileDP(event)">
+            </label>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-md mx-auto p-4 space-y-6">
+
+        <!-- Family Connect & Member Management Module -->
+        <section id="family-section" class="glass-card p-5 rounded-2xl shadow-sm space-y-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">Family Connect Circle</h3>
+                    <p id="member-count-text" class="text-[11px] text-slate-500">Active Members: 2 / 3 Limit</p>
+                </div>
+                <!-- Add Member Button Trigger -->
+                <button onclick="openAddMemberModal()" class="px-3 py-1.5 purple-gradient text-white rounded-xl text-xs font-bold shadow hover:opacity-95 transition flex items-center space-x-1">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Add Member</span>
+                </button>
+            </div>
+
+            <!-- Search Bar for Members -->
+            <div class="relative">
+                <input type="text" id="member-search" onkeyup="searchMembers()" placeholder="Search family members..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-600">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+            </div>
+
+            <!-- Member List Container -->
+            <div id="member-list" class="space-y-3">
+                <!-- Member 1 -->
+                <div class="member-card p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between" data-name="david jenkins">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-purple-200 font-bold flex items-center justify-center text-purple-700">DJ</div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-900">David Jenkins <span class="text-[10px] font-normal text-slate-500">(Spouse)</span></h4>
+                            <p class="text-[10px] text-slate-500">📍 Lahore · ⚡ 89% Battery</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="startCall('David Jenkins')" class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center hover:bg-purple-200 transition"><i class="fa-solid fa-phone text-xs"></i></button>
+                        <button onclick="openChat('David Jenkins')" class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition"><i class="fa-solid fa-comment text-xs"></i></button>
+                    </div>
+                </div>
+
+                <!-- Member 2 -->
+                <div class="member-card p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between" data-name="sarah ahmed">
+                    <div class="flex items-center space-x-3">
+                        <div class="relative">
+                            <div class="w-10 h-10 rounded-full bg-blue-200 font-bold flex items-center justify-center text-blue-700">SA</div>
+                            <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-900">Sarah Ahmed <span class="text-[10px] font-normal text-slate-500">(Sister)</span></h4>
+                            <p class="text-[10px] text-slate-500">📍 Multan · ⚡ 94% Battery</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-1">
+                        <button onclick="startCall('Sarah Ahmed')" class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center hover:bg-purple-200 transition"><i class="fa-solid fa-phone text-xs"></i></button>
+                        <button onclick="openChat('Sarah Ahmed')" class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center hover:bg-purple-700 transition"><i class="fa-solid fa-comment text-xs"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Money Suite Preview -->
+        <section class="glass-card p-5 rounded-2xl shadow-sm space-y-3">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-slate-900 text-sm">Global Financial Suite</h3>
+                <span class="text-xs font-bold text-purple-700">PKR (₨)</span>
+            </div>
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Available Balance</span>
+                <h4 class="text-lg font-extrabold text-slate-900 mt-0.5">Rs. 348,500</h4>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Member Modal (Hidden by Default) -->
+    <div id="add-member-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm p-6 rounded-3xl shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base text-slate-900">Add Family Member</h3>
+                <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Member Full Name</label>
+                    <input type="text" id="new-member-name" placeholder="e.g. Ali Khan" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Relationship / Role</label>
+                    <input type="text" id="new-member-relation" placeholder="e.g. Brother / Father" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-1">Phone / Mobile Number</label>
+                    <input type="text" id="new-member-phone" placeholder="+92 300 1234567" class="w-full p-2.5 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-purple-600">
+                </div>
+            </div>
+            <button onclick="addNewMember()" class="w-full py-3 purple-gradient text-white rounded-xl font-bold text-xs shadow-md">Save & Add Member</button>
+        </div>
+    </div>
+
+    <!-- Chat Drawer / Modal (Interactive) -->
+    <div id="chat-modal" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm h-[450px] rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div class="purple-gradient text-white p-4 flex justify-between items-center">
+                <h3 id="chat-title" class="font-bold text-sm">Chat</h3>
+                <button onclick="closeChat()" class="text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex-1 p-4 bg-slate-50 overflow-y-auto space-y-3 text-xs">
+                <div class="bg-white p-2.5 rounded-xl shadow-xs max-w-[80%]">Salam! Kese ho aap?</div>
+                <div class="bg-purple-600 text-white p-2.5 rounded-xl shadow-xs max-w-[80%] ml-auto">Walikum Assalam! Main theek hoon, app kaisi lag rahi hai?</div>
+            </div>
+            <div class="p-3 bg-white border-t flex items-center space-x-2">
+                <input type="text" placeholder="Type a message or voice note..." class="flex-1 p-2 bg-slate-100 rounded-xl text-xs focus:outline-none">
+                <button class="w-9 h-9 purple-gradient text-white rounded-xl flex items-center justify-center"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-2.5 flex justify-between items-center z-40 max-w-md mx-auto">
+        <a href="#" class="flex flex-col items-center text-purple-700 font-bold text-[10px]">
+            <i class="fa-solid fa-house text-lg mb-0.5"></i><span>Home</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-slate-400 hover:text-purple-700 font-medium text-[10px]">
+            <i class="fa-solid fa-list-check text-lg mb-0.5"></i><span>Tasks</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-slate-400 hover:text-purple-700 font-medium text-[10px]">
+            <i class="fa-solid fa-wallet text-lg mb-0.5"></i><span>Money</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-slate-400 hover:text-purple-700 font-medium text-[10px]">
+            <i class="fa-solid fa-user-group text-lg mb-0.5"></i><span>Family</span>
+        </a>
+        <a href="#" class="flex flex-col items-center text-slate-400 hover:text-purple-700 font-medium text-[10px]">
+            <i class="fa-solid fa-user text-lg mb-0.5"></i><span>Profile</span>
+        </a>
+    </nav>
+
+    <script>
+        let memberCount = 2;
+        const maxFreeLimit = 3;
+
+        function openAddMemberModal() {
+            if (memberCount >= maxFreeLimit) {
+                alert("Free Plan Limit Reached! You can only add up to 3 members. Upgrade to Pro for 10 members.");
+                return;
+            }
+            document.getElementById('add-member-modal').classList.remove('hidden');
+        }
+
+        function closeAddMemberModal() {
+            document.getElementById('add-member-modal').classList.add('hidden');
+        }
+
+        function addNewMember() {
+            const name = document.getElementById('new-member-name').value;
+            const relation = document.getElementById('new-member-relation').value;
+
+            if(!name) {
+                alert("Please enter member name");
+                return;
+            }
+
+            memberCount++;
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            const list = document.getElementById('member-list');
+            const newCard = document.createElement('div');
+            newCard.className = "member-card p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between";
+            newCard.setAttribute('data-name', name.toLowerCase());
+            newCard.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 rounded-full bg-emerald-200 font-bold flex items-center justify-center text-emerald-700">${initials}</div>
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-900">${name} <span class="text-[10px] font-normal text-slate-500">(${relation || 'Member'})</span></h4>
+                        <p class="text-[10px] text-slate-500">📍 Online · ⚡ 100% Battery</p>
+                    </div>
+                </div>
+                <div class="flex space-x-1">
+                    <button onclick="startCall('${name}')" class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center"><i class="fa-solid fa-phone text-xs"></i></button>
+                    <button onclick="openChat('${name}')" class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center"><i class="fa-solid fa-comment text-xs"></i></button>
+                </div>
+            `;
+            list.appendChild(newCard);
+            document.getElementById('member-count-text').innerText = `Active Members: ${memberCount} / ${maxFreeLimit} Limit`;
+            
+            closeAddMemberModal();
+            document.getElementById('new-member-name').value = '';
+            document.getElementById('new-member-relation').value = '';
+        }
+
+        function searchMembers() {
+            let input = document.getElementById('member-search').value.toLowerCase();
+            let cards = document.getElementsByClassName('member-card');
+            for (let i = 0; i < cards.length; i++) {
+                let name = cards[i].getAttribute('data-name');
+                if (name.includes(input)) {
+                    cards[i].style.display = "flex";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+        function openChat(name) {
+            document.getElementById('chat-title').innerText = `Chat with ${name}`;
+            document.getElementById('chat-modal').classList.remove('hidden');
+        }
+
+        function closeChat() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        function startCall(name) {
+            alert(`Initiating secure WebRTC voice call with ${name}...`);
+        }
+
+        function updateProfileDP(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('user-dp-preview').src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>

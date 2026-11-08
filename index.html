@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LifeOne V1.0 Enterprise</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <style>
 :root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#7C3AED;--pri2:#F5F3FF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -35,9 +36,10 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
 .done .t{transition:color .3s}
 .ring{animation:rg .5s infinite alternate}@keyframes rg{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.unauth>header,.unauth>main,.unauth>nav{display:none!important}
 </style>
 </head>
-<body>
+<body class="unauth">
 <header class="sticky top-0 z-40 bg-white" style="border-bottom:1px solid var(--line)">
  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3 gap-2">
   <div class="flex items-center gap-2 min-w-0">
@@ -65,7 +67,7 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
    <div class="flex items-start justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
      <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
-    <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">8</b><span data-i18n="streak"></span></span>
+    <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">0</b><span data-i18n="streak"></span></span>
    </div>
    <p class="text-sm mt-1.5" style="color:var(--mut)" data-i18n="tag"></p>
    <div class="flex flex-wrap items-center gap-2 mt-3">
@@ -171,6 +173,7 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
    <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
    <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
   </div>
+  <div id="demoBox"></div>
   <div id="profTrust" class="card p-5"></div>
   <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE"></div>
   <div class="card p-5 space-y-3">
@@ -268,6 +271,54 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
  <div class="flex gap-2"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="snooze()" data-i18n="snooze"></button><button class="btn pri flex-1 py-2.5 rounded-xl" onclick="dismissAlarm()" data-i18n="dismiss"></button></div>
 </div></div>
 
+<div id="authScreen" class="hidden fixed inset-0 z-[85] overflow-y-auto" style="background:#FFFFFF">
+ <div class="min-h-full flex items-center justify-center p-5">
+  <div class="w-full max-w-sm">
+   <div class="flex flex-col items-center text-center mb-6">
+    <span class="w-14 h-14 rounded-2xl pri flex items-center justify-center mb-4" data-ic="shield" data-s="26"></span>
+    <h1 class="text-xl font-bold" data-i18n="authTitle"></h1>
+    <p class="text-sm mt-1" style="color:var(--mut)" data-i18n="authSub"></p>
+   </div>
+   <div class="card p-5 space-y-4">
+    <div class="grid grid-cols-2 gap-1 p-1 rounded-xl" style="background:#F1F5F9">
+     <button id="tabIn" onclick="setAuthMode('signin')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabIn"></button>
+     <button id="tabUp" onclick="setAuthMode('signup')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabUp"></button>
+    </div>
+    <button onclick="googleSignIn()" class="btn out w-full py-2.5 rounded-xl text-sm font-medium">
+     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+     <span data-i18n="google"></span>
+    </button>
+    <div class="flex items-center gap-3 text-xs" style="color:var(--mut)"><span class="flex-1 h-px bg-slate-200"></span><span data-i18n="orLbl"></span><span class="flex-1 h-px bg-slate-200"></span></div>
+    <label id="rName" class="block text-sm"><span style="color:var(--mut)" data-i18n="nameLbl"></span><input id="aName" class="inp mt-1" autocomplete="name"></label>
+    <div class="grid grid-cols-2 gap-1 p-1 rounded-xl" style="background:#F1F5F9">
+     <button id="mEmail" onclick="setAuthMethod('email')" class="btn py-1.5 rounded-lg text-xs font-medium" data-i18n="byEmail"></button>
+     <button id="mMobile" onclick="setAuthMethod('mobile')" class="btn py-1.5 rounded-lg text-xs font-medium" data-i18n="byMobile"></button>
+    </div>
+    <label id="rEmail" class="block text-sm"><span style="color:var(--mut)" data-i18n="emailLbl"></span><input id="aEmail" type="email" class="inp mt-1" autocomplete="email"></label>
+    <div id="rMobile" class="hidden text-sm"><span style="color:var(--mut)" data-i18n="phoneLbl"></span>
+     <div class="flex gap-2 mt-1"><select id="aCC" class="inp" style="width:auto;flex-shrink:0"></select><input id="aPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national"></div></div>
+    <p id="authErr" class="text-sm text-rose-600 hidden"></p>
+    <button onclick="authContinue()" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="sendCode"></button>
+    <p class="text-[11px] text-center" style="color:var(--mut)" data-i18n="secNote"></p>
+   </div>
+  </div>
+ </div>
+</div>
+
+<div id="mOtp" class="modal" style="z-index:92"><div class="sheet text-center space-y-4">
+ <span class="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--pri)" data-ic="lock" data-s="22"></span>
+ <h3 class="font-bold text-lg" data-i18n="otpTitle"></h3>
+ <p id="otpSub" class="text-sm" style="color:var(--mut)"></p>
+ <div id="otpDemo" class="rounded-xl p-3 text-xs" style="background:#FEF3C7;color:#92400E"></div>
+ <div id="otpBoxes" class="flex justify-center gap-2"></div>
+ <p id="otpErr" class="text-sm text-rose-600 min-h-[1.25rem]"></p>
+ <button onclick="verifyOtp()" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="verify"></button>
+ <div class="flex items-center justify-between text-sm">
+  <button id="otpResend" onclick="resendOtp()" class="text-sm font-medium" style="color:var(--pri)" data-i18n="resend"></button>
+  <button onclick="closeM('mOtp')" class="text-sm" style="color:var(--mut)" data-i18n="change"></button>
+ </div>
+</div></div>
+
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[70] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -325,7 +376,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const fmt=(v,c)=>CUR[c].s+Math.round(v).toLocaleString("en-US");
 const ini=n=>n.trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase()||"?";
 const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"free",mask:false,authed:true,cpDay:{d:"",n:0},busyPlan:null,habits:[{k:"hab1",d:8,g:21},{k:"hab2",d:5,g:14},{k:"hab3",d:12,g:30}],shareOn:false,pwChanged:false,geo:{st:"idle",acc:null},gun:2,
- user:{name:"Adnan Idrees",email:"adnan.idrees@lifeone.app",loc:"",img:null,lat:null,lng:null,b:null,locManual:false},
+ user:{name:"",email:"",loc:"",img:null,lat:null,lng:null,b:null,locManual:false},
  tasks:[{id:1,t:"Morning workout",c:"Health",u:"Medium",time:"06:30",d:true},{id:2,t:"Review Q4 budget",c:"Finance",u:"High",time:"09:00",d:false},{id:3,t:"Send client proposal",c:"Work",u:"High",time:"11:30",d:false},{id:4,t:"Call mom",c:"Personal",u:"Medium",time:"14:00",d:false},{id:5,t:"Book dentist visit",c:"Health",u:"Medium",time:"17:30",d:false},{id:6,t:"Read 20 pages",c:"Personal",u:"Low",time:"21:00",d:false}],
  notifs:[{t:"Hassan Ahmed’s live location was verified in Kahror Pakka",r:false},{t:"Your 12-day streak is still going",r:false},{t:"Monthly budget report is ready",r:false}],
  fam:[{n:"David Jenkins",rel:"Spouse",cc:"PK",me:true,them:true,city:"Lahore",addr:"Gulberg III, Lahore, PK",lat:31.5104,lng:74.3430,ts:96,b:84,on:true,un:1},{n:"Sarah Ahmed",rel:"Sister",cc:"PK",me:true,them:true,city:"Multan",addr:"Cantt, Multan, PK",lat:30.1960,lng:71.4750,ts:91,b:61,on:true,un:1},{n:"Omer Ali",rel:"Brother",cc:"PK",me:true,them:false,city:"Islamabad",addr:"F-7, Islamabad, PK",lat:33.7215,lng:73.0433,ts:78,b:37,on:false,un:0},{n:"Ayesha Khan",rel:"Daughter",cc:"PK",me:false,them:false,city:"Karachi",addr:"Clifton, Karachi, PK",lat:24.8138,lng:67.0300,ts:94,b:92,on:true,un:1},{n:"Hassan Ahmed",rel:"Father",cc:"PK",me:false,them:true,city:"Kahror Pakka",addr:"Kahror Pakka, PK",lat:29.6243,lng:71.9171,ts:98,b:55,on:true,un:0}],
@@ -427,7 +478,7 @@ function renderTasks(){const n=S.tasks.length,d=S.tasks.filter(x=>x.d).length,p=
  $("ringPct").textContent=p+"%";$("cnt").textContent=`${d}/${n} ${t("done")}`;
  const nx=S.tasks.filter(x=>!x.d&&x.time).sort(byTime)[0];
  $("ringSub").textContent=n&&d===n?t("allDone"):nx?`${t("nextUp")}: ${nx.t} · ${fmtT(nx.time)}`:t("noNext");
- $("homeTasks").innerHTML=S.tasks.slice().sort(byTime).slice(0,8).map(tlRow).join("");
+ $("homeTasks").innerHTML=S.tasks.length?S.tasks.slice().sort(byTime).slice(0,8).map(tlRow).join(""):emptyBox(t("emptyTasks"));
  $("filters").innerHTML=["all",...CATS].map(c=>`<button onclick="S.filter='${c}';renderTasks()" class="btn whitespace-nowrap px-4 py-1.5 rounded-full text-sm ${S.filter===c?"pri":"out"}">${t(c)}</button>`).join("");
  const L=S.tasks.filter(x=>S.filter==="all"||x.c===S.filter);
  $("taskList").innerHTML=L.length?L.map(taskRow).join(""):`<li class="text-center py-10" style="color:var(--mut)">${t("none")}</li>`}
@@ -437,7 +488,7 @@ function renderHabits(){const el=$("habitList");if(!el)return;
 function renderShield(){const b=$("shieldPill");if(!b)return;const on=S.shareOn;
  b.className="btn px-3 py-1.5 rounded-full text-xs font-medium border "+(on?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-white text-slate-700 border-slate-200");
  b.innerHTML=`<span class="${on?"gp":""} w-2 h-2 rounded-full inline-block ${on?"bg-emerald-500":"bg-slate-400"}"></span>${t(on?"sharingOn":"privShield")}`}
-function renderHomeFam(){const el=$("homeFam");if(!el)return;
+function renderHomeFam(){const el=$("homeFam");if(!el)return;if(!S.fam.length){el.innerHTML=emptyBox(t("emptyFam"));return}
  el.innerHTML=S.fam.map(f=>{const c=consentOf(f),sh=sharing(f);let st,cls;
   if(sh){const km=S.user.lat!=null&&f.lat!=null?haversine(S.user.lat,S.user.lng,f.lat,f.lng):null;st=km==null?t("live"):`${t("live")} · ${km<1?"<1":km.toFixed(km<10?1:0)} km`;cls="bg-emerald-50 text-emerald-700 border-emerald-200"}
   else if(c==="out"||c==="in"){st=t("waiting");cls="bg-amber-50 text-amber-700 border-amber-200"}
@@ -447,10 +498,10 @@ function renderHomeFam(){const el=$("homeFam");if(!el)return;
 /* money */
 const FIN={inf:376500,cats:[["cHouse","home","#7C3AED",75000],["cGroc","cart","#10B981",32400],["cDine","utensils","#F59E0B",11800],["cHealth","heart","#F43F5E",7200],["cUtil","bolt","#3B82F6",5400]]};
 const CURR=["PKR","USD","EUR","GBP","SAR","AED","INR","CAD","AUD","JPY","CHF","CNY","SGD","TRY","MYR","THB","IDR"];
-const TX=[{d:"Nov 07",t:"Salary",c:"Income",m:"bank",a:300000,in:true},{d:"Nov 05",t:"Freelance retainer",c:"Income",m:"bank",a:56500,in:true},{d:"Nov 04",t:"Quarterly dividend",c:"Income",m:"crypto",a:20000,in:true},{d:"Nov 03",t:"Rent",c:"cHouse",m:"bank",a:75000},{d:"Nov 02",t:"Groceries",c:"cGroc",m:"card",a:32400},{d:"Nov 02",t:"Client dinner",c:"cDine",m:"card",a:11800},{d:"Oct 30",t:"Pharmacy and clinic",c:"cHealth",m:"cash",a:7200},{d:"Oct 28",t:"Electricity and gas",c:"cUtil",m:"bank",a:5400}];
+let TX=[{d:"Nov 07",t:"Salary",c:"Income",m:"bank",a:300000,in:true},{d:"Nov 05",t:"Freelance retainer",c:"Income",m:"bank",a:56500,in:true},{d:"Nov 04",t:"Quarterly dividend",c:"Income",m:"crypto",a:20000,in:true},{d:"Nov 03",t:"Rent",c:"cHouse",m:"bank",a:75000},{d:"Nov 02",t:"Groceries",c:"cGroc",m:"card",a:32400},{d:"Nov 02",t:"Client dinner",c:"cDine",m:"card",a:11800},{d:"Oct 30",t:"Pharmacy and clinic",c:"cHealth",m:"cash",a:7200},{d:"Oct 28",t:"Electricity and gas",c:"cUtil",m:"bank",a:5400}];
 const cv=v=>v/CUR.PKR.r*CUR[S.cur].r;
 const money=v=>S.mask?"••••••":fmt(cv(v),S.cur);
-const finCalc=()=>{const out=FIN.cats.reduce((a,c)=>a+c[3],0),bal=FIN.inf-out;return{out,bal,sr:Math.round(bal/FIN.inf*100)}};
+const finCalc=()=>{const out=FIN.cats.reduce((a,c)=>a+c[3],0),bal=FIN.inf-out;return{out,bal,sr:FIN.inf?Math.round(bal/FIN.inf*100):0}};
 function renderMoney(){const f=finCalc();
  $("monthLbl").textContent=new Date().toLocaleDateString(LOC[S.lang],{month:"long",year:"numeric"});
  $("curBar").innerHTML=CURR.map(k=>`<button onclick="setCur('${k}')" class="btn shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold ${k===S.cur?"pri":"out"}">${k}</button>`).join("");
@@ -464,7 +515,7 @@ function setCur(k){S.cur=k;renderMoney()}
 function toggleMask(){S.mask=!S.mask;renderMoney()}
 function renderTx(){const q=(($("txSearch")||{}).value||"").trim().toLowerCase();
  const L=TX.filter(x=>!q||(x.t+" "+t(x.c)+" "+t(x.m)+" "+x.d).toLowerCase().includes(q));
- $("txList").innerHTML=L.length?L.map(x=>`<li class="flex items-center gap-3 py-2.5"><span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${x.in?"bg-emerald-50 text-emerald-600":"bg-rose-50 text-rose-600"}">${ic(x.in?"arrowin":"arrowout",15)}</span><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(x.t)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(x.d)} · ${esc(t(x.m))}</p></div><b class="text-sm ${x.in?"text-emerald-600":"text-rose-600"}">${x.in?"+":"−"}${money(x.a)}</b></li>`).join(""):`<li class="py-6 text-center text-sm" style="color:var(--mut)">${t("noTx")}</li>`}
+ $("txList").innerHTML=L.length?L.map(x=>`<li class="flex items-center gap-3 py-2.5"><span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${x.in?"bg-emerald-50 text-emerald-600":"bg-rose-50 text-rose-600"}">${ic(x.in?"arrowin":"arrowout",15)}</span><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(x.t)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(x.d)} · ${esc(t(x.m))}</p></div><b class="text-sm ${x.in?"text-emerald-600":"text-rose-600"}">${x.in?"+":"−"}${money(x.a)}</b></li>`).join(""):`<li class="py-6 text-center text-sm" style="color:var(--mut)">${TX.length?t("noTx"):t("emptyTx")}</li>`}
 function payHook(k){toast(t("notLinked"))}
 
 /* plans + entitlements */
@@ -477,16 +528,16 @@ function openPlans(hint){const h=$("planHint");if(h){h.textContent=hint||"";h.cl
 function renderPlanGrid(){const el=$("planGrid");if(!el)return;
  el.innerHTML=["free","pro","plus"].map(k=>{const p=PLAN[k],cur=S.plan===k,busy=S.busyPlan===k;
   const price=p.price?"$"+p.price.toFixed(2):"$0";
-  const btn=cur?`<button disabled class="btn out w-full py-2 rounded-xl text-sm opacity-60">${t("current")}</button>`:`<button ${S.busyPlan?"disabled":""} onclick="buyPlan('${k}')" class="btn pri w-full py-2 rounded-xl text-sm">${busy?`<span class="spin inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white"></span>`:t("choose").replace("{n}",p.name)}</button>`;
+  const btn=cur?`<button disabled class="btn out w-full py-2 rounded-xl text-sm opacity-60">${t("current")}</button>`:`<button ${S.busyPlan?"disabled":""} onclick="buyPlan('${k}')" class="btn pri w-full py-2 rounded-xl text-sm">${busy?`<span class="spin inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white"></span>`:t("btnSoon")}</button>`;
   const help=k==="plus"&&cur?`<button onclick="helpTicket()" class="btn out w-full py-2 rounded-xl text-xs mb-2">${t("helpBtn")}</button>`:"";
   return `<div class="rounded-2xl p-4" style="border:1px solid ${cur?"var(--pri)":"var(--line)"};background:${k==="plus"?"linear-gradient(135deg,#F5F3FF,#fff)":"#fff"}">
    <div class="flex items-baseline justify-between"><b class="text-base">${p.name}</b><span><b class="text-xl">${price}</b><span class="text-xs" style="color:var(--mut)"> / ${t("mo")}</span></span></div>
    <ul class="text-xs space-y-1.5 my-3">${planLines(k).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--pri)">${ic("check",13)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
    ${help}${btn}</div>`}).join("")}
-function buyPlan(k){if(S.busyPlan)return;S.busyPlan=k;renderPlanGrid();
- setTimeout(()=>{S.plan=k;S.pro=k!=="free";S.busyPlan=null;enforceLimit();
-  S.notifs.unshift({t:t("planDone").replace("{n}",PLAN[k].name),r:false});renderAll();renderPlanGrid();toast(t("planDone").replace("{n}",PLAN[k].name));
-  setTimeout(()=>closeM("mPay"),400)},1200)}
+function comingSoon(){const e=$("toast");e.textContent=t("soonMsg");e.style.maxWidth="90vw";e.style.whiteSpace="normal";e.style.textAlign="center";
+ e.classList.remove("hidden");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.add("hidden"),4500)}
+// Paid plans are not purchasable yet. Plan stays Free until payment gateways ship.
+function buyPlan(k){if(k!=="free"){comingSoon();return}}
 function enforceLimit(){const max=pl().max,act=S.fam.filter(f=>consentOf(f)==="active");
  if(act.length>max){act.slice(max).forEach(f=>{f.me=false;f.them=false});toast(t("downgr"))}}
 function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:false});renderNotifs();toast(t("helpDone"))}
@@ -494,7 +545,9 @@ function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:false});renderNotifs()
 /* AI copilot: privacy-aware rules; Home never shows financial figures */
 const greetKey=()=>{const h=new Date().getHours();return h<12?"gM":h<18?"gA":"gE"};
 const CPQ=[["chip1","Optimize my schedule"],["chip2","Budget sanity check"],["chip3","Summarize my day"]];
-function cpLeft(){const d=new Date().toDateString();if(S.cpDay.d!==d)S.cpDay={d,n:0};const lim=pl().cp;return lim===Infinity?Infinity:Math.max(0,lim-S.cpDay.n)}
+// Daily copilot count is kept in localStorage so a page reload cannot reset the Free limit
+function cpDayRead(){const d=new Date().toDateString();let v=store.get("lifeone.cpday",null);if(!v||v.d!==d)v={d,n:0};S.cpDay=v;return v}
+function cpLeft(){const v=cpDayRead();const lim=pl().cp;return lim===Infinity?Infinity:Math.max(0,lim-v.n)}
 function renderCpUsage(){const l=cpLeft();$("cpUsage").textContent=l===Infinity?t("cpUnl"):t("cpLeft").replace("{n}",l);
  const m=$("cpMic");if(m){m.innerHTML=ic(S.plan==="plus"?"mic":"lock",15);m.setAttribute("aria-label",t("cpListen"))}}
 function cpChips(){$("cpChips").innerHTML=CPQ.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("");renderCpUsage()}
@@ -506,7 +559,7 @@ function cpCard(c){const o=$("cpOut");
 function cpAct(k){if(k==="money")go("money");else if(k==="plans")openPlans();else if(k==="plus")openPlans()}
 function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.value="";
  if(cpLeft()<=0){cpCard({icon:"lock",title:t("cpLimit"),body:t("cpUpg"),act:"plans",label:t("planT")});return}
- if(cpLeft()!==Infinity){S.cpDay.n++}renderCpUsage();
+ if(cpLeft()!==Infinity){const v=cpDayRead();v.n++;store.set("lifeone.cpday",v);S.cpDay=v}renderCpUsage();
  const l=q.toLowerCase();let c;
  const a=q.match(/^(?:add|create|new)\s+(?:a\s+)?(?:task|reminder)?:?\s*(.+?)(?:\s+at\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?\s*$/i);
  if(a&&a[1]){let tm=null;if(a[2]){let h=+a[2];const ap=(a[4]||"").toLowerCase();if(ap==="pm"&&h<12)h+=12;if(ap==="am"&&h===12)h=0;if(h<24)tm=String(h).padStart(2,"0")+":"+String(+(a[3]||0)).padStart(2,"0")}
@@ -569,7 +622,7 @@ function renderFam(){const on=S.fam.filter(f=>sharing(f)).length;
  ${body}
  <div class="grid grid-cols-3 gap-2 mt-3">${btnCall(i,false)}${btnCall(i,true)}
  <button onclick="openChat(${i})" class="btn pri py-2 rounded-xl text-sm">${ic("chat",16)}${t("chat")}${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button></div></div>`};
- $("famList").innerHTML=sw+grp+`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+S.fam.map(card).join("");
+ $("famList").innerHTML=sw+grp+`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
 }
 
 /* ---------- calls: WebRTC media engine + Agora SDK stub ---------- */
@@ -673,10 +726,122 @@ function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
 $("saveP").onclick=saveProfile;
 function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$("pwErr").textContent=t("pwShort");return}
  $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
-function logout(){S.authed=false;$("outT").dataset.i18n="loggedOut";$("outT").textContent=t("loggedOut");$("outBtns").classList.add("hidden");$("inBtn").classList.remove("hidden");renderAuth()}
-function login(){S.authed=true;closeM("mOut");renderAuth();go("home")}
+/* ---------- auth, local session, fresh start ---------- */
+// Set googleClientId to enable real Google sign-in (see notes). Empty = demo sign-in.
+const AUTH_CFG={googleClientId:""};
+const COUNTRIES=[{d:"+92",n:"PK"},{d:"+971",n:"AE"},{d:"+966",n:"SA"},{d:"+91",n:"IN"},{d:"+44",n:"GB"},{d:"+1",n:"US"},{d:"+1",n:"CA"},{d:"+61",n:"AU"},{d:"+86",n:"CN"},{d:"+90",n:"TR"},{d:"+20",n:"EG"},{d:"+49",n:"DE"},{d:"+33",n:"FR"},{d:"+34",n:"ES"}];
+const SESS_KEY="lifeone.session",ACC_KEY="lifeone.accounts";
+const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const clone=x=>JSON.parse(JSON.stringify(x));
+// Demo snapshot of the seeded sample data (used only by "Load demo data")
+const DEMO=clone({tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,inf:FIN.inf,cats:FIN.cats,tx:TX});
+Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-powered life copilot & productivity hub.",tabIn:"Sign in",tabUp:"Create account",google:"Continue with Google",orLbl:"or",nameLbl:"Full name",byEmail:"Email",byMobile:"Mobile",emailLbl:"Email address",phoneLbl:"Mobile number",sendCode:"Send verification code",secNote:"Your session is kept on this device. Demo mode: no real SMS or email is sent.",otpTitle:"Verify your identity",otpSub:"Enter the 6-digit code sent to {c}",verify:"Verify",resend:"Resend code",resendIn:"Resend in {s}s",change:"Change details",demoOtp:"Demo mode: no SMS or email is sent. Your code is {c}.",errName:"Please enter your full name.",errEmail:"Enter a valid email address.",errPhone:"Enter a valid mobile number.",errNoAcc:"No account for this contact. Create one first.",errHasAcc:"An account already exists. Sign in instead.",errOtp:"Incorrect code. Try again.",errOtpMax:"Too many attempts. Request a new code.",errOtpExp:"This code expired. Request a new code.",errGoogle:"Google sign-in could not be read. Try again.",gDemo:"Google Client ID not set. Using demo sign-in.",emptyTasks:"No tasks yet. Add your first task to start your rhythm.",emptyFam:"No contacts yet. Family and friends you connect will appear here.",emptyTx:"No transactions yet.",welcomeNote:"Welcome to LifeOne. Your dashboard is ready.",demoBtn:"Load demo data",demoOn:"Demo data loaded",demoBoxTxt:"Preview only. Your account data stays empty until you add it."});
 
-function renderAll(){[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
+let authMode="signin",authMethod="email",otpDraft=null,otpTimer=null,geoStarted=false;
+
+function freshState(name){
+ S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:false}];S.chats={g:[]};S.gun=0;S.streak=0;
+ S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];
+ S.shareOn=false;S.plan="free";S.pro=false;S.busyPlan=null;S.cpDay={d:"",n:0};S.mask=false;S.filter="all";S.pwChanged=false;
+ S.user.name=name||"";S.user.email="";S.user.img=null;
+ FIN.inf=0;FIN.cats=[];TX=[];
+}
+function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam;S.notifs=d.notifs;S.chats=d.chats;S.habits=d.habits;S.gun=d.gun;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;renderAll();toast(t("demoOn"))}
+function emptyBox(msg){return `<div class="text-center py-8 px-4 text-sm" style="color:var(--mut)">${esc(msg)}</div>`}
+function renderStreak(){const el=$("streak");if(el)el.textContent=S.streak}
+function renderDemoBox(){const el=$("demoBox");if(!el)return;
+ el.innerHTML=`<div class="card p-4 flex items-center justify-between gap-3"><div class="min-w-0"><p class="text-sm font-medium">${t("demoBtn")}</p><p class="text-[11px]" style="color:var(--mut)">${t("demoBoxTxt")}</p></div><button onclick="loadDemo()" class="btn out rounded-xl px-3 py-1.5 text-xs shrink-0">${t("demoBtn")}</button></div>`}
+
+function applySession(acc){document.body.classList.remove("unauth");
+ freshState(acc.name);S.user.email=acc.contact||"";S.authed=true;
+ store.set(SESS_KEY,acc);
+ closeM("mOtp");$("authScreen").classList.add("hidden");
+ if(!geoStarted){geoStarted=true;startGeo();startBattery()}
+ applyLang();go("home");
+}
+function showAuth(){S.authed=false;document.body.classList.add("unauth");$("authScreen").classList.remove("hidden");setAuthMode(authMode);setAuthMethod(authMethod);$("authErr").classList.add("hidden")}
+function setAuthMode(m){authMode=m;
+ $("tabIn").className="btn py-2 rounded-lg text-sm font-medium "+(m==="signin"?"bg-white shadow-sm text-slate-900":"text-slate-500");
+ $("tabUp").className="btn py-2 rounded-lg text-sm font-medium "+(m==="signup"?"bg-white shadow-sm text-slate-900":"text-slate-500");
+ $("rName").classList.toggle("hidden",m!=="signup")}
+function setAuthMethod(m){authMethod=m;
+ $("rEmail").classList.toggle("hidden",m!=="email");$("rMobile").classList.toggle("hidden",m!=="mobile");
+ $("mEmail").className="btn py-1.5 rounded-lg text-xs font-medium "+(m==="email"?"bg-white shadow-sm text-slate-900":"text-slate-500");
+ $("mMobile").className="btn py-1.5 rounded-lg text-xs font-medium "+(m==="mobile"?"bg-white shadow-sm text-slate-900":"text-slate-500")}
+function authErr(msg){const e=$("authErr");e.textContent=msg;e.classList.remove("hidden")}
+function authContinue(){
+ $("authErr").classList.add("hidden");
+ const name=$("aName").value.trim();
+ if(authMode==="signup"&&!name)return authErr(t("errName"));
+ let contact,key;
+ if(authMethod==="email"){const e=$("aEmail").value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return authErr(t("errEmail"));contact=e;key="e:"+e}
+ else{const cc=$("aCC").value,d=$("aPhone").value.replace(/\D/g,"");
+  if(d.length<7||d.length>13)return authErr(t("errPhone"));contact=cc+" "+d;key="p:"+cc+d}
+ const accs=store.get(ACC_KEY,{});
+ if(authMode==="signin"&&!accs[key])return authErr(t("errNoAcc"));
+ if(authMode==="signup"&&accs[key])return authErr(t("errHasAcc"));
+ openOtp({contact,key,name:authMode==="signup"?name:(accs[key]||{}).name});
+}
+function newCode(){otpDraft.code=String(100000+Math.floor(Math.random()*900000));otpDraft.exp=Date.now()+5*60000;otpDraft.tries=0;otpDraft.resendAt=Date.now()+30000}
+function openOtp(d){otpDraft=d;newCode();
+ $("otpSub").textContent=t("otpSub").replace("{c}",d.contact);
+ $("otpDemo").textContent=t("demoOtp").replace("{c}",otpDraft.code);
+ document.querySelectorAll(".otpi").forEach(b=>b.value="");
+ $("otpErr").textContent="";openM("mOtp");
+ clearInterval(otpTimer);otpTimer=setInterval(updateResend,1000);updateResend();
+ setTimeout(()=>{const f=document.querySelector(".otpi");if(f)f.focus()},60)}
+function updateResend(){const b=$("otpResend");if(!otpDraft||!b)return;const s=Math.ceil((otpDraft.resendAt-Date.now())/1000);
+ b.disabled=s>0;b.textContent=s>0?t("resendIn").replace("{s}",s):t("resend")}
+function resendOtp(){if(!otpDraft||Date.now()<otpDraft.resendAt)return;newCode();
+ $("otpDemo").textContent=t("demoOtp").replace("{c}",otpDraft.code);
+ document.querySelectorAll(".otpi").forEach(b=>b.value="");$("otpErr").textContent="";
+ document.querySelector(".otpi").focus();updateResend()}
+function otpFail(msg){$("otpErr").textContent=msg;document.querySelectorAll(".otpi").forEach(b=>b.value="");document.querySelector(".otpi").focus()}
+function verifyOtp(){if(!otpDraft)return;
+ const v=[...document.querySelectorAll(".otpi")].map(i=>i.value).join("");
+ if(Date.now()>otpDraft.exp)return otpFail(t("errOtpExp"));
+ if(otpDraft.tries>=5)return otpFail(t("errOtpMax"));
+ if(v.length<6)return otpFail(t("errOtp"));
+ if(v!==otpDraft.code){otpDraft.tries++;return otpFail(otpDraft.tries>=5?t("errOtpMax"):t("errOtp"))}
+ const accs=store.get(ACC_KEY,{});
+ let acc=accs[otpDraft.key];
+ if(!acc){acc={name:otpDraft.name||"",contact:otpDraft.contact,key:otpDraft.key,createdAt:Date.now()};accs[otpDraft.key]=acc;store.set(ACC_KEY,accs)}
+ otpDraft=null;clearInterval(otpTimer);applySession(acc)}
+function buildOtpBoxes(){const w=$("otpBoxes");
+ w.innerHTML=Array.from({length:6},(_,i)=>`<input class="otpi inp text-center text-lg font-semibold" style="width:2.6rem;height:3rem;padding:0" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("");
+ const bx=[...w.querySelectorAll(".otpi")];
+ bx.forEach((b,i)=>{
+  b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"").slice(-1);if(b.value&&bx[i+1])bx[i+1].focus();if(bx.every(x=>x.value))verifyOtp()});
+  b.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!b.value&&bx[i-1])bx[i-1].focus()});
+  b.addEventListener("paste",e=>{e.preventDefault();const d=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
+   d.split("").forEach((c,k)=>{if(bx[k])bx[k].value=c});(bx[Math.min(d.length,5)]||b).focus();if(d.length===6)verifyOtp()})});
+}
+function b64url(s){s=s.replace(/-/g,"+").replace(/_/g,"/");s+="=".repeat((4-s.length%4)%4);return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)))}
+function onGoogleCred(r){try{const p=JSON.parse(b64url(r.credential.split(".")[1]));
+ const contact=(p.email||"").toLowerCase(),key="g:"+contact,accs=store.get(ACC_KEY,{});
+ if(!accs[key]){accs[key]={name:p.name||contact,contact,key,createdAt:Date.now(),provider:"google"};store.set(ACC_KEY,accs)}
+ applySession(accs[key])}catch(e){authErr(t("errGoogle"))}}
+function googleSignIn(){
+ if(AUTH_CFG.googleClientId&&window.google&&google.accounts){
+  google.accounts.id.initialize({client_id:AUTH_CFG.googleClientId,callback:onGoogleCred});google.accounts.id.prompt();return}
+ if(!AUTH_CFG.googleClientId)toast(t("gDemo"));
+ const name=$("aName").value.trim()||"Google User",contact="google-demo@lifeone.local",key="g:"+contact,accs=store.get(ACC_KEY,{});
+ if(!accs[key]){accs[key]={name,contact,key,createdAt:Date.now(),provider:"google-demo"};store.set(ACC_KEY,accs)}
+ applySession(accs[key])}
+function authBoot(){
+ $("aCC").innerHTML=COUNTRIES.map(c=>`<option value="${c.d}">${c.n} ${c.d}</option>`).join("");
+ buildOtpBoxes();setAuthMode("signin");setAuthMethod("email");
+ const s=store.get(SESS_KEY,null);
+ if(s&&s.contact){freshState(s.name);applySession(s)}
+ else{freshState("");showAuth()}
+}
+// Sign-out: clears the local session and returns to the auth screen
+function logout(){store.del(SESS_KEY);closeM("mOut");freshState("");showAuth();renderAll()}
+function login(){showAuth()}
+Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This plan is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
+
+function renderAll(){[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
@@ -704,8 +869,8 @@ function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI(
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
 /* ---------- boot ---------- */
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
-function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");applyLang();startGeo();startBattery()}
+document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
+function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});
 

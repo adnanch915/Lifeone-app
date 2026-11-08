@@ -60,7 +60,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
    <span id="hdrClock" class="text-[11px] font-medium whitespace-nowrap hidden sm:inline" style="color:var(--mut)" aria-live="off"></span>
    <label class="relative btn out h-9 rounded-xl px-2.5 flex items-center gap-1.5 cursor-pointer">
    <span style="color:var(--mut)" data-ic="globe" data-s="16"></span>
-   <span id="flag" class="inline-flex w-5 h-3.5 rounded-sm overflow-hidden shrink-0" aria-hidden="true"></span>
+   <span id="flag" class="inline-flex w-3.5 h-2.5 rounded-sm overflow-hidden shrink-0" aria-hidden="true"></span>
    <select id="lang" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Interface language">
     <option value="en">English</option><option value="ur">اردو</option><option value="ar">العربية</option><option value="zh">中文</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
    </select></label>
@@ -84,6 +84,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
    </div>
   </div>
 
+  <div id="locSetting" class="card p-4"></div>
   <div class="rounded-2xl p-4 bg-white" style="border:1px solid #DDD6FE;box-shadow:0 12px 32px -14px rgba(124,58,237,.28)">
    <div class="flex items-center justify-between gap-2 mb-2">
     <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg pri flex items-center justify-center" data-ic="sparkle" data-s="15"></span><b class="text-sm" data-i18n="cpTitle"></b></div>
@@ -158,7 +159,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  </section>
 
  <section id="tab-family" class="tab-content space-y-3">
-  <div class="flex items-center justify-between gap-2"><h2 class="text-xl font-bold" data-i18n="fam"></h2><button onclick="openInviteModal()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 shrink-0"><span data-ic="plus" data-s="14"></span><span data-i18n="inviteMember"></span></button></div>
+  <div class="flex items-center justify-between gap-2"><h2 class="text-xl font-bold" data-i18n="fam"></h2><button onclick="openSearchModal()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 shrink-0"><span data-ic="plus" data-s="14"></span><span data-i18n="searchMember"></span></button></div>
   <div id="chatList" class="card p-2 space-y-1"></div>
   <div class="card p-4 space-y-3">
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
@@ -181,7 +182,6 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   </div>
   
   <div id="profTrust" style="display:none"></div>
-  <div id="locSetting"></div>
   <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE"></div>
   <div class="card p-5 space-y-3">
    <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openInvite('')"><span data-ic="share" data-s="18"></span><span data-i18n="invite"></span></button>
@@ -370,6 +370,11 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="ccQ" oninput="renderCC()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="ccSearch" autocomplete="off" autocapitalize="none"></div></div>
  <ul id="ccList" class="flex-1 overflow-y-auto px-2 pb-4" style="min-height:14rem"></ul>
 </div></div>
+<div id="mSearch" class="modal" style="z-index:70"><div class="sheet" style="max-width:440px;padding:0;display:flex;flex-direction:column;max-height:80vh">
+ <div class="flex items-center justify-between px-5 pt-5 pb-3"><h3 class="font-bold text-lg" data-i18n="searchMember"></h3><button type="button" onclick="closeM('mSearch')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
+ <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh" autocomplete="off" autocapitalize="none"></div></div>
+ <div id="msRes" class="flex-1 overflow-y-auto px-5 pb-5" style="min-height:10rem"></div>
+</div></div>
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[70] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -417,8 +422,8 @@ de:{home:"Start",tasks:"Aufgaben",money:"Geld",family:"Familie",profile:"Profil"
 Object.keys(T7).forEach(l=>Object.assign(T[l],T7[l]));
 Object.assign(T.en,{local:"Local call",intl:"International call",flip:"Flip",mediaBlocked:"Microphone or camera blocked",noSig:"Signalling server not configured. Media stays on this device.",agoraOn:"Agora channel active",upVideo:"HD video calls are included in Pro Plus.",upVoice:"Local and international voice calls are included in Pro and Pro Plus.",flipNA:"Camera switch not available on this device."});
 const CATS=["Health","Work","Finance","Personal"];
-const CUR={PKR:{r:278,s:"Rs "},USD:{r:1,s:"$"},EUR:{r:.92,s:"€"},GBP:{r:.79,s:"£"},SAR:{r:3.75,s:"SR "},AED:{r:3.6725,s:"Dh "},INR:{r:83.5,s:"₹"},CAD:{r:1.37,s:"CA$"},AUD:{r:1.52,s:"A$"},JPY:{r:150,s:"¥"},CHF:{r:.88,s:"CHF "},CNY:{r:7.2,s:"¥"},SGD:{r:1.34,s:"S$"},TRY:{r:32.5,s:"₺"},MYR:{r:4.7,s:"RM "},THB:{r:35.5,s:"฿"},IDR:{r:15800,s:"Rp "},QAR:{r:3.64,s:"QR "},KWD:{r:.307,s:"KD "},OMR:{r:.385,s:"OMR "}};
-const HDR_CUR=["PKR","USD","AED","SAR","EUR","GBP","CAD","INR","QAR","KWD","OMR"];
+const CUR={PKR:{r:278,s:"Rs "},USD:{r:1,s:"$"},EUR:{r:.92,s:"€"},GBP:{r:.79,s:"£"},SAR:{r:3.75,s:"SR "},AED:{r:3.6725,s:"Dh "},INR:{r:83.5,s:"₹"},CAD:{r:1.37,s:"CA$"},AUD:{r:1.52,s:"A$"},JPY:{r:150,s:"¥"},CHF:{r:.88,s:"CHF "},CNY:{r:7.2,s:"¥"},SGD:{r:1.34,s:"S$"},TRY:{r:32.5,s:"₺"},MYR:{r:4.7,s:"RM "},THB:{r:35.5,s:"฿"},IDR:{r:15800,s:"Rp "},QAR:{r:3.64,s:"QR "},KWD:{r:.307,s:"KD "},OMR:{r:.385,s:"OMR "},USDT:{r:1,s:"USDT "}};
+const HDR_CUR=["PKR","USD","USDT","AED","SAR","EUR","GBP","CAD","INR","QAR","KWD","OMR"];
 const APP_URL="https://lifeone-app.vercel.app";
 const BASE={bal:12450,inf:8200,outf:5120}; // USD base
 const P={home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',tasks:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/>',money:'<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h3"/>',family:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.5 4 2.3 4 6"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-7 8-7s8 2.5 8 7"/>',bell:'<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/>',plus:'<path d="M12 5v14M5 12h14"/>',phone:'<path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z"/>',video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/>',chat:'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-5.4A8 8 0 1121 12z"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',micoff:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/>',speaker:'<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/>',send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',pin:'<path d="M12 21s7-6 7-11.5A7 7 0 005 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',battery:'<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2"/>',check:'<path d="M5 12l5 5 9-10"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M20.8 5.6a5.2 5.2 0 00-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 00-7.4 7.4L12 21.6l8.8-8.6a5.2 5.2 0 000-7.4z"/>',briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18"/>',wallet:'<path d="M3 7a2 2 0 012-2h13v4"/><path d="M3 7v11a2 2 0 002 2h15a1 1 0 001-1V10a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>',sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 001 .8h9.7a1 1 0 001-.8L21 7H6"/>',utensils:'<path d="M7 3v7a2 2 0 004 0V3M9 3v18M17 3c-2 1-3 4-3 7s1 4 3 4v7M17 3v18"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',arrowin:'<path d="M12 5v14M6 13l6 6 6-6"/>',arrowout:'<path d="M12 19V5M6 11l6-6 6 6"/>',alarm:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M4 5l3-2M20 5l-3-2"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',crown:'<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',play:'<path d="M7 4l13 8-13 8z"/>',pause:'<path d="M8 5v14M16 5v14"/>',logout:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',chevd:'<path d="M6 9l6 6 6-6"/>',chevu:'<path d="M6 15l6-6 6 6"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M17.94 17.94A10.8 10.8 0 0112 19c-6.4 0-10-7-10-7a18.5 18.5 0 015.06-5.94M9.9 5.1A10.4 10.4 0 0112 5c6.4 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/>',flip:'<path d="M3 7h11a4 4 0 014 4M21 17H10a4 4 0 01-4-4"/><path d="M16 4l3 3-3 3M8 20l-3-3 3-3"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',trendup:'<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7M7.5 8a2.5 2.5 0 010-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 010 5"/>',coins:'<circle cx="9" cy="9" r="6"/><path d="M15.5 11.5A6 6 0 1111.5 19"/>',coffee:'<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/>',bag:'<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/>',car:'<path d="M5 17h14M3 17v-5l2-5h14l2 5v5"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/>',landmark:'<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7z"/>',banknote:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',smartphone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',creditcard:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>'};
@@ -450,7 +455,7 @@ function trustInner(){const s=myTrust(),C=2*Math.PI*30,ok=s>=90,em=/^\S+@\S+\.\S
  <ul class="grid sm:grid-cols-2 gap-2 mt-3 text-sm">${ch.map(([k,v])=>`<li ${v?"":`onclick="go('profile')"`} class="flex items-center gap-2 ${v?"":"cursor-pointer"}"><span class="${v?"text-emerald-600":"text-slate-400"}">${ic(v?"check":"x",16)}</span><span class="${v?"":"text-slate-500"}">${t(k)}</span></li>`).join("")}</ul>
  <p class="text-xs mt-3" style="color:var(--mut)">${S.fam.filter(f=>f.on).length} / ${S.fam.length} ${t("memLive")}</p>`}
 function renderTrust(){$("profTrust").innerHTML=trustInner();const st=S.geo.st;let pill;
- if(st==="ok")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 max-w-full"><span class="gp inline-flex rounded-full shrink-0">${ic("pin",16)}</span><span class="truncate">${t("vlive")}: ${esc(S.user.loc)}</span></span>`;
+ if(st==="ok")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 max-w-full"><span class="gp inline-flex rounded-full shrink-0">${ic("pin",16)}</span><span class="truncate">${t("vlive")} • ${esc(S.user.loc)}</span></span>`;
  else if(st==="loading")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-slate-50 text-slate-600 border border-slate-200 inline-flex items-center gap-2"><span class="spin inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600"></span>${t("locating")}</span>`;
  else pill=`<button onclick="startGeo(true)" class="btn px-3 py-1.5 rounded-full text-sm bg-amber-50 text-amber-700 border border-amber-200">${ic("pin",16)}${st==="denied"?t("locDenied"):st==="na"?t("locNA"):t("locAsk")}</button>`;
  $("homeVer").innerHTML=pill+trustBadge(myTrust())}
@@ -736,13 +741,28 @@ function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
   if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
   const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
  el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
+function openSearchModal(){$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
+// Searches every registered account in the shared localStorage index (all tabs of this browser) by name, @username, email or phone
+function renderMemberSearch(){const el=$("msRes");if(!el)return;
+ const raw=($("msQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
+ if(!q){el.innerHTML=`<p class="text-sm text-center py-6" style="color:var(--mut)">${t("msHint")}</p>`;return}
+ const list=regUsers().filter(u=>u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
+ if(!list.length){el.innerHTML=`<div class="rounded-xl p-4 bg-slate-50 border border-slate-200 text-sm"><p>${t("msNone")}</p><button onclick="closeM('mSearch');openInvite('','')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteBtn")}</button></div>`;return}
+ el.innerHTML=list.map(u=>{const linked=S.fam.some(f=>f.key===u.id);
+  return `<div class="flex items-center gap-3 py-2.5"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(u.name))}</span>
+   <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(u.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">@${esc(u.username||"")} · ${esc(u.phone||u.email||"")}</p></div>
+   ${linked?`<span class="text-[11px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-600 border-slate-200 whitespace-nowrap">${t("alreadyConn")}</span>`:`<button onclick="connectContact('${esc(u.id)}');renderMemberSearch()" class="btn pri rounded-lg px-3 py-1.5 text-xs">${t("connectBtn")}</button>`}</div>`}).join("")}
+// Referral: opening the app with ?ref=<username> connects the referrer when they have an account in this browser
+function handleReferral(){let ref="";try{ref=new URLSearchParams(location.search).get("ref")||""}catch(e){}
+ if(!ref)return;
+ try{history.replaceState(null,"",location.pathname)}catch(e){}
+ const u=localUsers().find(x=>(x.username||"")===ref.toLowerCase()||x.id===ref);
+ if(u&&u.id!==S.user.uid){connectContact(u.id);toast(t("refConnected").replace("{n}",u.name.split(" ")[0]))}}
 function connectContact(key){const u=userByKey(key);if(!u)return;
  if(S.fam.some(f=>f.key===key)){toast(t("alreadyConn"));return}
  S.fam.push({key,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
  toast(t("connReq").replace("{n}",u.name.split(" ")[0]));renderAll();famSearch()}
-function refLink(){const base=(S.user.name||"user").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"user";return APP_URL+"/?ref="+base+Math.random().toString(36).slice(2,7)}
-
-let invLink="";
+function refLink(){return APP_URL+"/?ref="+encodeURIComponent(S.user.username||S.user.uid||"")}
 function refreshInvMsg(){const n=($("invName").value||"").trim();const m=n?t("inviteMsgName").replace("{n}",n):t("inviteMsg");$("invMsg").value=m.replace("{u}",invLink)}
 function openInvite(phone,name){invLink=refLink();$("invName").value=name||"";$("invTo").value=phone||"";refreshInvMsg();openM("mInv")}
 function openInviteModal(){openInvite("","")}
@@ -753,7 +773,11 @@ async function inviteShare(){if(navigator.share){try{await navigator.share({text
 function toggleShare(){S.shareOn=!S.shareOn;renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 function renderLocSetting(){const el=$("locSetting");if(!el)return;
  if(!S.authed){el.innerHTML="";return}
- el.innerHTML=`<div class="card p-5 flex items-center gap-3"><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic("pin",18)}</span><div class="flex-1 min-w-0"><p class="font-semibold text-sm">${t("locSettingT")}</p><p class="text-xs mt-0.5" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</p></div><button role="switch" aria-checked="${S.shareOn}" aria-label="${t("locSettingT")}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0" style="${S.shareOn?"background:var(--pri)":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow"></span></button></div>`}
+ const on=S.shareOn;
+ el.innerHTML=`<div class="flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${on?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic("pin",17)}</span>
+  <div class="flex-1 min-w-0"><p class="font-semibold text-sm truncate">${t("locSettingT")}</p>
+  <span class="inline-flex items-center gap-1.5 mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${on?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-slate-50 text-slate-600 border-slate-200"}">${t(on?"locBadgeOn":"locBadgeOff")}</span></div>
+  <button role="switch" aria-checked="${on}" aria-label="${t("locSettingT")}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0" style="${on?"background:var(--pri)":"background:#CBD5E1"}"><span class="absolute top-0.5 ${on?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow"></span></button></div>`}
 function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).length;
  const sw=`<div class="card p-4 flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic(S.shareOn?"pin":"lock",18)}</span>
  <div class="flex-1 min-w-0"><b class="block">${t(S.shareOn?"shareOn":"shareOff")}</b><span class="text-xs" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</span></div>
@@ -845,16 +869,20 @@ function openChatHead(){const cc=$("chatCalls");
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38);
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",16)}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",16)}</button>`}
-function chatCall(video){if(!canCall(video)){openPlans(t(video?"upVideo":"upVoice"));return}startCall(chatK,video)}
+function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t(video?"upVideo":"upVoice"));return}startCall(k,video)}
 function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else S.fam[k].un=0;openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;
  const paid=S.plan!=="free";
- const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
  const rows=S.fam.map((f,i)=>{const last=(S.chats[i]||[]).slice(-1)[0];
-  return `<button onclick="openChat(${i})" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(f.n))}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>`}).join("");
- el.innerHTML=grp+rows}
+  return `<div class="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-50">
+   <button onclick="openChat(${i})" class="flex-1 min-w-0 flex items-center gap-3 text-left"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(f.n))}</span>
+    <span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>
+   <button onclick="chatCall(false,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",15)}</button>
+   <button onclick="chatCall(true,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",15)}</button></div>`}).join("");
+ const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
+ el.innerHTML=(rows||emptyBox(t("noContactsChat")))+grp}
 let audioPlayer=null,audioIdx=null;
 function voiceCard(m,i){const me=m.me;const playing=audioIdx===i&&audioPlayer&&!audioPlayer.paused;
  return `<div class="flex items-center gap-2" style="min-width:11rem"><button onclick="toggleVoice(${i})" class="btn w-9 h-9 rounded-full shrink-0 ${me?"bg-white/25 text-white":"pri"}" aria-label="${playing?"Pause":"Play"}">${ic(playing?"pause":"play",14)}</button>
@@ -1149,7 +1177,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Local mode: transactions live in memory for this session (nothing is fetched from a server)
-function loadRemoteTx(){loadUserData();renderAll()}
+function loadRemoteTx(){loadUserData();renderAll();handleReferral()}
 function logout(){closeM("mOut");closeM("mChat");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
 
 // Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
@@ -1162,6 +1190,7 @@ function authBoot(){
 }
 
 Object.assign(T.en,{connected:"In Call",end:"End Call",calling:"Calling…",groupLocked:"Family Group Chat is available on Pro and Pro Plus. Upgrade to join.",grpOn:"Family group chat",voiceCall:"Voice call",videoCall:"Video call",voiceMsg:"Voice message",noMsgs:"No messages yet",audioErr:"Tap play again to start the voice note.",micNo:"Microphone is not available. Allow microphone access and try again.",locSettingT:"Personal live location sharing"});
+Object.assign(T.en,{searchMember:"Search Member",msHint:"Type a name, @username or mobile number to find registered LifeOne users.",msNone:"No registered LifeOne user matches this search.",msPh:"Name, @username or mobile number",noContactsChat:"No connected contacts yet. Search for a member to start chatting.",refConnected:"Connected with {n} from the referral link.",locBadgeOn:"Live Location: Enabled",locBadgeOff:"Live Location: Disabled"});
 Object.assign(T.en,{storeFull:"Device storage is full. Some changes could not be saved.",noContacts:"No registered LifeOne users yet. Invite someone to get started.",openMap:"Open in Live Map",lText:"Text chat only (no voice or video calls)",lArea:"City-level location after mutual accept",lLive:"Real live GPS location sharing",lPrecise:"Full-precision live GPS location",lSmart:"AI Assistant: missing tasks, payment counts, support",lAI:"Advanced AI: task tracking, billing summaries, automated issue resolving",lMap:"Open in Live Map navigation",aiMissing:"Missing tasks",aiPay:"Payment count",aiSupport:"Quick support",aiLockT:"Available on Pro and Pro Plus",aiLockD:"Upgrade to use task checks, payment counts and support queries.",aiMissingT:"Missing tasks",aiMissingN:"{n} tasks are still open.",aiPayT:"Payments recorded",aiPayN:"{n} payment entries are recorded. Open Money for details.",aiSupT:"Quick support",aiSupPro:"Ask about billing or account issues. Full support is on Pro Plus.",aiSupPlus:"Your request is routed to the priority helpline."});
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});

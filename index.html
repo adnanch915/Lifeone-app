@@ -438,7 +438,7 @@ const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"
  tasks:[{id:1,t:"Morning workout",c:"Health",u:"Medium",time:"06:30",d:true},{id:2,t:"Review Q4 budget",c:"Finance",u:"High",time:"09:00",d:false},{id:3,t:"Send client proposal",c:"Work",u:"High",time:"11:30",d:false},{id:4,t:"Call mom",c:"Personal",u:"Medium",time:"14:00",d:false},{id:5,t:"Book dentist visit",c:"Health",u:"Medium",time:"17:30",d:false},{id:6,t:"Read 20 pages",c:"Personal",u:"Low",time:"21:00",d:false}],
  notifs:[{t:"Hassan Ahmed’s live location was verified in Kahror Pakka",r:false},{t:"Your 12-day streak is still going",r:false},{t:"Monthly budget report is ready",r:false}],
  fam:[{n:"David Jenkins",rel:"Spouse",cc:"PK",me:true,them:true,city:"Lahore",addr:"Gulberg III, Lahore, PK",lat:31.5104,lng:74.3430,ts:96,b:84,on:true,un:1},{n:"Sarah Ahmed",rel:"Sister",cc:"PK",me:true,them:true,city:"Multan",addr:"Cantt, Multan, PK",lat:30.1960,lng:71.4750,ts:91,b:61,on:true,un:1},{n:"Omer Ali",rel:"Brother",cc:"PK",me:true,them:false,city:"Islamabad",addr:"F-7, Islamabad, PK",lat:33.7215,lng:73.0433,ts:78,b:37,on:false,un:0},{n:"Ayesha Khan",rel:"Daughter",cc:"PK",me:false,them:false,city:"Karachi",addr:"Clifton, Karachi, PK",lat:24.8138,lng:67.0300,ts:94,b:92,on:true,un:1},{n:"Hassan Ahmed",rel:"Father",cc:"PK",me:false,them:true,city:"Kahror Pakka",addr:"Kahror Pakka, PK",lat:29.6243,lng:71.9171,ts:98,b:55,on:true,un:0}],
- chats:{g:[{me:false,from:"Sarah",t:"Dinner at 8 on Friday?"},{me:false,from:"Hassan",t:"I’ll bring dessert."}],0:[{me:false,from:"David",t:"Are you home soon?"}],1:[{me:false,from:"Sarah",t:"Call me when free."}],2:[],3:[{me:false,from:"Ayesha",t:"School trip form signed!"}],4:[]}};
+ chats:{g:[]}};
 const trustBadge=s=>`<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${s>=90?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-amber-50 text-amber-700 border-amber-200"}">${ic("shield",14)}${s} · ${t(s>=90?"highT":"goodT")}</span>`;
 const geoOK=()=>S.geo.st==="ok";
 const myTrust=()=>Math.min(100,70+(/^\S+@\S+\.\S+$/.test(S.user.email)?8:0)+(geoOK()?12:0)+(S.user.img?4:0)+(S.pwChanged?3:0)+(S.pro?3:0));
@@ -713,8 +713,10 @@ function cAct(i,a){const f=S.fam[i],n=f.n.split(" ")[0];
 const contactDigits=s=>s.replace(/\D/g,"");
 /* ---------- contacts: registered LifeOne users only ---------- */
 const last10=s=>contactDigits(s||"").slice(-10);
-const regUsers=()=>localUsers().filter(u=>u.id!==S.user.uid);
-const userByKey=key=>localUsers().find(u=>u.id===key)||null;
+const PROF=new Map();
+const profUser=r=>r?{id:r.id,name:r.full_name||r.username||"",username:r.username||"",email:r.email||"",phone:r.phone||"",avatar:r.avatar_url||""}:null;
+const regUsers=()=>[...PROF.values()].filter(r=>r.id!==S.user.uid).map(profUser);
+const userByKey=key=>profUser(PROF.get(key));
 function waNum(num){let d=contactDigits(num||"");if(d.startsWith("0"))d="92"+d.slice(1);return d}
 function inviteWhatsApp(num){const msg=t("inviteMsg").replace("{u}",refLink());const n=waNum(num);
  window.open((n?`https://wa.me/${n}`:"https://wa.me/")+"?text="+encodeURIComponent(msg),"_blank","noopener")}
@@ -741,8 +743,8 @@ function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
   if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
   const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
  el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
-function openSearchModal(){$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
-// Searches every registered account in the shared localStorage index (all tabs of this browser) by name, @username, email or phone
+function openSearchModal(){loadProfiles();$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
+// Searches every registered account in the Supabase profiles table by name, @username, email or phone
 function renderMemberSearch(){const el=$("msRes");if(!el)return;
  const raw=($("msQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
  if(!q){el.innerHTML=`<p class="text-sm text-center py-6" style="color:var(--mut)">${t("msHint")}</p>`;return}
@@ -752,12 +754,15 @@ function renderMemberSearch(){const el=$("msRes");if(!el)return;
   return `<div class="flex items-center gap-3 py-2.5"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(u.name))}</span>
    <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(u.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">@${esc(u.username||"")} · ${esc(u.phone||u.email||"")}</p></div>
    ${linked?`<span class="text-[11px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-600 border-slate-200 whitespace-nowrap">${t("alreadyConn")}</span>`:`<button onclick="connectContact('${esc(u.id)}');renderMemberSearch()" class="btn pri rounded-lg px-3 py-1.5 text-xs">${t("connectBtn")}</button>`}</div>`}).join("")}
-// Referral: opening the app with ?ref=<username> connects the referrer when they have an account in this browser
-function handleReferral(){let ref="";try{ref=new URLSearchParams(location.search).get("ref")||""}catch(e){}
+// Referral: opening the app with ?ref=<username> connects the referrer found in the profiles table
+async function handleReferral(){let ref="";try{ref=new URLSearchParams(location.search).get("ref")||""}catch(e){}
  if(!ref)return;
  try{history.replaceState(null,"",location.pathname)}catch(e){}
- const u=localUsers().find(x=>(x.username||"")===ref.toLowerCase()||x.id===ref);
- if(u&&u.id!==S.user.uid){connectContact(u.id);toast(t("refConnected").replace("{n}",u.name.split(" ")[0]))}}
+ if(!sb)return;
+ const isId=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref);
+ const q=sb.from("profiles").select("id,full_name,username,email,phone,avatar_url");
+ const {data}=await (isId?q.eq("id",ref):q.eq("username",ref.toLowerCase())).maybeSingle();
+ if(data&&data.id!==S.user.uid){PROF.set(data.id,data);connectContact(data.id);toast(t("refConnected").replace("{n}",(data.full_name||data.username||"").split(" ")[0]))}}
 function connectContact(key){const u=userByKey(key);if(!u)return;
  if(S.fam.some(f=>f.key===key)){toast(t("alreadyConn"));return}
  S.fam.push({key,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
@@ -860,7 +865,7 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
  call={pc:null,stream:null,timer:null,sec:0,video:false,mute:false,facing:"user",peer:null,mediaErr:false};if(!silent)closeM("mCall")}
 
 /* chat (personal + group) */
-let chatK=0;const REPLIES=["On my way.","Got it, thanks!","Call you in a bit.","Take care!","Sounds good.","Love that idea."];
+let chatK=0;
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
 function openChatHead(){const cc=$("chatCalls");
  if(chatK==="g"){$("chatName").textContent=t("grp");$("chatAv").innerHTML=GROUP_AV();
@@ -902,10 +907,14 @@ function renderMsgs(){const L=S.chats[chatK]||[];
  $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?voiceCard(m,i):esc(m.t);
   return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");
  $("msgs").scrollTop=1e5;saveUserData()}
-function push(m){const k=chatK;S.chats[k].push(Object.assign({me:true,from:S.user.name},m));renderMsgs();
- setTimeout(()=>{let from;if(k==="g"){const on=S.fam.filter(f=>f.on);from=on[Math.random()*on.length|0].n.split(" ")[0]}else from=S.fam[k].n.split(" ")[0];
-  S.chats[k].push({me:false,from,t:m.v?"Got your voice note.":REPLIES[Math.random()*REPLIES.length|0]});saveUserData();
-  if(chatK===k&&$("mChat").classList.contains("on"))renderMsgs();else{if(k==="g")S.gun++;else S.fam[k].un++;renderTabs();renderFam()}},1100+Math.random()*700)}
+function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
+ const to=k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
+ if(!sb||!S.user.uid||!to.length){toast(t(sb?"noContactsChat":"sbOff"));return}
+ const id=randomId(),msg=Object.assign({me:true,from:S.user.name,id},m);
+ if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
+ const row={id,sender_id:S.user.uid,sender_name:S.user.name,body:m.v?null:m.t,voice_url:m.v?m.url:null,voice_dur:m.v?m.d:null};
+ if(k==="g")row.audience=[S.user.uid,...to];else row.receiver_id=to[0];
+ DB.sendMessage(row).then(r=>{if(r&&r.error){const i=S.chats[k].indexOf(msg);if(i>-1)S.chats[k].splice(i,1);renderMsgs();toast(t("sbOff"))}})}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";push({t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
 $("tTitle").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
@@ -938,7 +947,7 @@ function fileToAvatar(file,cb){const r=new FileReader();r.onload=()=>{const img=
  img.onload=()=>{const k=Math.min(1,256/Math.max(img.width,img.height));const c=document.createElement("canvas");
   c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));c.getContext("2d").drawImage(img,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.85))};
  img.onerror=()=>cb(r.result);img.src=r.result};r.readAsDataURL(file)}
-$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;fileToAvatar(f,url=>{S.user.img=url;renderAv();refreshTrust();saveUserData()})};
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;fileToAvatar(f,url=>{S.user.img=url;renderAv();refreshTrust();saveUserData();syncProfile()})};
 $("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();toast(t("saved"))};
 
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
@@ -956,13 +965,12 @@ function renderAuth(){const el=$("authCard");if(!el)return;
    <div class="rounded-xl p-3" style="background:#F8FAFC;border:1px solid var(--line)"><p class="text-[11px]" style="color:var(--mut)">${t("lblPhoneP")}</p><p class="truncate">${esc(S.user.phone||"—")}</p><div class="mt-1">${st(!!S.user.phone,t("phoneSaved"),t("phoneMissing"))}</div></div>
   </div>`}
 function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
- const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();saveUserData();toast(t("saved"))}
+ const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();saveUserData();syncProfile();toast(t("saved"))}
 $("saveP").onclick=saveProfile;
 function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$("pwErr").textContent=t("pwShort");return}
  $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
 /* ---------- auth, local session, fresh start ---------- */
 // Set googleClientId to enable real Google sign-in (see notes). Empty = demo sign-in.
-const SESS_KEY="lifeone.session",ACC_KEY="lifeone.accounts";
 const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const clone=x=>JSON.parse(JSON.stringify(x));
 // Demo snapshot of the seeded sample data (used only by "Load demo data")
@@ -973,11 +981,10 @@ Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-pow
 let dataReady=false;
 const dataKey=()=>"lifeone.data."+S.user.uid;
 function saveUserData(){if(!dataReady||!S.user.uid)return;
- try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,chats:S.chats,fam:S.fam,profile:{img:S.user.img,name:S.user.name,email:S.user.email}})}
+ try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,fam:S.fam})}
  catch(e){toast(t("storeFull"))}}
 function loadUserData(){const d=store.get(dataKey(),null);
- if(d){TX=Array.isArray(d.tx)?d.tx:[];S.tasks=Array.isArray(d.tasks)?d.tasks:[];S.chats=d.chats||{g:[]};S.fam=Array.isArray(d.fam)?d.fam:[];
-  if(d.profile){S.user.img=d.profile.img||null;if(d.profile.name)S.user.name=d.profile.name;if(d.profile.email)S.user.email=d.profile.email}}
+ if(d){TX=Array.isArray(d.tx)?d.tx:[];S.tasks=Array.isArray(d.tasks)?d.tasks:[];S.chats={g:[]};S.fam=Array.isArray(d.fam)?d.fam:[]}
  else{TX=[];S.tasks=[];S.chats={g:[]};S.fam=[]}
  dataReady=true}
 function freshState(name){dataReady=false;
@@ -987,7 +994,7 @@ function freshState(name){dataReady=false;
  S.user.name=name||"";S.user.email="";S.user.img=null;
  FIN.inf=0;FIN.cats=[];TX=[];
 }
-function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam;S.notifs=d.notifs;S.chats=d.chats;S.habits=d.habits;S.gun=d.gun;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;TX.forEach((x,i)=>{if(!x.ts)x.ts=Date.now()-(i+1)*864e5});renderAll();toast(t("demoOn"))}
+function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam;S.notifs=d.notifs;S.chats={g:[]};S.habits=d.habits;S.gun=d.gun;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;TX.forEach((x,i)=>{if(!x.ts)x.ts=Date.now()-(i+1)*864e5});renderAll();toast(t("demoOn"))}
 function emptyBox(msg){return `<div class="text-center py-8 px-4 text-sm" style="color:var(--mut)">${esc(msg)}</div>`}
 function renderStreak(){const el=$("streak");if(el)el.textContent=S.streak}
 function renderDemoBox(){const el=$("demoBox");if(!el)return;
@@ -1056,19 +1063,8 @@ function phoneInput(el){if(!el.value.startsWith("+"))return;const d=el.value.rep
  const hit=CC_LIST.map(c=>[c[0],c[2].slice(1)]).sort((x,y)=>y[1].length-x[1].length).find(([,dl])=>d.startsWith(dl));
  if(hit){ccUserPicked=true;setCC(hit[0]);el.value=d.slice(hit[1].length)}}
 
-/* ---------- LOCAL ACCOUNTS (this device only, no network) ---------- */
-const LOCAL_USERS_KEY="lifeone.localUsers";
-const localUsers=()=>store.get(LOCAL_USERS_KEY,[]);
-const saveLocalUsers=list=>store.set(LOCAL_USERS_KEY,list);
+/* ---------- ACCOUNTS (Supabase Auth) ---------- */
 function randomId(){try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}}
-function newSalt(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}
-// Passwords are never stored in plain text: PBKDF2-SHA256 with a per-account salt
-async function hashPassword(pass,saltHex){
- const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveBits"]);
- const salt=Uint8Array.from(saltHex.match(/../g).map(h=>parseInt(h,16)));
- const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:50000,hash:"SHA-256"},key,256);
- return [...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,"0")).join("");
-}
 function clearAuthMsgs(){$("authErr").classList.add("hidden");$("authOk").classList.add("hidden")}
 
 // Red border + red text when the two password fields differ
@@ -1084,10 +1080,6 @@ function initPwMatch(){
  $("suPass").addEventListener("input",check);$("suPass2").addEventListener("input",check);
 }
 
-function enterLocal(u){
- applySession({uid:u.id,name:u.name,contact:u.email,username:u.username,phone:u.phone,verified:true,provider:"local",key:u.id});
-}
-
 async function signUp(){
  clearAuthMsgs();
  const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),email=$("suEmail").value.trim().toLowerCase();
@@ -1099,30 +1091,34 @@ async function signUp(){
  if(pass.length<8)return authErr(t("errPass"));
  if(pass!==pass2){setPwState(true);return authErr(t("errMatch"))}
  setPwState(false);
- const users=localUsers();
- if(users.some(u=>u.username===username))return authErr(t("errUserTaken"));
- if(users.some(u=>u.email===email))return authErr(t("errHasAcc"));
- let salt,hash;
- try{salt=newSalt();hash=await hashPassword(pass,salt)}catch(e){return authErr(t("errDevice"))}
- const user={id:randomId(),name:full,username,email,phone:normPhone($("suCC").value,digits),salt,hash,createdAt:Date.now()};
- users.push(user);saveLocalUsers(users);
- store.set(SESS_KEY,{id:user.id});
- enterLocal(user);
+ if(!sb)return authErr(t("sbOff"));
+ try{const r=await sb.rpc("username_available",{u:username});if(r&&r.data===false)return authErr(t("errUserTaken"))}catch(e){}
+ const phone=normPhone($("suCC").value,digits);
+ const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
+ if(error)return authErr(authFail(error));
+ if(data&&data.user&&data.user.identities&&data.user.identities.length===0)return authErr(t("errHasAcc"));
+ if(data&&data.session)enterFromSession(data.session.user);else authOk(t("checkEmail"));
 }
 
 async function logIn(){
  clearAuthMsgs();
  const id=$("liId").value.trim().toLowerCase(),pass=$("liPass").value;
  if(!id||!pass)return authErr(t("errLoginReq"));
- const u=localUsers().find(x=>x.email===id||x.username===id);
- if(!u)return authErr(t("errLogin"));
- let hash=null;try{hash=await hashPassword(pass,u.salt)}catch(e){}
- if(hash!==u.hash)return authErr(t("errLogin"));
- store.set(SESS_KEY,{id:u.id});
- enterLocal(u);
+ if(!sb)return authErr(t("sbOff"));
+ let email=id;
+ if(!id.includes("@")){try{const r=await sb.rpc("email_for_username",{u:id});email=(r&&r.data)||""}catch(e){email=""}}
+ if(!email)return authErr(t("errLogin"));
+ const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+ if(error)return authErr(/invalid|credentials/i.test(error.message||"")?t("errLogin"):authFail(error));
+ if(data&&data.session)enterFromSession(data.session.user);
 }
 
-function forgotPassword(){clearAuthMsgs();authErr(t("resetLocal"))}
+async function forgotPassword(){clearAuthMsgs();
+ const id=$("liId").value.trim().toLowerCase();
+ if(!id.includes("@"))return authErr(t("errEmail"));
+ if(!sb)return authErr(t("sbOff"));
+ const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:siteUrl()});
+ if(error)return authErr(authFail(error));authOk(t("resetSent"))}
 
 function applySession(acc){document.body.classList.remove("unauth");
  freshState(acc.name);
@@ -1154,7 +1150,7 @@ async function saveUserRow(user){
   const md=user.user_metadata||{};
   const row={id:user.id,full_name:md.full_name||md.name||"",email:user.email||null,phone:md.phone||phoneOf(user)||null,
    username:md.username||null,provider:(user.app_metadata&&user.app_metadata.provider)||"email"};
-  const {error}=await DB.upsertUser(row);
+  const {error}=await DB.upsertUser(row,{ignoreDuplicates:true});
   return !error;
  }catch(e){return false}
 }
@@ -1176,18 +1172,69 @@ function initFeatures(){const el=$("featSlides");
  renderFeatDots();restartFeat()}
 
 /* ---------- log out, data load, boot ---------- */
-// Local mode: transactions live in memory for this session (nothing is fetched from a server)
-function loadRemoteTx(){loadUserData();renderAll();handleReferral()}
-function logout(){closeM("mOut");closeM("mChat");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
+// Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
+function loadRemoteTx(){loadUserData();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
+function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
+async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
-// Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
+// Restores the Supabase session if one exists; otherwise shows Sign Up / Log In
 function authBoot(){
  initCountryPicker();setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
- const ses=store.get(SESS_KEY,null);
- const u=ses&&localUsers().find(x=>x.id===ses.id);
- if(u)enterLocal(u);
- else{freshState("");showAuth()}
+ freshState("");
+ if(!sb){showAuth();authErr(t("sbOff"));return}
+ sb.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>{
+  if(session&&session.user)enterFromSession(session.user);
+  else if(S.authed)localSignedOut()},0)});
+ const hasTok=(()=>{try{return Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k))}catch(e){return false}})();
+ sb.auth.getSession().then(({data})=>{if(data&&data.session)enterFromSession(data.session.user);else showAuth()}).catch(showAuth);
+ if(!hasTok)showAuth();
 }
+
+/* ---------- Supabase data: profiles + messages (live) ---------- */
+async function loadProfiles(){if(!sb)return;
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url").limit(1000);
+ (data||[]).forEach(r=>PROF.set(r.id,r));
+ try{famSearch();renderMemberSearch()}catch(e){}}
+async function loadMyProfile(){if(!sb||!S.user.uid)return;
+ const {data}=await DB.getProfile(S.user.uid);if(!data)return;
+ if(data.full_name)S.user.name=data.full_name;if(data.username)S.user.username=data.username;if(data.phone)S.user.phone=data.phone;
+ if(data.avatar_url)S.user.img=data.avatar_url;renderAll()}
+function syncProfile(){if(!sb||!S.user.uid)return;
+ DB.upsertUser({id:S.user.uid,full_name:S.user.name,email:S.user.email||null,phone:S.user.phone||null,username:S.user.username||null,avatar_url:S.user.img||null,provider:S.user.provider||"email"})
+  .then(r=>{if(r&&r.error)toast(t("dbErr"))})}
+function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
+ S.fam.push({key:u.id,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
+async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url").in("id",need);
+ (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r))})}
+function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
+ const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
+function rowToMsg(r){const mine=r.sender_id===S.user.uid;
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.body||""})}
+async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
+ const {data,error}=await sb.from("messages").select("*").or(`sender_id.eq.${me},receiver_id.eq.${me},audience.cs.{${me}}`).order("created_at",{ascending:true}).limit(500);
+ if(error||!data)return;
+ await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
+ S.chats={g:[]};
+ data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r))});
+ renderAll();if($("mChat").classList.contains("on"))renderMsgs()}
+async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.sender_id===me;
+ if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
+ if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
+ let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
+ (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
+ if(chatK===k&&$("mChat").classList.contains("on"))renderMsgs();
+ else if(!mine){if(k==="g")S.gun++;else S.fam[k].un++;renderTabs();renderFam()}
+ saveUserData()}
+function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);
+ if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
+ S.fam.forEach(f=>{if(f.key===r.id&&r.full_name)f.n=r.full_name});
+ try{renderFam();famSearch();renderMemberSearch()}catch(e){}}
+let rtMsg=null,rtProf=null;
+function stopRealtime(){[rtMsg,rtProf].forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}});rtMsg=rtProf=null}
+function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
+ rtMsg=sb.channel("lo-msg-"+S.user.uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe();
+ rtProf=sb.channel("lo-prof-"+S.user.uid).on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe()}
 
 Object.assign(T.en,{connected:"In Call",end:"End Call",calling:"Calling…",groupLocked:"Family Group Chat is available on Pro and Pro Plus. Upgrade to join.",grpOn:"Family group chat",voiceCall:"Voice call",videoCall:"Video call",voiceMsg:"Voice message",noMsgs:"No messages yet",audioErr:"Tap play again to start the voice note.",micNo:"Microphone is not available. Allow microphone access and try again.",locSettingT:"Personal live location sharing"});
 Object.assign(T.en,{searchMember:"Search Member",msHint:"Type a name, @username or mobile number to find registered LifeOne users.",msNone:"No registered LifeOne user matches this search.",msPh:"Name, @username or mobile number",noContactsChat:"No connected contacts yet. Search for a member to start chatting.",refConnected:"Connected with {n} from the referral link.",locBadgeOn:"Live Location: Enabled",locBadgeOff:"Live Location: Disabled"});
@@ -1230,9 +1277,10 @@ function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI(
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
 /* ---------- data API: Supabase tables ---------- */
-// Local mode: no remote database calls. Replace these three functions to re-enable Supabase later.
 const DB={
- upsertUser(row){return Promise.resolve({error:null})},
+ upsertUser(row,opt){if(!sb)return Promise.resolve({error:{message:"offline"}});return sb.from("profiles").upsert(row,Object.assign({onConflict:"id"},opt||{}))},
+ getProfile(id){if(!sb)return Promise.resolve({data:null});return sb.from("profiles").select("*").eq("id",id).maybeSingle()},
+ sendMessage(row){if(!sb)return Promise.resolve({error:{message:"offline"}});return sb.from("messages").insert(row)},
  insertTx(row){return Promise.resolve({error:null})},
  loadTx(){return Promise.resolve({data:[],error:null})}
 };

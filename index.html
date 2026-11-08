@@ -312,21 +312,21 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
     <button id="tabIn" onclick="setAuthMode('signin')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabIn"></button>
    </div>
 
-   <form id="formSignup" class="card p-5 space-y-3" onsubmit="event.preventDefault();signUp()" style="display:none">
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="suName" class="inp mt-1" autocomplete="name" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="suUser" class="inp mt-1" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="suEmail" type="email" class="inp mt-1" autocomplete="email" required></label>
+   <form id="formSignup" class="card p-5 space-y-3" method="post" action="#" onsubmit="event.preventDefault();signUp();return false" style="display:none">
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="suName" name="name" class="inp mt-1" autocomplete="name" required></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="suUser" name="username" class="inp mt-1" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="suEmail" name="email" type="email" class="inp mt-1" autocomplete="email" required></label>
     <div class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
      <div class="flex gap-2 mt-1"><input type="hidden" id="suCC" value="+92"><button type="button" id="suCCBtn" onclick="openCC()" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="suPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)" required></div></div>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="suPass" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input id="suPass2" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="suPass" name="new-password" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input id="suPass2" name="confirm-password" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="createAcc"></button>
    </form>
 
-   <form id="formLogin" class="card p-5 space-y-3" onsubmit="event.preventDefault();logIn()" style="display:none">
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblId"></span><input id="liId" class="inp mt-1" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="liPass" type="password" class="inp mt-1" autocomplete="current-password" required></label>
-    <div class="flex justify-end"><button type="button" onclick="forgotPassword()" class="text-xs" style="color:var(--pri)" data-i18n="forgot"></button></div>
+   <form id="formLogin" class="card p-5 space-y-3" method="post" action="#" onsubmit="event.preventDefault();logIn();return false" style="display:none">
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblId"></span><input id="auth-username" name="username" type="text" class="inp mt-1" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="auth-password" name="password" type="password" class="inp mt-1" autocomplete="current-password" required></label>
+    <div class="flex justify-end"><button type="button" onclick="openForgot()" class="text-xs" style="color:var(--pri)" data-i18n="forgot"></button></div>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="logInBtn"></button>
    </form>
 
@@ -365,6 +365,13 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  </div>
 </div></div>
 
+<div id="mForgot" class="modal" style="z-index:90"><div class="sheet space-y-3" style="max-width:420px">
+ <h3 class="font-bold text-lg" data-i18n="fpTitle"></h3><p class="text-sm" style="color:var(--mut)" data-i18n="fpSub"></p>
+ <form onsubmit="event.preventDefault();submitForgot();return false" class="space-y-3">
+  <input id="fpEmail" name="email" type="email" class="inp" autocomplete="email" autocapitalize="none" spellcheck="false" required>
+  <p id="fpMsg" class="text-sm"></p>
+  <div class="flex gap-2"><button type="button" class="btn out flex-1 py-2.5 rounded-xl" onclick="closeM('mForgot')" data-i18n="cancel"></button><button type="submit" id="fpBtn" class="btn pri flex-1 py-2.5 rounded-xl" data-i18n="fpSend"></button></div>
+ </form></div></div>
 <div id="mCC" class="modal" style="z-index:90"><div class="sheet" style="max-width:420px;padding:0;display:flex;flex-direction:column;max-height:80vh">
  <div class="flex items-center justify-between px-5 pt-5 pb-3"><h3 class="font-bold text-lg" data-i18n="ccTitle"></h3><button type="button" onclick="closeM('mCC')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
  <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="ccQ" oninput="renderCC()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="ccSearch" autocomplete="off" autocapitalize="none"></div></div>
@@ -375,7 +382,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh" autocomplete="off" autocapitalize="none"></div></div>
  <div id="msRes" class="flex-1 overflow-y-auto px-5 pb-5" style="min-height:10rem"></div>
 </div></div>
-<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[70] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
 const T={
@@ -507,6 +514,16 @@ function addTask(){const v=$("tTitle").value.trim();if(!v){$("tTitle").focus();r
  S.notifs.unshift({t:v+(tm?" · "+fmtT(tm):"")+" — "+t("added"),r:false});
  $("tTitle").value="";$("tTime").value="";closeM("mTask");toast(t("added"));renderAll()}
 
+/* ---------- browser notifications + sound + haptics ---------- */
+function askNotifPerm(){try{if(!("Notification" in window)||Notification.permission!=="default")return;const r=Notification.requestPermission(()=>{});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
+function sysNotify(title,body,tag){try{if(!("Notification" in window)||Notification.permission!=="granted")return;
+ const n=new Notification(title,{body:body||"",tag:tag||undefined,renotify:!!tag,icon:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#7C3AED"/><text x="32" y="43" font-size="30" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">L1</text></svg>')});
+ n.onclick=()=>{try{window.focus();n.close()}catch(e){}}}catch(e){}}
+function chime(){const c=audio();if(!c)return;[[988,0],[1319,.14],[1568,.28]].forEach(([f,d])=>{const o=c.createOscillator(),g=c.createGain(),s=c.currentTime+d;o.type="triangle";o.frequency.value=f;o.connect(g);g.connect(c.destination);
+ g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.35,s+.015);g.gain.exponentialRampToValueAtTime(.001,s+.25);o.start(s);o.stop(s+.27)})}
+function buzz(){try{if(navigator.vibrate)navigator.vibrate([200,100,200])}catch(e){}}
+["pointerdown","keydown"].forEach(ev=>document.addEventListener(ev,function once(){askNotifPerm();document.removeEventListener(ev,once)},{passive:true}));
+
 /* alarms: Web Audio beep + alert modal */
 let AC=null,alQ=[],alCur=null,alTimer=null;
 function audio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume()}catch(e){}return AC}
@@ -518,7 +535,7 @@ function checkAlarms(){const n=new Date(),nm=n.getHours()*60+n.getMinutes(),dk=n
   if(diff>=0&&diff<=1){x.fired=dk;alQ.push(x);S.notifs.unshift({t:t("alertT")+": "+t("alertM").replace("{n}",x.t),r:false})}});
  if(alQ.length&&!alCur){showAlarm();renderNotifs()}}
 function showAlarm(){alCur=alQ.shift();if(!alCur)return;$("alarmMsg").innerHTML=esc(t("alertM")).replace("{n}","<b>"+esc(alCur.t)+"</b>");
- openM("mAlarm");beep();clearInterval(alTimer);let k=0;alTimer=setInterval(()=>{beep();if(++k>40)clearInterval(alTimer)},1400);if(navigator.vibrate)navigator.vibrate([300,150,300])}
+ openM("mAlarm");beep();clearInterval(alTimer);let k=0;alTimer=setInterval(()=>{beep();if(++k>40)clearInterval(alTimer)},1400);buzz();sysNotify(t("alertT"),t("alertM").replace("{n}",alCur.t),"task-"+alCur.id)}
 function dismissAlarm(){clearInterval(alTimer);closeM("mAlarm");alCur=null;if(alQ.length)setTimeout(showAlarm,300)}
 function snooze(){const x=alCur;if(x){x.time=hhmm(new Date(Date.now()+300000));x.fired=null;renderAll()}dismissAlarm()}
 setInterval(checkAlarms,1000);
@@ -967,7 +984,10 @@ function renderAuth(){const el=$("authCard");if(!el)return;
 function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
  const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();saveUserData();syncProfile();toast(t("saved"))}
 $("saveP").onclick=saveProfile;
-function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$("pwErr").textContent=t("pwShort");return}
+let recovering=false;
+async function changePw(){const a=$("pw1").value,b=$("pw2").value;if((!a&&!recovering)||b.length<6){$("pwErr").textContent=t("pwShort");return}
+ if(sb&&S.user.uid){const {error}=await sb.auth.updateUser({password:b});if(error){$("pwErr").textContent=t("errGeneric");return}}
+ recovering=false;
  $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
 /* ---------- auth, local session, fresh start ---------- */
 // Set googleClientId to enable real Google sign-in (see notes). Empty = demo sign-in.
@@ -1081,7 +1101,7 @@ function initPwMatch(){
 }
 
 async function signUp(){
- clearAuthMsgs();
+ if(authBusy)return;clearAuthMsgs();
  const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),email=$("suEmail").value.trim().toLowerCase();
  const pass=$("suPass").value,pass2=$("suPass2").value,digits=$("suPhone").value.replace(/\D/g,"");
  if(full.length<2)return authErr(t("errName"));
@@ -1097,28 +1117,46 @@ async function signUp(){
  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
  if(error)return authErr(authFail(error));
  if(data&&data.user&&data.user.identities&&data.user.identities.length===0)return authErr(t("errHasAcc"));
- if(data&&data.session)enterFromSession(data.session.user);else authOk(t("checkEmail"));
+ if(data&&data.session){enterFromSession(data.session.user);return}
+ // No session returned (project requires email confirmation): try to sign in straight away, otherwise ask to confirm
+ const si=await sb.auth.signInWithPassword({email,password:pass});
+ if(si&&si.data&&si.data.session)enterFromSession(si.data.session.user);else authOk(t("checkEmail"));
 }
 
+let authBusy=false;
 async function logIn(){
- clearAuthMsgs();
- const id=$("liId").value.trim().toLowerCase(),pass=$("liPass").value;
+ if(authBusy)return;clearAuthMsgs();
+ // Read the live DOM values at submit time so browser / Google Password Manager autofill is always picked up
+ const f=$("formLogin"),id=(($("auth-username")||{}).value||(f&&f.elements.username&&f.elements.username.value)||"").trim().toLowerCase(),
+  pass=($("auth-password")||{}).value||(f&&f.elements.password&&f.elements.password.value)||"";
  if(!id||!pass)return authErr(t("errLoginReq"));
  if(!sb)return authErr(t("sbOff"));
- let email=id;
- if(!id.includes("@")){try{const r=await sb.rpc("email_for_username",{u:id});email=(r&&r.data)||""}catch(e){email=""}}
- if(!email)return authErr(t("errLogin"));
- const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
- if(error)return authErr(/invalid|credentials/i.test(error.message||"")?t("errLogin"):authFail(error));
- if(data&&data.session)enterFromSession(data.session.user);
+ authBusy=true;
+ try{
+  let email=id;
+  if(!id.includes("@")){try{const r=await sb.rpc("email_for_username",{u:id});email=(r&&r.data)||""}catch(e){email=""}}
+  if(!email)return authErr(t("errLogin"));
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){const m=String(error.message||"").toLowerCase();
+   if(m.includes("confirm"))return authErr(t("checkEmail"));
+   return authErr(m.includes("invalid")||m.includes("credentials")?t("errLogin"):authFail(error))}
+  if(data&&data.session)enterFromSession(data.session.user);
+ }finally{authBusy=false}
 }
 
-async function forgotPassword(){clearAuthMsgs();
- const id=$("liId").value.trim().toLowerCase();
- if(!id.includes("@"))return authErr(t("errEmail"));
- if(!sb)return authErr(t("sbOff"));
- const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:siteUrl()});
- if(error)return authErr(authFail(error));authOk(t("resetSent"))}
+function openForgot(){clearAuthMsgs();const v=(($("auth-username")||{}).value||"").trim();
+ $("fpEmail").value=v.includes("@")?v:"";$("fpMsg").textContent="";$("fpBtn").disabled=false;openM("mForgot");setTimeout(()=>$("fpEmail").focus(),60)}
+function forgotPassword(){openForgot()}
+async function submitForgot(){const em=$("fpEmail").value.trim().toLowerCase(),msg=$("fpMsg"),btn=$("fpBtn");
+ const bad=m=>{msg.textContent=m;msg.className="text-sm text-rose-600"};
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em))return bad(t("errEmail"));
+ if(!sb)return bad(t("sbOff"));
+ btn.disabled=true;
+ try{const {error}=await sb.auth.resetPasswordForEmail(em,{redirectTo:siteUrl()});
+  if(error)return bad(authFail(error));
+  closeM("mForgot");toast(t("resetSent"));authOk(t("resetSent"))}
+ catch(e){bad(t("errGeneric"))}
+ finally{btn.disabled=false}}
 
 function applySession(acc){document.body.classList.remove("unauth");
  freshState(acc.name);
@@ -1173,7 +1211,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
-function loadRemoteTx(){loadUserData();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
+function loadRemoteTx(){askNotifPerm();loadUserData();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
 function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
 async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
@@ -1183,7 +1221,8 @@ function authBoot(){
  freshState("");
  if(!sb){showAuth();authErr(t("sbOff"));return}
  sb.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>{
-  if(session&&session.user)enterFromSession(session.user);
+  if(ev==="PASSWORD_RECOVERY")recovering=true;
+  if(session&&session.user){enterFromSession(session.user);if(recovering&&S.authed)openM("mPw")}
   else if(S.authed)localSignedOut()},0)});
  const hasTok=(()=>{try{return Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k))}catch(e){return false}})();
  sb.auth.getSession().then(({data})=>{if(data&&data.session)enterFromSession(data.session.user);else showAuth()}).catch(showAuth);
@@ -1223,6 +1262,9 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.se
  if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
  let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
+ if(!mine){const quiet=chatK===k&&$("mChat").classList.contains("on")&&!document.hidden;
+  if(!quiet){chime();buzz()}
+  if(!quiet||document.hidden)sysNotify((r.sender_name||"").split(" ")[0]||"LifeOne",r.voice_url?t("voiceMsg"):(r.body||""),"msg-"+k)}
  if(chatK===k&&$("mChat").classList.contains("on"))renderMsgs();
  else if(!mine){if(k==="g")S.gun++;else S.fam[k].un++;renderTabs();renderFam()}
  saveUserData()}
@@ -1243,6 +1285,7 @@ Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",lo
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
+Object.assign(T.en,{fpTitle:"Reset your password",fpSub:"Enter your account email and we will send you a reset link.",fpSend:"Send reset link"});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
 Object.assign(T.en,{inc_salary:"Salary",inc_biz:"Business Income",inc_free:"Freelance",inc_inv:"Investment",inc_gift:"Gift",inc_other:"Other Income",cDine:"Dining / Food",cShop:"Shopping",cTravel:"Travel",cEdu:"Education",source:"Payment source",when:"Date & time",whenBad:"Please choose a date and time.",s_bank:"Bank Transfer",s_cash:"Cash",s_wallet:"Mobile Wallet (EasyPaisa / JazzCash)",s_card:"Credit / Debit Card"});
 Object.assign(T.en,{lifeUser:"Active Member",locBtn:"Location",inviteMember:"Invite Member",inviteMsgName:"Hi {n}, join me on LifeOne: {u}",invNamePh:"Name (optional)",invPh:"Mobile number, e.g. 03001234567",inviteSug:"Invite",notOnAppShort:"Not on LifeOne yet",gVerified:"Verified Google Account"});
@@ -1287,7 +1330,7 @@ const DB={
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
-function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
+function boot(){askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});
 

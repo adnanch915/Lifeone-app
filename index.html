@@ -65,8 +65,6 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
    </select></label>
    <button id="bell" class="btn out relative w-10 h-10 rounded-full" aria-label="Notifications"><span data-ic="bell"></span>
     <span id="bellDot" class="ping absolute top-1.5 end-2 w-2.5 h-2.5 rounded-full bg-rose-500"></span></button>
-   <button onclick="openM('mOut')" class="btn out w-9 h-9 rounded-full" aria-label="Sign out" data-ic="logout" data-s="17"></button>
-   <button id="hdrAv" class="btn" aria-label="Profile"></button>
   </div>
  </div>
 </header>
@@ -75,7 +73,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  <section id="tab-home" class="tab-content space-y-4">
   <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF 0%,#FFFFFF 70%);border:1px solid #DDD6FE">
    <div class="flex items-start justify-between gap-3">
-    <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
+    <div class="flex items-center gap-3 min-w-0"><div class="av rounded-full overflow-hidden"></div>
      <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
     <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">0</b><span data-i18n="streak"></span></span>
    </div>
@@ -173,7 +171,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   <h2 class="text-lg font-bold" data-i18n="profile"></h2>
   <div id="authCard" class="card p-5"></div>
   <div class="card p-5 space-y-4">
-   <div class="flex items-center gap-4"><div class="av big"></div>
+   <div class="flex items-center gap-4"><div class="av big rounded-full overflow-hidden"></div>
     <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1"></label>
@@ -464,8 +462,9 @@ document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if
 
 /* avatars */
 const avHTML=(n,sz,img)=>img?`<img src="${img}" alt="" style="width:${sz}px;height:${sz}px" class="rounded-full object-cover">`:`<div style="width:${sz}px;height:${sz}px;font-size:${sz/2.6}px;background:var(--pri)" class="rounded-full text-white flex items-center justify-center font-semibold">${esc(ini(n))}</div>`;
-function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
- $("hdrAv").innerHTML=avHTML(S.user.name,38,S.user.img);$("greet").textContent=t(greetKey())+", "+S.user.name}
+function renderAv(){document.querySelectorAll(".av").forEach(e=>{const sz=e.classList.contains("big")?72:52;e.classList.add("rounded-full","overflow-hidden","shrink-0");e.style.width=sz+"px";e.style.height=sz+"px";e.innerHTML=avHTML(S.user.name,sz,S.user.img)});
+ renderGreeting()}
+function renderGreeting(){const el=$("greet");if(el)el.textContent=t(greetKey())+(S.user.name?", "+S.user.name:"")}
 
 /* language */
 function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.textContent=FLAG[l]||"--";document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
@@ -567,7 +566,7 @@ function renderMoney(){const f=finCalc();
  $("inf").textContent="+"+money(f.inf);$("outf").textContent="−"+money(f.out);$("allocTot").textContent=money(f.out);
  $("alloc").innerHTML=f.cats.length?f.cats.map(([k,ico,col,v])=>{const p=Math.round(v/f.out*100);return `<li class="py-3"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:${col}1A;color:${col}">${ic(ico,18)}</span><div class="flex-1 min-w-0"><div class="flex justify-between gap-2"><b class="truncate text-sm">${t(k)}</b><b class="text-sm">${money(v)}</b></div><div class="flex items-center gap-2 mt-1.5"><div class="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full" style="width:${p}%;background:${col}"></div></div><span class="text-xs w-9 text-end" style="color:var(--mut)">${S.mask?"••":p+"%"}</span></div></div></div></li>`}).join(""):emptyBox(t("emptyAlloc"));
  $("rate").textContent=`${t("rate")}: 1 USD = ${CUR[S.cur].r} ${S.cur}`;
- renderTx()}
+ renderTx();persistAccountData()}
 let txType="expense";
 const INC_CATS=[["inc_salary"],["inc_biz"],["inc_free"],["inc_inv"],["inc_gift"],["inc_other"]];
 const EXP_CATS=[["cHouse"],["cGroc"],["cDine"],["cHealth"],["cUtil"],["cShop"],["cTravel"]];
@@ -632,7 +631,7 @@ function enforceLimit(){const max=pl().max,act=S.fam.filter(f=>consentOf(f)==="a
 function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:false});renderNotifs();toast(t("helpDone"))}
 
 /* AI copilot: privacy-aware rules; Home never shows financial figures */
-const greetKey=()=>{const h=new Date().getHours();return h<12?"gM":h<18?"gA":"gE"};
+const greetKey=()=>{const h=new Date().getHours();return h>=5&&h<12?"gM":h>=12&&h<17?"gA":h>=17&&h<21?"gE":"gN"};
 const CPQ=[["chip1","Optimize my schedule"],["chip2","Budget sanity check"],["chip3","Summarize my day"]];
 // Daily copilot count is kept in localStorage so a page reload cannot reset the Free limit
 function cpDayRead(){const d=new Date().toDateString();let v=store.get("lifeone.cpday",null);if(!v||v.d!==d)v={d,n:0};S.cpDay=v;return v}
@@ -844,9 +843,8 @@ function readAll(){S.notifs.forEach(n=>n.r=true);renderNotifs()}
 $("bell").onclick=()=>{renderNotifs();openM("mNotif")};
 
 /* profile, pro, security */
-$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.user.img=r.result;renderAv();refreshTrust()};r.readAsDataURL(f)};
-$("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();toast(t("saved"))};
-$("hdrAv").onclick=()=>go("profile");
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.user.img=r.result;persistAccountData();renderAv();refreshTrust()};r.readAsDataURL(f)};
+$("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();persistAccountData();renderAv();refreshTrust();toast(t("saved"))};
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
  $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--pri)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
  <ul class="text-sm space-y-1.5 my-3">${planLines(S.plan).slice(0,4).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--pri)">${ic("check",14)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
@@ -871,29 +869,6 @@ function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$
 const SESS_KEY="lifeone.session",ACC_KEY="lifeone.accounts";
 const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const clone=x=>JSON.parse(JSON.stringify(x));
-// Per-account local persistence. Each signed-in account gets its own isolated snapshot on this device.
-const USER_DATA_PREFIX="lifeone.userdata.";
-function saveUserData(){
- if(!S.authed||!S.user.uid)return;
- try{
-  const snapshot={tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,streak:S.streak,
-   shareOn:S.shareOn,plan:S.plan,pro:S.pro,cpDay:S.cpDay,mask:S.mask,filter:S.filter,pwChanged:S.pwChanged,
-   user:{name:S.user.name,email:S.user.email,img:S.user.img,loc:S.user.loc,locManual:S.user.locManual,lat:S.user.lat,lng:S.user.lng,cc:S.user.cc},
-   fin:{inf:FIN.inf,cats:FIN.cats},tx:TX,cur:S.cur};
-  store.set(USER_DATA_PREFIX+S.user.uid,snapshot);
- }catch(e){console.error("LifeOne save failed",e)}
-}
-function restoreUserData(uid){
- if(!uid)return false;
- const d=store.get(USER_DATA_PREFIX+uid,null);if(!d||typeof d!=="object")return false;
- try{
-  ["tasks","fam","notifs","chats","habits","gun","streak","shareOn","plan","pro","cpDay","mask","filter","pwChanged"].forEach(k=>{if(d[k]!==undefined)S[k]=d[k]});
-  if(d.user&&typeof d.user==="object")Object.assign(S.user,d.user);
-  if(d.fin&&typeof d.fin==="object"){if(d.fin.inf!==undefined)FIN.inf=d.fin.inf;if(Array.isArray(d.fin.cats))FIN.cats=d.fin.cats}
-  if(Array.isArray(d.tx))TX=d.tx;if(d.cur&&CUR[d.cur])S.cur=d.cur;
-  return true;
- }catch(e){console.error("LifeOne restore failed",e);return false}
-}
 // Demo snapshot of the seeded sample data (used only by "Load demo data")
 const DEMO=clone({tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,inf:FIN.inf,cats:FIN.cats,tx:TX});
 Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-powered life copilot & productivity hub.",tabIn:"Sign in",tabUp:"Create account",google:"Continue with Google",orLbl:"or",nameLbl:"Full name",byEmail:"Email",byMobile:"Mobile",emailLbl:"Email address",phoneLbl:"Mobile number",sendCode:"Send verification code",secNote:"Your session is kept on this device. Demo mode: no real SMS or email is sent.",otpTitle:"Verify your identity",otpSub:"Enter the 6-digit code sent to {c}",verify:"Verify",resend:"Resend code",resendIn:"Resend in {s}s",change:"Change details",demoOtp:"Demo mode: no SMS or email is sent. Your code is {c}.",errName:"Please enter your full name.",errEmail:"Enter a valid email address.",errPhone:"Enter a valid mobile number.",errNoAcc:"No account for this contact. Create one first.",errHasAcc:"An account already exists. Sign in instead.",errOtp:"Incorrect code. Try again.",errOtpMax:"Too many attempts. Request a new code.",errOtpExp:"This code expired. Request a new code.",errGoogle:"Google sign-in could not be read. Try again.",gDemo:"Google Client ID not set. Using demo sign-in.",emptyTasks:"No tasks yet. Add your first task to start your rhythm.",emptyFam:"No contacts yet. Family and friends you connect will appear here.",emptyTx:"No transactions yet.",welcomeNote:"Welcome to LifeOne. Your dashboard is ready.",demoBtn:"Load demo data",demoOn:"Demo data loaded",demoBoxTxt:"Preview only. Your account data stays empty until you add it."});
@@ -978,6 +953,29 @@ function phoneInput(el){if(!el.value.startsWith("+"))return;const d=el.value.rep
 const LOCAL_USERS_KEY="lifeone.localUsers";
 const localUsers=()=>store.get(LOCAL_USERS_KEY,[]);
 const saveLocalUsers=list=>store.set(LOCAL_USERS_KEY,list);
+// Persist profile photo and money data separately for each signed-in account.
+const accountDataKey=uid=>"lifeone.accountData."+String(uid||"").replace(/[^a-zA-Z0-9_-]/g,"_");
+function persistAccountData(){
+ if(!S.user.uid)return;
+ store.set(accountDataKey(S.user.uid),{
+  picture:S.user.img||null,
+  transactions:Array.isArray(TX)?TX:[],
+  finance:{inf:FIN.inf,cats:FIN.cats}
+ });
+}
+function restoreAccountData(uid,fallback){
+ if(!uid)return;
+ const saved=store.get(accountDataKey(uid),null);
+ if(saved){
+  S.user.img=saved.picture||S.user.img||null;
+  TX=Array.isArray(saved.transactions)?saved.transactions:[];
+  if(saved.finance){FIN.inf=Number(saved.finance.inf)||0;FIN.cats=Array.isArray(saved.finance.cats)?saved.finance.cats:[]}
+ }else if(fallback){
+  TX=Array.isArray(fallback.transactions)?fallback.transactions:[];
+  if(fallback.finance){FIN.inf=Number(fallback.finance.inf)||0;FIN.cats=Array.isArray(fallback.finance.cats)?fallback.finance.cats:[]}
+  persistAccountData();
+ }
+}
 function randomId(){try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}}
 function newSalt(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}
 // Passwords are never stored in plain text: PBKDF2-SHA256 with a per-account salt
@@ -1043,10 +1041,12 @@ async function logIn(){
 function forgotPassword(){clearAuthMsgs();authErr(t("resetLocal"))}
 
 function applySession(acc){document.body.classList.remove("unauth");
+ const uid=acc.uid||"";
+ const firstLoginMoney={transactions:clone(TX),finance:{inf:FIN.inf,cats:clone(FIN.cats)}};
  freshState(acc.name);
- S.user.uid=acc.uid||"";S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
- restoreUserData(S.user.uid);
+ S.user.uid=uid;S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
  S.user.verified=!!acc.verified;S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
+ restoreAccountData(uid,firstLoginMoney);
  $("authScreen").classList.add("hidden");
  if(!geoStarted){geoStarted=true;startGeo();startBattery()}
  applyLang();go("home");loadRemoteTx()}
@@ -1095,13 +1095,14 @@ function initFeatures(){const el=$("featSlides");
  renderFeatDots();restartFeat()}
 
 /* ---------- log out, data load, boot ---------- */
-// Local mode: transactions live in memory for this session (nothing is fetched from a server)
-function loadRemoteTx(){}
-function logout(){saveUserData();closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
+// Restore this account's saved transactions and refresh all money totals after login.
+function loadRemoteTx(){restoreAccountData(S.user.uid);renderMoney()}
+function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
 
 // Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
 function authBoot(){
  initCountryPicker();setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
+ setInterval(renderGreeting,60000);
  const ses=store.get(SESS_KEY,null);
  const u=ses&&localUsers().find(x=>x.id===ses.id);
  if(u)enterLocal(u);
@@ -1110,6 +1111,7 @@ function authBoot(){
 
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
+Object.assign(T.en,{gN:"Good night"});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
@@ -1119,7 +1121,7 @@ Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
 function renderAll(){[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
- $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords();saveUserData()}
+ $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
 const CITIES="Kahror Pakka|PK|29.6243|71.9171;Lodhran|PK|29.5393|71.6324;Multan|PK|30.1575|71.5249;Bahawalpur|PK|29.3956|71.6836;Vehari|PK|30.0453|72.3489;Lahore|PK|31.5497|74.3436;Karachi|PK|24.8607|67.0011;Islamabad|PK|33.6844|73.0479;Rawalpindi|PK|33.5651|73.0169;Faisalabad|PK|31.4504|73.1350;Peshawar|PK|34.0151|71.5249;Quetta|PK|30.1798|66.9750;Hyderabad|PK|25.3960|68.3578;Sialkot|PK|32.4945|74.5229;Gujranwala|PK|32.1877|74.1945;Sukkur|PK|27.7052|68.8574;Jhang|PK|31.2681|72.3181;Sargodha|PK|32.0740|72.6861;Mardan|PK|34.1989|72.0231;Abbottabad|PK|34.1688|73.2215;Dubai|AE|25.2048|55.2708;Abu Dhabi|AE|24.4539|54.3773;Riyadh|SA|24.7136|46.6753;Jeddah|SA|21.4858|39.1925;Doha|QA|25.2854|51.5310;Kuwait City|KW|29.3759|47.9774;Muscat|OM|23.5880|58.3829;Istanbul|TR|41.0082|28.9784;Cairo|EG|30.0444|31.2357;London|GB|51.5074|-0.1278;Manchester|GB|53.4808|-2.2426;Paris|FR|48.8566|2.3522;Berlin|DE|52.5200|13.4050;Madrid|ES|40.4168|-3.7038;Rome|IT|41.9028|12.4964;Amsterdam|NL|52.3676|4.9041;New York|US|40.7128|-74.0060;Los Angeles|US|34.0522|-118.2437;Chicago|US|41.8781|-87.6298;Houston|US|29.7604|-95.3698;San Francisco|US|37.7749|-122.4194;Toronto|CA|43.6532|-79.3832;Vancouver|CA|49.2827|-123.1207;Mexico City|MX|19.4326|-99.1332;Sao Paulo|BR|-23.5505|-46.6333;Delhi|IN|28.6139|77.2090;Mumbai|IN|19.0760|72.8777;Bengaluru|IN|12.9716|77.5946;Kolkata|IN|22.5726|88.3639;Dhaka|BD|23.8103|90.4125;Kabul|AF|34.5553|69.2075;Tehran|IR|35.6892|51.3890;Beijing|CN|39.9042|116.4074;Shanghai|CN|31.2304|121.4737;Shenzhen|CN|22.5431|114.0579;Hong Kong|HK|22.3193|114.1694;Tokyo|JP|35.6762|139.6503;Seoul|KR|37.5665|126.9780;Singapore|SG|1.3521|103.8198;Kuala Lumpur|MY|3.1390|101.6869;Bangkok|TH|13.7563|100.5018;Jakarta|ID|-6.2088|106.8456;Sydney|AU|-33.8688|151.2093;Melbourne|AU|-37.8136|144.9631;Johannesburg|ZA|-26.2041|28.0473;Lagos|NG|6.5244|3.3792;Nairobi|KE|-1.2921|36.8219;Moscow|RU|55.7558|37.6173".split(";").map(s=>{const p=s.split("|");return{n:p[0],c:p[1],la:+p[2],ln:+p[3]}});
@@ -1154,13 +1156,7 @@ const DB={
 };
 
 /* ---------- boot ---------- */
-// Save after UI actions and before the page is closed or refreshed.
-let userSaveTimer=null;
-function queueUserSave(){if(!S.authed)return;clearTimeout(userSaveTimer);userSaveTimer=setTimeout(saveUserData,0)}
-document.addEventListener("click",queueUserSave,true);
-document.addEventListener("change",queueUserSave,true);
-window.addEventListener("pagehide",saveUserData);
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveUserData();if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
+document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
 function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});

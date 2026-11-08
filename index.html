@@ -57,6 +57,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   </div>
   <div class="flex items-center gap-2">
    
+   <span id="hdrClock" class="text-[11px] font-medium whitespace-nowrap hidden sm:inline" style="color:var(--mut)" aria-live="off"></span>
    <label class="relative btn out h-9 rounded-xl px-2.5 flex items-center gap-1.5 cursor-pointer">
    <span style="color:var(--mut)" data-ic="globe" data-s="16"></span>
    <span id="flag" class="inline-flex w-5 h-3.5 rounded-sm overflow-hidden shrink-0" aria-hidden="true"></span>
@@ -79,7 +80,6 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
    </div>
    <p class="text-sm mt-1.5" style="color:var(--mut)" data-i18n="tag"></p>
    <div class="flex flex-wrap items-center gap-2 mt-3">
-    <button id="shieldPill" onclick="toggleShare()" class="btn px-3 py-1.5 rounded-full text-xs font-medium border"></button>
     <span id="homeVer" class="contents"></span>
    </div>
   </div>
@@ -159,6 +159,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
 
  <section id="tab-family" class="tab-content space-y-3">
   <div class="flex items-center justify-between gap-2"><h2 class="text-xl font-bold" data-i18n="fam"></h2><button onclick="openInviteModal()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 shrink-0"><span data-ic="plus" data-s="14"></span><span data-i18n="inviteMember"></span></button></div>
+  <div id="chatList" class="card p-2 space-y-1"></div>
   <div class="card p-4 space-y-3">
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
     <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off"></div>
@@ -180,6 +181,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   </div>
   
   <div id="profTrust" style="display:none"></div>
+  <div id="locSetting"></div>
   <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE"></div>
   <div class="card p-5 space-y-3">
    <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openInvite('')"><span data-ic="share" data-s="18"></span><span data-i18n="invite"></span></button>
@@ -232,6 +234,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
   <div class="flex items-center gap-3 min-w-0"><div id="chatAv"></div><div class="min-w-0"><h3 class="font-bold truncate" id="chatName"></h3><div id="chatLoc" class="text-xs mt-0.5 flex flex-wrap items-center gap-1"></div>
   <p class="text-xs text-emerald-600 inline-flex items-center gap-1"><span data-ic="lock" data-s="12"></span><span data-i18n="enc"></span></p></div></div>
+  <div id="chatCalls" class="flex items-center gap-1 shrink-0"></div>
   <button class="p-2" style="color:var(--mut)" onclick="closeChat()" aria-label="Close" data-ic="x"></button>
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
@@ -461,9 +464,11 @@ function closeM(id){$(id).classList.remove("on")}
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target!==m)return;if(m.id==="mCall")endCall();else if(m.id==="mChat")closeChat();else if(m.id==="mAlarm")dismissAlarm();else if(m.id!=="mOut")closeM(m.id)}));
 
 /* avatars */
-const avHTML=(n,sz,img)=>img?`<img src="${img}" alt="" style="width:${sz}px;height:${sz}px" class="rounded-full object-cover">`:`<div style="width:${sz}px;height:${sz}px;font-size:${sz/2.6}px;background:var(--pri)" class="rounded-full text-white flex items-center justify-center font-semibold">${esc(ini(n))}</div>`;
+const avHTML=(n,sz,img)=>img?`<img src="${img}" alt="" style="width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;object-fit:cover" class="rounded-full object-cover">`:`<div style="width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;font-size:${sz/2.6}px;background:var(--pri)" class="rounded-full text-white flex items-center justify-center font-semibold">${esc(ini(n))}</div>`;
+function renderClock(){const el=$("hdrClock");if(!el)return;const L=LOC[S.lang]||"en-US";const d=new Date();
+ el.textContent=d.toLocaleDateString(L,{month:"short",day:"numeric",year:"numeric"})+" - "+d.toLocaleTimeString(L,{hour:"2-digit",minute:"2-digit"})}
 function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
- $("greet").textContent=t(greetKey())+", "+S.user.name}
+ $("greet").textContent=S.user.name||""}
 
 /* language */
 function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
@@ -725,7 +730,7 @@ function contactRow(u,mode){
   <div class="flex flex-wrap justify-end gap-1.5 shrink-0"><button onclick="chatContact('${esc(u.id)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(u.id)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button></div></div>`}
 // Search by name, username, email or phone (both email and phone sign-ups are covered)
 function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
- const raw=($("famQ").value||"").trim(),q=raw.toLowerCase(),qd=contactDigits(raw);
+ const raw=($("famQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
  let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
  if(!list.length){
   if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
@@ -745,8 +750,11 @@ function inviteWA(){const n=waNum($("invTo").value);window.open((n?`https://wa.m
 function inviteSMS(){const to=$("invTo").value.replace(/[^\d+]/g,"");location.href="sms:"+to+"?body="+encodeURIComponent($("invMsg").value)}
 async function inviteCopy(){try{await navigator.clipboard.writeText($("invMsg").value);toast(t("copied"))}catch(e){$("invMsg").select();toast(t("copyFail"))}}
 async function inviteShare(){if(navigator.share){try{await navigator.share({text:$("invMsg").value})}catch(e){}}else inviteCopy()}
-function toggleShare(){S.shareOn=!S.shareOn;renderFam();renderShield();renderHomeFam();refreshTrust()}
-function renderFam(){const on=S.fam.filter(f=>sharing(f)).length;
+function toggleShare(){S.shareOn=!S.shareOn;renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
+function renderLocSetting(){const el=$("locSetting");if(!el)return;
+ if(!S.authed){el.innerHTML="";return}
+ el.innerHTML=`<div class="card p-5 flex items-center gap-3"><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic("pin",18)}</span><div class="flex-1 min-w-0"><p class="font-semibold text-sm">${t("locSettingT")}</p><p class="text-xs mt-0.5" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</p></div><button role="switch" aria-checked="${S.shareOn}" aria-label="${t("locSettingT")}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0" style="${S.shareOn?"background:var(--pri)":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow"></span></button></div>`}
+function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).length;
  const sw=`<div class="card p-4 flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic(S.shareOn?"pin":"lock",18)}</span>
  <div class="flex-1 min-w-0"><b class="block">${t(S.shareOn?"shareOn":"shareOff")}</b><span class="text-xs" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</span></div>
  <button role="switch" aria-checked="${S.shareOn}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0 ${S.shareOn?"pri":""}" style="${S.shareOn?"":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow transition-all"></span></button></div>`;
@@ -771,7 +779,7 @@ function renderFam(){const on=S.fam.filter(f=>sharing(f)).length;
  ${body}
  <div class="grid grid-cols-3 gap-2 mt-3">${btnCall(i,false)}${btnCall(i,true)}
  <button onclick="openChat(${i})" class="btn pri py-2 rounded-xl text-sm">${ic("chat",16)}${t("chat")}${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button></div></div>`};
- $("famList").innerHTML=sw+grp+`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
+ $("famList").innerHTML=grp+`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
 }
 
 /* ---------- calls: WebRTC media engine + Agora SDK stub ---------- */
@@ -830,17 +838,42 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
 /* chat (personal + group) */
 let chatK=0;const REPLIES=["On my way.","Got it, thanks!","Call you in a bit.","Take care!","Sounds good.","Love that idea."];
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
-function openChatHead(){if(chatK==="g"){$("chatName").textContent=t("grp");$("chatAv").innerHTML=GROUP_AV();$("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`}
- else{const f=S.fam[chatK];$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38);$("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`}}
-function openChat(k){chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else S.fam[k].un=0;openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
+function openChatHead(){const cc=$("chatCalls");
+ if(chatK==="g"){$("chatName").textContent=t("grp");$("chatAv").innerHTML=GROUP_AV();
+  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
+  if(cc)cc.innerHTML="";return}
+ const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38);
+ $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
+ if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",16)}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",16)}</button>`}
+function chatCall(video){if(!canCall(video)){openPlans(t(video?"upVideo":"upVoice"));return}startCall(chatK,video)}
+function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else S.fam[k].un=0;openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
-function renderMsgs(){const L=S.chats[chatK];
- $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?`<span class="inline-flex items-center gap-2"><button onclick="playV(${i},this)" class="btn w-8 h-8 rounded-full ${m.me?"bg-white/25":"pri"}" aria-label="Play">${ic("play",14)}</button>
-  <span class="inline-flex flex-col gap-1"><span class="inline-flex items-center gap-[2px] h-5">${WAVE.map(h=>`<i style="height:${h}px;width:3px;border-radius:2px;background:currentColor;opacity:.7"></i>`).join("")}</span><span class="block h-[2px] rounded bg-black/10"><i class="vf block h-full rounded" style="width:0;background:currentColor"></i></span></span><span class="text-xs">${dur(m.d)}</span></span>`:esc(m.t);
-  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");$("msgs").scrollTop=1e5;saveUserData()}
-function playV(i,btn){const m=S.chats[chatK][i],bar=btn.parentElement.querySelector(".vf");bar.style.transition="none";bar.style.width="0";void bar.offsetWidth;bar.style.transition=`width ${m.d}s linear`;bar.style.width="100%";
- if(m.url){const a=new Audio(m.url);a.play().catch(()=>{});}setTimeout(()=>{bar.style.transition="none";bar.style.width="0"},m.d*1000+100)}
+function renderChatList(){const el=$("chatList");if(!el)return;
+ const paid=S.plan!=="free";
+ const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
+ const rows=S.fam.map((f,i)=>{const last=(S.chats[i]||[]).slice(-1)[0];
+  return `<button onclick="openChat(${i})" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(f.n))}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>`}).join("");
+ el.innerHTML=grp+rows}
+let audioPlayer=null,audioIdx=null;
+function voiceCard(m,i){const me=m.me;const playing=audioIdx===i&&audioPlayer&&!audioPlayer.paused;
+ return `<div class="flex items-center gap-2" style="min-width:11rem"><button onclick="toggleVoice(${i})" class="btn w-9 h-9 rounded-full shrink-0 ${me?"bg-white/25 text-white":"pri"}" aria-label="${playing?"Pause":"Play"}">${ic(playing?"pause":"play",14)}</button>
+  <div class="flex-1 min-w-0"><div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(127,127,127,.25)"><div id="vb${i}" class="h-full rounded-full" style="width:0;background:currentColor"></div></div>
+  <div class="flex justify-between text-[10px] mt-1 opacity-80"><span id="vt${i}">0:00</span><span>${dur(m.d)}</span></div></div></div>`}
+function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!m.url)return;
+ if(audioPlayer&&audioIdx===i){if(audioPlayer.paused)audioPlayer.play().catch(()=>{});else audioPlayer.pause();return}
+ if(audioPlayer)audioPlayer.pause();
+ audioPlayer=new Audio(m.url);audioIdx=i;
+ audioPlayer.ontimeupdate=()=>{const a=audioPlayer;const pct=a.duration&&isFinite(a.duration)?a.currentTime/a.duration*100:0;
+  const b=$("vb"+i),tt=$("vt"+i);if(b)b.style.width=pct+"%";if(tt)tt.textContent=dur(Math.floor(a.currentTime))};
+ audioPlayer.onplay=()=>renderMsgs();
+ audioPlayer.onpause=()=>renderMsgs();
+ audioPlayer.onended=()=>{audioIdx=null;renderMsgs()};
+ audioPlayer.play().catch(()=>toast(t("audioErr")));renderMsgs()}
+function renderMsgs(){const L=S.chats[chatK]||[];
+ $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?voiceCard(m,i):esc(m.t);
+  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");
+ $("msgs").scrollTop=1e5;saveUserData()}
 function push(m){const k=chatK;S.chats[k].push(Object.assign({me:true,from:S.user.name},m));renderMsgs();
  setTimeout(()=>{let from;if(k==="g"){const on=S.fam.filter(f=>f.on);from=on[Math.random()*on.length|0].n.split(" ")[0]}else from=S.fam[k].n.split(" ")[0];
   S.chats[k].push({me:false,from,t:m.v?"Got your voice note.":REPLIES[Math.random()*REPLIES.length|0]});saveUserData();
@@ -855,11 +888,17 @@ async function recStart(){if(rec.on)return;rec={on:true,mr:null,stream:null,chun
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);
  try{rec.stream=await navigator.mediaDevices.getUserMedia({audio:true});rec.mr=new MediaRecorder(rec.stream);rec.mr.ondataavailable=e=>rec.chunks.push(e.data);rec.mr.start()}catch(e){rec.mr=null}}
+function blobToDataURL(blob){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(blob)})}
 function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=Math.max(1,r.sec);rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("recBar").classList.add("hidden");$("recBar").classList.remove("flex");$("inBar").classList.remove("hidden");
- const done=url=>{if(send){push({v:1,d,url});toast(t("voiceAlert"))}};
- if(r.mr&&r.mr.state!=="inactive"){r.mr.onstop=()=>{r.stream.getTracks().forEach(x=>x.stop());done(send?URL.createObjectURL(new Blob(r.chunks)):null)};r.mr.stop()}else done(null)}
-
+ const finish=async()=>{
+  if(!send)return;
+  if(!r.chunks.length){toast(t("micNo"));return}
+  const url=await blobToDataURL(new Blob(r.chunks,{type:r.mr&&r.mr.mimeType||"audio/webm"}));
+  if(!url){toast(t("micNo"));return}
+  push({v:1,d,url});toast(t("voiceAlert"))};
+ if(r.mr&&r.mr.state!=="inactive"){r.mr.onstop=()=>{if(r.stream)r.stream.getTracks().forEach(x=>x.stop());finish()};r.mr.stop()}
+ else{if(r.stream)r.stream.getTracks().forEach(x=>x.stop());if(send)toast(t("micNo"))}}
 /* notifications */
 function renderNotifs(){$("nList").innerHTML=S.notifs.map((n,i)=>`<li onclick="S.notifs[${i}].r=true;renderNotifs()" class="card p-3 text-sm cursor-pointer flex gap-2 items-start">${n.r?"":'<i class="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0"></i>'}<span class="${n.r?"opacity-50":""}">${esc(n.t)}</span></li>`).join("");
  $("bellDot").style.display=S.notifs.some(n=>!n.r)?"block":"none"}
@@ -1111,7 +1150,7 @@ function initFeatures(){const el=$("featSlides");
 /* ---------- log out, data load, boot ---------- */
 // Local mode: transactions live in memory for this session (nothing is fetched from a server)
 function loadRemoteTx(){loadUserData();renderAll()}
-function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
+function logout(){closeM("mOut");closeM("mChat");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
 
 // Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
 function authBoot(){
@@ -1122,6 +1161,7 @@ function authBoot(){
  else{freshState("");showAuth()}
 }
 
+Object.assign(T.en,{connected:"In Call",end:"End Call",calling:"Calling…",groupLocked:"Family Group Chat is available on Pro and Pro Plus. Upgrade to join.",grpOn:"Family group chat",voiceCall:"Voice call",videoCall:"Video call",voiceMsg:"Voice message",noMsgs:"No messages yet",audioErr:"Tap play again to start the voice note.",micNo:"Microphone is not available. Allow microphone access and try again.",locSettingT:"Personal live location sharing"});
 Object.assign(T.en,{storeFull:"Device storage is full. Some changes could not be saved.",noContacts:"No registered LifeOne users yet. Invite someone to get started.",openMap:"Open in Live Map",lText:"Text chat only (no voice or video calls)",lArea:"City-level location after mutual accept",lLive:"Real live GPS location sharing",lPrecise:"Full-precision live GPS location",lSmart:"AI Assistant: missing tasks, payment counts, support",lAI:"Advanced AI: task tracking, billing summaries, automated issue resolving",lMap:"Open in Live Map navigation",aiMissing:"Missing tasks",aiPay:"Payment count",aiSupport:"Quick support",aiLockT:"Available on Pro and Pro Plus",aiLockD:"Upgrade to use task checks, payment counts and support queries.",aiMissingT:"Missing tasks",aiMissingN:"{n} tasks are still open.",aiPayT:"Payments recorded",aiPayN:"{n} payment entries are recorded. Open Money for details.",aiSupT:"Quick support",aiSupPro:"Ask about billing or account issues. Full support is on Pro Plus.",aiSupPlus:"Your request is routed to the priority helpline."});
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
@@ -1133,7 +1173,7 @@ Object.assign(T.en,{lifeUser:"Active Member",locBtn:"Location",inviteMember:"Inv
 Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s_card:"Credit Card",inviteWA:"Invite via WhatsApp"});
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
-function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
+function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
@@ -1170,7 +1210,7 @@ const DB={
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
-function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang()}
+function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});
 

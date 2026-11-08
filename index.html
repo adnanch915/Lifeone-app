@@ -951,45 +951,73 @@ function phoneInput(el){if(!el.value.startsWith("+"))return;const d=el.value.rep
  const hit=CC_LIST.map(c=>[c[0],c[2].slice(1)]).sort((x,y)=>y[1].length-x[1].length).find(([,dl])=>d.startsWith(dl));
  if(hit){ccUserPicked=true;setCC(hit[0]);el.value=d.slice(hit[1].length)}}
 
+/* ---------- LOCAL ACCOUNTS (this device only, no network) ---------- */
+const LOCAL_USERS_KEY="lifeone.localUsers";
+const localUsers=()=>store.get(LOCAL_USERS_KEY,[]);
+const saveLocalUsers=list=>store.set(LOCAL_USERS_KEY,list);
+function randomId(){try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}}
+function newSalt(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}
+// Passwords are never stored in plain text: PBKDF2-SHA256 with a per-account salt
+async function hashPassword(pass,saltHex){
+ const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveBits"]);
+ const salt=Uint8Array.from(saltHex.match(/../g).map(h=>parseInt(h,16)));
+ const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:50000,hash:"SHA-256"},key,256);
+ return [...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function clearAuthMsgs(){$("authErr").classList.add("hidden");$("authOk").classList.add("hidden")}
+
+// Red border + red text when the two password fields differ
+function setPwState(bad){
+ ["suPass","suPass2"].forEach(id=>{const el=$(id);el.style.borderColor=bad?"#E11D48":"";el.style.boxShadow=bad?"0 0 0 3px rgba(225,29,72,.15)":""});
+ const m=$("pwMatchMsg");if(m){m.textContent=t("errMatch");m.style.display=bad?"":"none"}
+}
+function initPwMatch(){
+ const p2=$("suPass2");if(!p2||$("pwMatchMsg"))return;
+ const msg=document.createElement("p");msg.id="pwMatchMsg";msg.className="text-xs text-rose-600 mt-1";msg.style.display="none";
+ p2.closest("label").after(msg);
+ const check=()=>setPwState($("suPass2").value.length>0&&$("suPass").value!==$("suPass2").value);
+ $("suPass").addEventListener("input",check);$("suPass2").addEventListener("input",check);
+}
+
+function enterLocal(u){
+ applySession({uid:u.id,name:u.name,contact:u.email,username:u.username,phone:u.phone,verified:true,provider:"local",key:u.id});
+}
+
 async function signUp(){
- $("authErr").classList.add("hidden");$("authOk").classList.add("hidden");
- const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),email=$("suEmail").value.trim().toLowerCase(),pass=$("suPass").value,digits=$("suPhone").value.replace(/\D/g,"");
+ clearAuthMsgs();
+ const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),email=$("suEmail").value.trim().toLowerCase();
+ const pass=$("suPass").value,pass2=$("suPass2").value,digits=$("suPhone").value.replace(/\D/g,"");
  if(full.length<2)return authErr(t("errName"));
  if(!USERNAME_RE.test(username))return authErr(t("errUser"));
  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return authErr(t("errEmail"));
  if(digits.length<7||digits.length>13)return authErr(t("errPhone"));
  if(pass.length<8)return authErr(t("errPass"));
- if(pass!==$("suPass2").value)return authErr(t("errMatch"));
- if(!sb)return authErr(t("sbOff"));
- const {data:free,error:e1}=await sb.rpc("username_available",{p_username:username});
- if(e1)return authErr(t("errGeneric"));
- if(!free)return authErr(t("errUserTaken"));
- const phone=normPhone($("suCC").value,digits);
- const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
- if(error)return authErr(authFail(error));
- if(data&&data.session&&data.user){enterFromSession(data.user);return}
- setAuthMode("signin");$("liId").value=email;authOk(t("checkEmail"));
+ if(pass!==pass2){setPwState(true);return authErr(t("errMatch"))}
+ setPwState(false);
+ const users=localUsers();
+ if(users.some(u=>u.username===username))return authErr(t("errUserTaken"));
+ if(users.some(u=>u.email===email))return authErr(t("errHasAcc"));
+ let salt,hash;
+ try{salt=newSalt();hash=await hashPassword(pass,salt)}catch(e){return authErr(t("errDevice"))}
+ const user={id:randomId(),name:full,username,email,phone:normPhone($("suCC").value,digits),salt,hash,createdAt:Date.now()};
+ users.push(user);saveLocalUsers(users);
+ store.set(SESS_KEY,{id:user.id});
+ enterLocal(user);
 }
+
 async function logIn(){
- $("authErr").classList.add("hidden");$("authOk").classList.add("hidden");
- const id=$("liId").value.trim(),pass=$("liPass").value;
+ clearAuthMsgs();
+ const id=$("liId").value.trim().toLowerCase(),pass=$("liPass").value;
  if(!id||!pass)return authErr(t("errLoginReq"));
- if(!sb)return authErr(t("sbOff"));
- let email=id.toLowerCase();
- if(!id.includes("@")){const {data,error}=await sb.rpc("email_for_username",{p_username:id.toLowerCase()});
-  if(error||!data)return authErr(t("errLogin"));email=data}
- const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
- if(error||!data||!data.user)return authErr(t("errLogin"));
- enterFromSession(data.user);
+ const u=localUsers().find(x=>x.email===id||x.username===id);
+ if(!u)return authErr(t("errLogin"));
+ let hash=null;try{hash=await hashPassword(pass,u.salt)}catch(e){}
+ if(hash!==u.hash)return authErr(t("errLogin"));
+ store.set(SESS_KEY,{id:u.id});
+ enterLocal(u);
 }
-async function forgotPassword(){
- const id=$("liId").value.trim().toLowerCase();
- if(!id.includes("@"))return authErr(t("errEmail"));
- if(!sb)return authErr(t("sbOff"));
- const {error}=await sb.auth.resetPasswordForEmail(id,{redirectTo:siteUrl()});
- if(error)return authErr(t("errGeneric"));
- authOk(t("resetSent"));
-}
+
+function forgotPassword(){clearAuthMsgs();authErr(t("resetLocal"))}
 
 function applySession(acc){document.body.classList.remove("unauth");
  freshState(acc.name);
@@ -1043,27 +1071,21 @@ function initFeatures(){const el=$("featSlides");
  renderFeatDots();restartFeat()}
 
 /* ---------- log out, data load, boot ---------- */
-function loadRemoteTx(){if(!sb)return;
- DB.loadTx().then(r=>{if(r&&!r.error&&Array.isArray(r.data)&&r.data.length){
-  TX=r.data.map(x=>({d:"",t:x.note||"",c:x.category,m:x.source,a:+x.amount_pkr,in:!!x.is_income,ts:new Date(x.occurred_at).getTime()}));renderMoney()}}).catch(()=>{})}
-async function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll();
- if(sb){try{await sb.auth.signOut()}catch(e){}}}
-async function authBoot(){
-  initCountryPicker();
- setAuthMode(authMode);initHdrCur();initFeatures();
- if(!sb){freshState("");showAuth();return}
- sb.auth.onAuthStateChange((ev,session)=>{
-  if((ev==="SIGNED_IN"||ev==="INITIAL_SESSION")&&session&&session.user)enterFromSession(session.user);
-  if(ev==="SIGNED_OUT"&&S.authed){S.authed=false;S.user.uid="";showAuth()}});
- try{
-  const {data}=await sb.auth.getSession();
-  if(data&&data.session&&data.session.user)enterFromSession(data.session.user);
-  else{freshState("");showAuth()}
- }catch(e){freshState("");showAuth()}
+// Local mode: transactions live in memory for this session (nothing is fetched from a server)
+function loadRemoteTx(){}
+function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
+
+// Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
+function authBoot(){
+ initCountryPicker();setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
+ const ses=store.get(SESS_KEY,null);
+ const u=ses&&localUsers().find(x=>x.id===ses.id);
+ if(u)enterLocal(u);
+ else{freshState("");showAuth()}
 }
 
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
-Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match. Please check both fields."});
+Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
@@ -1100,10 +1122,11 @@ function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI(
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
 /* ---------- data API: Supabase tables ---------- */
+// Local mode: no remote database calls. Replace these three functions to re-enable Supabase later.
 const DB={
- upsertUser(row){return sb?sb.from("users").upsert(row,{onConflict:"id"}):Promise.resolve({error:null})},
- insertTx(row){return sb?sb.from("transactions").insert(row):Promise.resolve({error:null})},
- loadTx(){return sb?sb.from("transactions").select("note,category,source,amount_pkr,is_income,occurred_at").order("occurred_at",{ascending:false}):Promise.resolve({data:[],error:null})}
+ upsertUser(row){return Promise.resolve({error:null})},
+ insertTx(row){return Promise.resolve({error:null})},
+ loadTx(){return Promise.resolve({data:[],error:null})}
 };
 
 /* ---------- boot ---------- */

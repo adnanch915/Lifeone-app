@@ -59,7 +59,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
    
    <label class="relative btn out h-9 rounded-xl px-2.5 flex items-center gap-1.5 cursor-pointer">
    <span style="color:var(--mut)" data-ic="globe" data-s="16"></span>
-   <span id="flag" class="text-[11px] font-semibold leading-none" aria-hidden="true">EN</span>
+   <span id="flag" class="inline-flex w-5 h-3.5 rounded-sm overflow-hidden shrink-0" aria-hidden="true"></span>
    <select id="lang" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Interface language">
     <option value="en">English</option><option value="ur">اردو</option><option value="ar">العربية</option><option value="zh">中文</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
    </select></label>
@@ -73,7 +73,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  <section id="tab-home" class="tab-content space-y-4">
   <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF 0%,#FFFFFF 70%);border:1px solid #DDD6FE">
    <div class="flex items-start justify-between gap-3">
-    <div class="flex items-center gap-3 min-w-0"><div class="av rounded-full overflow-hidden"></div>
+    <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
      <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
     <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">0</b><span data-i18n="streak"></span></span>
    </div>
@@ -171,7 +171,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   <h2 class="text-lg font-bold" data-i18n="profile"></h2>
   <div id="authCard" class="card p-5"></div>
   <div class="card p-5 space-y-4">
-   <div class="flex items-center gap-4"><div class="av big rounded-full overflow-hidden"></div>
+   <div class="flex items-center gap-4"><div class="av big"></div>
     <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1"></label>
@@ -184,8 +184,8 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
   <div class="card p-5 space-y-3">
    <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openInvite('')"><span data-ic="share" data-s="18"></span><span data-i18n="invite"></span></button>
    <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openM('mPw')"><span data-ic="key" data-s="18"></span><span data-i18n="pw"></span></button>
-   <button class="btn w-full py-2.5 rounded-xl text-sm bg-rose-50 text-rose-600 border border-rose-200" onclick="openM('mOut')"><span data-ic="logout" data-s="18"></span><span data-i18n="logout"></span></button>
   </div>
+  <div class="pt-2"><button onclick="openM('mOut')" class="btn w-full py-3.5 rounded-xl text-sm font-semibold text-white" style="background:#E11D48"><span data-ic="logout" data-s="18"></span><span data-i18n="logout"></span></button></div>
  </section>
 </main>
 
@@ -462,12 +462,11 @@ document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if
 
 /* avatars */
 const avHTML=(n,sz,img)=>img?`<img src="${img}" alt="" style="width:${sz}px;height:${sz}px" class="rounded-full object-cover">`:`<div style="width:${sz}px;height:${sz}px;font-size:${sz/2.6}px;background:var(--pri)" class="rounded-full text-white flex items-center justify-center font-semibold">${esc(ini(n))}</div>`;
-function renderAv(){document.querySelectorAll(".av").forEach(e=>{const sz=e.classList.contains("big")?72:52;e.classList.add("rounded-full","overflow-hidden","shrink-0");e.style.width=sz+"px";e.style.height=sz+"px";e.innerHTML=avHTML(S.user.name,sz,S.user.img)});
- renderGreeting()}
-function renderGreeting(){const el=$("greet");if(el)el.textContent=t(greetKey())+(S.user.name?", "+S.user.name:"")}
+function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
+ $("greet").textContent=t(greetKey())+", "+S.user.name}
 
 /* language */
-function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.textContent=FLAG[l]||"--";document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
+function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
  document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));
  $("tCat").innerHTML=CATS.map(c=>`<option value="${c}">${t(c)}</option>`).join("");$("tUrg").innerHTML=["High","Medium","Low"].map(u=>`<option value="${u}">${t({High:"uHigh",Medium:"uMed",Low:"uLow"}[u])}</option>`).join("");$("tUrg").value="Medium";
@@ -566,7 +565,7 @@ function renderMoney(){const f=finCalc();
  $("inf").textContent="+"+money(f.inf);$("outf").textContent="−"+money(f.out);$("allocTot").textContent=money(f.out);
  $("alloc").innerHTML=f.cats.length?f.cats.map(([k,ico,col,v])=>{const p=Math.round(v/f.out*100);return `<li class="py-3"><div class="flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background:${col}1A;color:${col}">${ic(ico,18)}</span><div class="flex-1 min-w-0"><div class="flex justify-between gap-2"><b class="truncate text-sm">${t(k)}</b><b class="text-sm">${money(v)}</b></div><div class="flex items-center gap-2 mt-1.5"><div class="flex-1 h-2 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full" style="width:${p}%;background:${col}"></div></div><span class="text-xs w-9 text-end" style="color:var(--mut)">${S.mask?"••":p+"%"}</span></div></div></div></li>`}).join(""):emptyBox(t("emptyAlloc"));
  $("rate").textContent=`${t("rate")}: 1 USD = ${CUR[S.cur].r} ${S.cur}`;
- renderTx();persistAccountData()}
+ renderTx()}
 let txType="expense";
 const INC_CATS=[["inc_salary"],["inc_biz"],["inc_free"],["inc_inv"],["inc_gift"],["inc_other"]];
 const EXP_CATS=[["cHouse"],["cGroc"],["cDine"],["cHealth"],["cUtil"],["cShop"],["cTravel"]];
@@ -601,17 +600,21 @@ function setCur(k){S.cur=k;renderMoney()}
 function toggleMask(){S.mask=!S.mask;renderMoney()}
 const fmtTs=x=>{if(!x.ts)return x.d||"";const d=new Date(x.ts),L=LOC[S.lang]||"en-US";
  return d.toLocaleDateString(L,{month:"short",day:"numeric",year:"numeric"})+" - "+d.toLocaleTimeString(L,{hour:"2-digit",minute:"2-digit"})};
-function renderTx(){const q=(($("txSearch")||{}).value||"").trim().toLowerCase();
+function renderTx(){saveUserData();const q=(($("txSearch")||{}).value||"").trim().toLowerCase();
  const L=TX.filter(x=>!q||(x.t+" "+t(x.c)+" "+t(x.m)+" "+fmtTs(x)).toLowerCase().includes(q));
  $("txList").innerHTML=L.length?L.map(x=>`<li class="flex items-center gap-3 py-2.5"><span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${x.in?"bg-emerald-50 text-emerald-600":"bg-rose-50 text-rose-600"}">${ic(x.in?"arrowin":"arrowout",15)}</span><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(x.t)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(fmtTs(x))} · ${ICON_SRC[x.m]?ic(ICON_SRC[x.m],12):""} ${esc(t(x.m))}</p></div><b class="text-sm ${x.in?"text-emerald-600":"text-rose-600"}">${x.in?"+":"−"}${money(x.a)}</b></li>`).join(""):`<li class="py-6 text-center text-sm" style="color:var(--mut)">${TX.length?t("noTx"):t("emptyTx")}</li>`}
 function payHook(k){toast(t("notLinked"))}
 
 /* plans + entitlements */
-const PLAN={free:{name:"Free",price:0,max:3,cp:3,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:50,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:Infinity,cp:Infinity,voice:true,video:true,precise:true}};
+const PLAN={free:{name:"Free",price:0,max:3,cp:3,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:50,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
 const pl=()=>PLAN[S.plan];
 const canCall=v=>v?pl().video:pl().voice;
-function planLines(k){const p=PLAN[k],L=[t("lContacts").replace("{n}",p.max===Infinity?t("unlimited"):p.max),p.video?t("lVideo"):p.voice?t("lVoice"):t("lText"),p.cp===Infinity?t("lCpUnl"):t("lCp").replace("{n}",p.cp),p.precise?t("lPrecise"):t("lArea")];
- if(k!=="free")L.push(t("lSmart"));if(k==="plus"){L.push(t("lAI"));L.push(t("lHelp"))}return L}
+function planLines(k){const p=PLAN[k];
+ const loc=k==="free"?t("lArea"):k==="pro"?t("lLive"):t("lPrecise");
+ const L=[t("lContacts").replace("{n}",p.max),p.video?t("lVideo"):p.voice?t("lVoice"):t("lText"),p.cp===Infinity?t("lCpUnl"):t("lCp").replace("{n}",p.cp),loc];
+ if(k==="pro")L.push(t("lSmart"));
+ if(k==="plus"){L.push(t("lAI"));L.push(t("lMap"));L.push(t("lHelp"))}
+ return L}
 function openPlans(hint){const h=$("planHint");if(h){h.textContent=hint||"";h.classList.toggle("hidden",!hint)}renderPlanGrid();openM("mPay")}
 function renderPlanGrid(){const el=$("planGrid");if(!el)return;
  el.innerHTML=["free","pro","plus"].map(k=>{const p=PLAN[k],cur=S.plan===k,busy=S.busyPlan===k;
@@ -631,14 +634,16 @@ function enforceLimit(){const max=pl().max,act=S.fam.filter(f=>consentOf(f)==="a
 function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:false});renderNotifs();toast(t("helpDone"))}
 
 /* AI copilot: privacy-aware rules; Home never shows financial figures */
-const greetKey=()=>{const h=new Date().getHours();return h>=5&&h<12?"gM":h>=12&&h<17?"gA":h>=17&&h<21?"gE":"gN"};
+const greetKey=()=>{const h=new Date().getHours();return h<12?"gM":h<18?"gA":"gE"};
 const CPQ=[["chip1","Optimize my schedule"],["chip2","Budget sanity check"],["chip3","Summarize my day"]];
 // Daily copilot count is kept in localStorage so a page reload cannot reset the Free limit
 function cpDayRead(){const d=new Date().toDateString();let v=store.get("lifeone.cpday",null);if(!v||v.d!==d)v={d,n:0};S.cpDay=v;return v}
 function cpLeft(){const v=cpDayRead();const lim=pl().cp;return lim===Infinity?Infinity:Math.max(0,lim-v.n)}
 function renderCpUsage(){const l=cpLeft();$("cpUsage").textContent=l===Infinity?t("cpUnl"):t("cpLeft").replace("{n}",l);
  const m=$("cpMic");if(m){m.innerHTML=ic(S.plan==="plus"?"mic":"lock",15);m.setAttribute("aria-label",t("cpListen"))}}
-function cpChips(){$("cpChips").innerHTML=CPQ.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("");renderCpUsage()}
+function cpChips(){const extra=S.plan!=="free"?[["aiMissing","missing tasks"],["aiPay","payment count"],["aiSupport","quick support"]]:[];
+ $("cpChips").innerHTML=CPQ.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("")
+  +extra.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("");renderCpUsage()}
 function cpCard(c){const o=$("cpOut");
  const items=c.items?`<ol class="mt-2 space-y-1.5 list-none">${c.items.map(x=>`<li class="flex gap-2 text-sm"><span class="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style="background:var(--pri)"></span><span>${esc(x)}</span></li>`).join("")}</ol>`:"";
  const act=c.act?`<button onclick="cpAct('${c.act}')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-3">${esc(c.label)}</button>`:"";
@@ -663,6 +668,17 @@ function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.v
  if(/summar|day|progress|done|focus|today/.test(l)){const d=S.tasks.filter(x=>x.d).length,n=S.tasks.length,nx=S.tasks.filter(x=>!x.d&&x.time).sort(byTime)[0];
   cpCard({icon:"sparkle",title:t("cpSumm"),body:`${t("cpDone").replace("{d}",d).replace("{n}",n)} ${nx?t("cpNext").replace("{t}",nx.t).replace("{h}",fmtT(nx.time)):t("cpNoNext")} ${t("cpStreak").replace("{n}",S.habits[0].d)}`});return}
  if(/where|location|gps/.test(l)){cpCard({icon:"pin",title:t("cpWhereT"),body:geoOK()?t("cpLoc").replace("{p}",S.user.loc):geoPlace()});return}
+ if(/missing|overdue|pending|unfinished|left to do/.test(l)){
+  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
+  const todo=S.tasks.filter(x=>!x.d);
+  cpCard({icon:"check",title:t("aiMissingT"),body:todo.length?t("aiMissingN").replace("{n}",todo.length):t("allDone"),items:todo.slice(0,5).map(x=>x.t+(x.time?" · "+fmtT(x.time):""))});return}
+ if(/payment|payments|paid|transactions?/.test(l)){
+  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
+  const n=TX.filter(x=>!x.in).length;
+  cpCard({icon:"wallet",title:t("aiPayT"),body:t("aiPayN").replace("{n}",n),act:"money",label:t("open")+" · "+t("money")});return}
+ if(/support|helpline|issue|problem|complaint/.test(l)){
+  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
+  cpCard({icon:"shield",title:t("aiSupT"),body:S.plan==="plus"?t("aiSupPlus"):t("aiSupPro")});return}
  cpCard({icon:"sparkle",title:t("cpHelpT"),body:t("cpHelp")})}
 function cpVoice(){if(S.plan!=="plus"){cpCard({icon:"lock",title:t("cpVoiceNo"),body:t("lAI"),act:"plus",label:t("planT")});return}
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast(t("cpVoiceNo"));return}
@@ -685,40 +701,40 @@ function cAct(i,a){const f=S.fam[i],n=f.n.split(" ")[0];
  else if(a==="demo"){f.them=true;if(consentOf(f)==="active"){S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:false});renderNotifs()}}
  renderFam();renderTrust();renderShield();renderHomeFam();}
 const contactDigits=s=>s.replace(/\D/g,"");
-const MOCK_CONTACTS=[{name:"Ali Khan",phone:"03001234567"},{name:"Usman",phone:"03219876543"},{name:"Sarah",phone:"03125554433"}];
+/* ---------- contacts: registered LifeOne users only ---------- */
 const last10=s=>contactDigits(s||"").slice(-10);
-function regAccounts(){return Object.values(store.get(ACC_KEY,{})).filter(a=>a.contact!==S.user.email)}
-function accByPhone(num){const d=last10(num);if(d.length<10)return null;
- return regAccounts().find(a=>!a.contact.includes("@")&&last10(a.contact)===d)||null}
+const regUsers=()=>localUsers().filter(u=>u.id!==S.user.uid);
+const userByKey=key=>localUsers().find(u=>u.id===key)||null;
 function waNum(num){let d=contactDigits(num||"");if(d.startsWith("0"))d="92"+d.slice(1);return d}
-function chatContact(key){const a=store.get(ACC_KEY,{})[key];if(!a)return;
+function inviteWhatsApp(num){const msg=t("inviteMsg").replace("{u}",refLink());const n=waNum(num);
+ window.open((n?`https://wa.me/${n}`:"https://wa.me/")+"?text="+encodeURIComponent(msg),"_blank","noopener")}
+function chatContact(key){const u=userByKey(key);if(!u)return;
  let i=S.fam.findIndex(f=>f.key===key);if(i<0){connectContact(key);i=S.fam.findIndex(f=>f.key===key)}
  if(i>=0)openChat(i)}
-function locAct(key){const a=store.get(ACC_KEY,{})[key];if(!a)return;const first=a.name.split(" ")[0];
+function locAct(key){const u=userByKey(key);if(!u)return;const first=u.name.split(" ")[0];
  const f=S.fam.find(x=>x.key===key);
  if(!f){connectContact(key);return}
  if(consentOf(f)==="active"){toast(first+": "+(sharing(f)?t("locLive"):t("locGranted")));return}
  if(!f.me){cAct(S.fam.indexOf(f),"req")}else{toast(t("reqSent").replace("{n}",first))}}
-const avatarOf=e=>e.acc&&e.acc.picture?`<img src="${esc(e.acc.picture)}" alt="" class="w-10 h-10 rounded-full object-cover shrink-0">`:`<span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(e.name))}</span>`;
-function contactRow(e,mode){const a=e.acc;
- const badge=a?`<span class="text-[11px] px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">${t("lifeUser")}</span>`:"";
- const sub=a?esc(e.phone||""):(mode==="search"?t("notOnAppShort"):esc(e.phone||""));
- let act="";
- if(a)act=`<button onclick="chatContact('${esc(a.key)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(a.key)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button>`;
- else if(mode==="search")act=`<button onclick="openInvite('${esc(e.phone||"")}','${esc(e.name)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1 whitespace-nowrap">${ic("share",13)}${t("inviteSug")}</button>`;
- return `<div class="flex items-center gap-3 py-2.5">${avatarOf(e)}<div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(e.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">${sub}</p><div class="mt-1">${badge}</div></div><div class="flex flex-wrap justify-end gap-1.5 shrink-0">${act}</div></div>`}
+function contactRow(u,mode){
+ if(u.raw)return `<div class="rounded-xl p-3 bg-slate-50 border border-slate-200 text-sm"><p>${esc(u.name)} ${t("notOnApp")}</p><button onclick="openInvite('${esc(u.phone||"")}','${esc(u.name)}')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteSug")}</button></div>`;
+ const contact=u.phone||u.email||"";
+ return `<div class="flex items-center gap-3 py-2.5"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(u.name))}</span>
+  <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(u.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">@${esc(u.username||"")} · ${esc(contact)}</p>
+  <div class="mt-1"><span class="text-[11px] px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">${t("lifeUser")}</span></div></div>
+  <div class="flex flex-wrap justify-end gap-1.5 shrink-0"><button onclick="chatContact('${esc(u.id)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(u.id)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button></div></div>`}
+// Search by name, username, email or phone (both email and phone sign-ups are covered)
 function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
- const raw=($("famQ").value||"").trim(),q=raw.toLowerCase(),qd=contactDigits(raw),mode=q?"search":"list";
- const entries=[],used=new Set();
- MOCK_CONTACTS.forEach(m=>{const acc=accByPhone(m.phone);if(acc)used.add(acc.key);entries.push({name:m.name,phone:m.phone,acc})});
- regAccounts().forEach(a=>{if(!used.has(a.key))entries.push({name:a.name,phone:a.contact.includes("@")?"":a.contact,acc:a})});
- let list=q?entries.filter(e=>e.name.toLowerCase().includes(q)||(qd.length>=3&&contactDigits(e.phone||"").includes(qd))||(e.acc&&e.acc.contact.toLowerCase().includes(q))):entries;
- if(q&&!list.length){const isNum=qd.length>=7;list=[{name:isNum?qd:raw,phone:isNum?qd:"",acc:isNum?accByPhone(qd):null}]}
- el.innerHTML=list.map(e=>contactRow(e,mode)).join("")}
-function connectContact(key){const a=store.get(ACC_KEY,{})[key];if(!a)return;
+ const raw=($("famQ").value||"").trim(),q=raw.toLowerCase(),qd=contactDigits(raw);
+ let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
+ if(!list.length){
+  if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
+  const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
+ el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
+function connectContact(key){const u=userByKey(key);if(!u)return;
  if(S.fam.some(f=>f.key===key)){toast(t("alreadyConn"));return}
- S.fam.push({key,n:a.name,rel:t("contact"),cc:"",addr:"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
- toast(t("connReq").replace("{n}",a.name.split(" ")[0]));renderAll();famSearch()}
+ S.fam.push({key,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
+ toast(t("connReq").replace("{n}",u.name.split(" ")[0]));renderAll();famSearch()}
 function refLink(){const base=(S.user.name||"user").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,12)||"user";return APP_URL+"/?ref="+base+Math.random().toString(36).slice(2,7)}
 
 let invLink="";
@@ -738,9 +754,9 @@ function renderFam(){const on=S.fam.filter(f=>sharing(f)).length;
  <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")}</b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
  const locFor=(f,i)=>{if(!S.shareOn||consentOf(f)!=="active")return "";
-  if(pl().precise)return locBlock(f,i);
+  if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
   if(S.plan==="pro")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
-  return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city)}</span></div>`};
+  return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
   if(c==="active"&&S.shareOn)body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
@@ -762,7 +778,15 @@ function renderFam(){const on=S.fam.filter(f=>sharing(f)).length;
 // Agora is a stub: set appId and load the Agora Web SDK to enable it. Until then the WebRTC path runs.
 const AGORA={appId:"",configured(){return !!this.appId},
  async join(channel){if(!this.configured())throw new Error("Agora appId not set");/* AgoraRTC.createClient({mode:"rtc",codec:"vp8"}); client.join(appId, channel, token, uid) */}};
-const FLAG={en:"EN",ur:"UR",ar:"AR",zh:"ZH",hi:"HI",es:"ES",fr:"FR",de:"DE"};
+const FLAG={
+ en:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="20" fill="#012169"/><path d="M0 0L30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0L30 20M30 0L0 20" stroke="#C8102E" stroke-width="1.6"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#C8102E" stroke-width="3.6"/></svg>',
+ ur:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="20" fill="#01411C"/><rect width="7.5" height="20" fill="#fff"/><circle cx="19" cy="10" r="5" fill="#fff"/><circle cx="20.5" cy="8.7" r="4.4" fill="#01411C"/></svg>',
+ ar:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="20" fill="#006C35"/><rect x="7" y="13" width="16" height="1.6" fill="#fff"/></svg>',
+ zh:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="20" fill="#DE2910"/><path d="M6 3.5l.9 2.6h2.8l-2.2 1.6.8 2.6L6 8.7l-2.3 1.6.8-2.6-2.2-1.6h2.8z" fill="#FFDE00"/></svg>',
+ hi:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="6.7" fill="#FF9933"/><rect y="6.7" width="30" height="6.6" fill="#fff"/><rect y="13.3" width="30" height="6.7" fill="#138808"/><circle cx="15" cy="10" r="2.2" fill="none" stroke="#000080" stroke-width=".6"/></svg>',
+ es:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/></svg>',
+ fr:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="10" height="20" fill="#002395"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#ED2939"/></svg>',
+ de:'<svg viewBox="0 0 30 20" width="100%" height="100%" preserveAspectRatio="none"><rect width="30" height="6.7" fill="#000"/><rect y="6.7" width="30" height="6.6" fill="#DD0000"/><rect y="13.3" width="30" height="6.7" fill="#FFCE00"/></svg>'};
 const nearestCC=(la,ln)=>{let b=null,bd=1e9;CITIES.forEach(c=>{const d=haversine(la,ln,c.la,c.ln);if(d<bd){bd=d;b=c}});return b?b.c:null};
 const callKind=f=>!f.cc||!S.user.cc?"":(f.cc===S.user.cc?t("local"):t("intl"));
 let call={pc:null,stream:null,timer:null,sec:0,video:false,mute:false,facing:"user",peer:null,mediaErr:false};
@@ -814,12 +838,12 @@ const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderMsgs(){const L=S.chats[chatK];
  $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?`<span class="inline-flex items-center gap-2"><button onclick="playV(${i},this)" class="btn w-8 h-8 rounded-full ${m.me?"bg-white/25":"pri"}" aria-label="Play">${ic("play",14)}</button>
   <span class="inline-flex flex-col gap-1"><span class="inline-flex items-center gap-[2px] h-5">${WAVE.map(h=>`<i style="height:${h}px;width:3px;border-radius:2px;background:currentColor;opacity:.7"></i>`).join("")}</span><span class="block h-[2px] rounded bg-black/10"><i class="vf block h-full rounded" style="width:0;background:currentColor"></i></span></span><span class="text-xs">${dur(m.d)}</span></span>`:esc(m.t);
-  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");$("msgs").scrollTop=1e5}
+  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");$("msgs").scrollTop=1e5;saveUserData()}
 function playV(i,btn){const m=S.chats[chatK][i],bar=btn.parentElement.querySelector(".vf");bar.style.transition="none";bar.style.width="0";void bar.offsetWidth;bar.style.transition=`width ${m.d}s linear`;bar.style.width="100%";
  if(m.url){const a=new Audio(m.url);a.play().catch(()=>{});}setTimeout(()=>{bar.style.transition="none";bar.style.width="0"},m.d*1000+100)}
 function push(m){const k=chatK;S.chats[k].push(Object.assign({me:true,from:S.user.name},m));renderMsgs();
  setTimeout(()=>{let from;if(k==="g"){const on=S.fam.filter(f=>f.on);from=on[Math.random()*on.length|0].n.split(" ")[0]}else from=S.fam[k].n.split(" ")[0];
-  S.chats[k].push({me:false,from,t:m.v?"Got your voice note.":REPLIES[Math.random()*REPLIES.length|0]});
+  S.chats[k].push({me:false,from,t:m.v?"Got your voice note.":REPLIES[Math.random()*REPLIES.length|0]});saveUserData();
   if(chatK===k&&$("mChat").classList.contains("on"))renderMsgs();else{if(k==="g")S.gun++;else S.fam[k].un++;renderTabs();renderFam()}},1100+Math.random()*700)}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";push({t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
@@ -843,8 +867,13 @@ function readAll(){S.notifs.forEach(n=>n.r=true);renderNotifs()}
 $("bell").onclick=()=>{renderNotifs();openM("mNotif")};
 
 /* profile, pro, security */
-$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.user.img=r.result;persistAccountData();renderAv();refreshTrust()};r.readAsDataURL(f)};
-$("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();persistAccountData();renderAv();refreshTrust();toast(t("saved"))};
+function fileToAvatar(file,cb){const r=new FileReader();r.onload=()=>{const img=new Image();
+ img.onload=()=>{const k=Math.min(1,256/Math.max(img.width,img.height));const c=document.createElement("canvas");
+  c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));c.getContext("2d").drawImage(img,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.85))};
+ img.onerror=()=>cb(r.result);img.src=r.result};r.readAsDataURL(file)}
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;fileToAvatar(f,url=>{S.user.img=url;renderAv();refreshTrust();saveUserData()})};
+$("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();toast(t("saved"))};
+
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
  $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--pri)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
  <ul class="text-sm space-y-1.5 my-3">${planLines(S.plan).slice(0,4).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--pri)">${ic("check",14)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
@@ -860,7 +889,7 @@ function renderAuth(){const el=$("authCard");if(!el)return;
    <div class="rounded-xl p-3" style="background:#F8FAFC;border:1px solid var(--line)"><p class="text-[11px]" style="color:var(--mut)">${t("lblPhoneP")}</p><p class="truncate">${esc(S.user.phone||"—")}</p><div class="mt-1">${st(!!S.user.phone,t("phoneSaved"),t("phoneMissing"))}</div></div>
   </div>`}
 function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
- const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();toast(t("saved"))}
+ const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();saveUserData();toast(t("saved"))}
 $("saveP").onclick=saveProfile;
 function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$("pwErr").textContent=t("pwShort");return}
  $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
@@ -873,7 +902,18 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const DEMO=clone({tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,inf:FIN.inf,cats:FIN.cats,tx:TX});
 Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-powered life copilot & productivity hub.",tabIn:"Sign in",tabUp:"Create account",google:"Continue with Google",orLbl:"or",nameLbl:"Full name",byEmail:"Email",byMobile:"Mobile",emailLbl:"Email address",phoneLbl:"Mobile number",sendCode:"Send verification code",secNote:"Your session is kept on this device. Demo mode: no real SMS or email is sent.",otpTitle:"Verify your identity",otpSub:"Enter the 6-digit code sent to {c}",verify:"Verify",resend:"Resend code",resendIn:"Resend in {s}s",change:"Change details",demoOtp:"Demo mode: no SMS or email is sent. Your code is {c}.",errName:"Please enter your full name.",errEmail:"Enter a valid email address.",errPhone:"Enter a valid mobile number.",errNoAcc:"No account for this contact. Create one first.",errHasAcc:"An account already exists. Sign in instead.",errOtp:"Incorrect code. Try again.",errOtpMax:"Too many attempts. Request a new code.",errOtpExp:"This code expired. Request a new code.",errGoogle:"Google sign-in could not be read. Try again.",gDemo:"Google Client ID not set. Using demo sign-in.",emptyTasks:"No tasks yet. Add your first task to start your rhythm.",emptyFam:"No contacts yet. Family and friends you connect will appear here.",emptyTx:"No transactions yet.",welcomeNote:"Welcome to LifeOne. Your dashboard is ready.",demoBtn:"Load demo data",demoOn:"Demo data loaded",demoBoxTxt:"Preview only. Your account data stays empty until you add it."});
 
-function freshState(name){
+/* ---------- per-user local data: survives refresh, tab close, logout and re-login ---------- */
+let dataReady=false;
+const dataKey=()=>"lifeone.data."+S.user.uid;
+function saveUserData(){if(!dataReady||!S.user.uid)return;
+ try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,chats:S.chats,fam:S.fam,profile:{img:S.user.img,name:S.user.name,email:S.user.email}})}
+ catch(e){toast(t("storeFull"))}}
+function loadUserData(){const d=store.get(dataKey(),null);
+ if(d){TX=Array.isArray(d.tx)?d.tx:[];S.tasks=Array.isArray(d.tasks)?d.tasks:[];S.chats=d.chats||{g:[]};S.fam=Array.isArray(d.fam)?d.fam:[];
+  if(d.profile){S.user.img=d.profile.img||null;if(d.profile.name)S.user.name=d.profile.name;if(d.profile.email)S.user.email=d.profile.email}}
+ else{TX=[];S.tasks=[];S.chats={g:[]};S.fam=[]}
+ dataReady=true}
+function freshState(name){dataReady=false;
  S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:false}];S.chats={g:[]};S.gun=0;S.streak=0;
  S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];
  S.shareOn=false;S.plan="free";S.pro=false;S.busyPlan=null;S.cpDay={d:"",n:0};S.mask=false;S.filter="all";S.pwChanged=false;
@@ -953,29 +993,6 @@ function phoneInput(el){if(!el.value.startsWith("+"))return;const d=el.value.rep
 const LOCAL_USERS_KEY="lifeone.localUsers";
 const localUsers=()=>store.get(LOCAL_USERS_KEY,[]);
 const saveLocalUsers=list=>store.set(LOCAL_USERS_KEY,list);
-// Persist profile photo and money data separately for each signed-in account.
-const accountDataKey=uid=>"lifeone.accountData."+String(uid||"").replace(/[^a-zA-Z0-9_-]/g,"_");
-function persistAccountData(){
- if(!S.user.uid)return;
- store.set(accountDataKey(S.user.uid),{
-  picture:S.user.img||null,
-  transactions:Array.isArray(TX)?TX:[],
-  finance:{inf:FIN.inf,cats:FIN.cats}
- });
-}
-function restoreAccountData(uid,fallback){
- if(!uid)return;
- const saved=store.get(accountDataKey(uid),null);
- if(saved){
-  S.user.img=saved.picture||S.user.img||null;
-  TX=Array.isArray(saved.transactions)?saved.transactions:[];
-  if(saved.finance){FIN.inf=Number(saved.finance.inf)||0;FIN.cats=Array.isArray(saved.finance.cats)?saved.finance.cats:[]}
- }else if(fallback){
-  TX=Array.isArray(fallback.transactions)?fallback.transactions:[];
-  if(fallback.finance){FIN.inf=Number(fallback.finance.inf)||0;FIN.cats=Array.isArray(fallback.finance.cats)?fallback.finance.cats:[]}
-  persistAccountData();
- }
-}
 function randomId(){try{return crypto.randomUUID()}catch(e){return Date.now().toString(36)+Math.random().toString(36).slice(2,10)}}
 function newSalt(){return [...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,"0")).join("")}
 // Passwords are never stored in plain text: PBKDF2-SHA256 with a per-account salt
@@ -1041,12 +1058,9 @@ async function logIn(){
 function forgotPassword(){clearAuthMsgs();authErr(t("resetLocal"))}
 
 function applySession(acc){document.body.classList.remove("unauth");
- const uid=acc.uid||"";
- const firstLoginMoney={transactions:clone(TX),finance:{inf:FIN.inf,cats:clone(FIN.cats)}};
  freshState(acc.name);
- S.user.uid=uid;S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
+ S.user.uid=acc.uid||"";S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
  S.user.verified=!!acc.verified;S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
- restoreAccountData(uid,firstLoginMoney);
  $("authScreen").classList.add("hidden");
  if(!geoStarted){geoStarted=true;startGeo();startBattery()}
  applyLang();go("home");loadRemoteTx()}
@@ -1095,23 +1109,22 @@ function initFeatures(){const el=$("featSlides");
  renderFeatDots();restartFeat()}
 
 /* ---------- log out, data load, boot ---------- */
-// Restore this account's saved transactions and refresh all money totals after login.
-function loadRemoteTx(){restoreAccountData(S.user.uid);renderMoney()}
+// Local mode: transactions live in memory for this session (nothing is fetched from a server)
+function loadRemoteTx(){loadUserData();renderAll()}
 function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
 
 // Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
 function authBoot(){
  initCountryPicker();setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
- setInterval(renderGreeting,60000);
  const ses=store.get(SESS_KEY,null);
  const u=ses&&localUsers().find(x=>x.id===ses.id);
  if(u)enterLocal(u);
  else{freshState("");showAuth()}
 }
 
+Object.assign(T.en,{storeFull:"Device storage is full. Some changes could not be saved.",noContacts:"No registered LifeOne users yet. Invite someone to get started.",openMap:"Open in Live Map",lText:"Text chat only (no voice or video calls)",lArea:"City-level location after mutual accept",lLive:"Real live GPS location sharing",lPrecise:"Full-precision live GPS location",lSmart:"AI Assistant: missing tasks, payment counts, support",lAI:"Advanced AI: task tracking, billing summaries, automated issue resolving",lMap:"Open in Live Map navigation",aiMissing:"Missing tasks",aiPay:"Payment count",aiSupport:"Quick support",aiLockT:"Available on Pro and Pro Plus",aiLockD:"Upgrade to use task checks, payment counts and support queries.",aiMissingT:"Missing tasks",aiMissingN:"{n} tasks are still open.",aiPayT:"Payments recorded",aiPayN:"{n} payment entries are recorded. Open Money for details.",aiSupT:"Quick support",aiSupPro:"Ask about billing or account issues. Full support is on Pro Plus.",aiSupPlus:"Your request is routed to the priority helpline."});
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
-Object.assign(T.en,{gN:"Good night"});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
@@ -1120,7 +1133,7 @@ Object.assign(T.en,{lifeUser:"Active Member",locBtn:"Location",inviteMember:"Inv
 Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s_card:"Credit Card",inviteWA:"Invite via WhatsApp"});
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
-function renderAll(){[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
+function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */

@@ -755,15 +755,25 @@ function contactRow(u,mode){
 // Search by name, username, email or phone (both email and phone sign-ups are covered)
 function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
  const raw=($("famQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
+ scheduleRemote(raw);
  let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
  if(!list.length){
   if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
   const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
  el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
-function openSearchModal(){loadProfiles();$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
+let lastRemoteQ="",rsT=null;
+// supabase.from("profiles").select("*").ilike("username", `%${term}%`).neq("id", currentUserId)
+async function remoteSearch(term){if(!sb||!term)return;
+ const esc2=term.replace(/[\\%_]/g,m=>"\\"+m);
+ const {data,error}=await sb.from("profiles").select("*").ilike("username",`%${esc2}%`).neq("id",S.user.uid||"00000000-0000-0000-0000-000000000000");
+ if(error||!data)return;data.forEach(r=>PROF.set(r.id,r));
+ try{famSearch();renderMemberSearch()}catch(e){}}
+function scheduleRemote(raw){if(!raw||raw===lastRemoteQ)return;lastRemoteQ=raw;clearTimeout(rsT);rsT=setTimeout(()=>remoteSearch(raw),250)}
+function openSearchModal(){lastRemoteQ="";loadProfiles();$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
 // Searches every registered account in the Supabase profiles table by name, @username, email or phone
 function renderMemberSearch(){const el=$("msRes");if(!el)return;
  const raw=($("msQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
+ scheduleRemote(raw);
  if(!q){el.innerHTML=`<p class="text-sm text-center py-6" style="color:var(--mut)">${t("msHint")}</p>`;return}
  const list=regUsers().filter(u=>u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
  if(!list.length){el.innerHTML=`<div class="rounded-xl p-4 bg-slate-50 border border-slate-200 text-sm"><p>${t("msNone")}</p><button onclick="closeM('mSearch');openInvite('','')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteBtn")}</button></div>`;return}
@@ -1117,13 +1127,18 @@ async function signUp(){
  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
  if(error)return authErr(authFail(error));
  if(data&&data.user&&data.user.identities&&data.user.identities.length===0)return authErr(t("errHasAcc"));
+ // Manual upsert so the profile row exists even if a database trigger fails
+ const prof={id:data&&data.user&&data.user.id,full_name:full,username,email,phone,provider:"email"};
+ if(prof.id)await upsertSignupProfile(prof);
  if(data&&data.session){enterFromSession(data.session.user);return}
  // No session returned (project requires email confirmation): try to sign in straight away, otherwise ask to confirm
  const si=await sb.auth.signInWithPassword({email,password:pass});
- if(si&&si.data&&si.data.session)enterFromSession(si.data.session.user);else authOk(t("checkEmail"));
+ if(si&&si.data&&si.data.session){if(prof.id)await upsertSignupProfile(prof);enterFromSession(si.data.session.user)}else authOk(t("checkEmail"));
 }
 
 let authBusy=false;
+// await supabase.from("profiles").upsert({id, full_name, username, ...}); errors are logged, never block sign-up
+async function upsertSignupProfile(row){try{const {error}=await sb.from("profiles").upsert(row,{onConflict:"id"});if(error)console.warn("profiles upsert:",error.message);return !error}catch(e){return false}}
 async function logIn(){
  if(authBusy)return;clearAuthMsgs();
  // Read the live DOM values at submit time so browser / Google Password Manager autofill is always picked up

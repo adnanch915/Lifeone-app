@@ -871,6 +871,29 @@ function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$
 const SESS_KEY="lifeone.session",ACC_KEY="lifeone.accounts";
 const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const clone=x=>JSON.parse(JSON.stringify(x));
+// Per-account local persistence. Each signed-in account gets its own isolated snapshot on this device.
+const USER_DATA_PREFIX="lifeone.userdata.";
+function saveUserData(){
+ if(!S.authed||!S.user.uid)return;
+ try{
+  const snapshot={tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,streak:S.streak,
+   shareOn:S.shareOn,plan:S.plan,pro:S.pro,cpDay:S.cpDay,mask:S.mask,filter:S.filter,pwChanged:S.pwChanged,
+   user:{name:S.user.name,email:S.user.email,img:S.user.img,loc:S.user.loc,locManual:S.user.locManual,lat:S.user.lat,lng:S.user.lng,cc:S.user.cc},
+   fin:{inf:FIN.inf,cats:FIN.cats},tx:TX,cur:S.cur};
+  store.set(USER_DATA_PREFIX+S.user.uid,snapshot);
+ }catch(e){console.error("LifeOne save failed",e)}
+}
+function restoreUserData(uid){
+ if(!uid)return false;
+ const d=store.get(USER_DATA_PREFIX+uid,null);if(!d||typeof d!=="object")return false;
+ try{
+  ["tasks","fam","notifs","chats","habits","gun","streak","shareOn","plan","pro","cpDay","mask","filter","pwChanged"].forEach(k=>{if(d[k]!==undefined)S[k]=d[k]});
+  if(d.user&&typeof d.user==="object")Object.assign(S.user,d.user);
+  if(d.fin&&typeof d.fin==="object"){if(d.fin.inf!==undefined)FIN.inf=d.fin.inf;if(Array.isArray(d.fin.cats))FIN.cats=d.fin.cats}
+  if(Array.isArray(d.tx))TX=d.tx;if(d.cur&&CUR[d.cur])S.cur=d.cur;
+  return true;
+ }catch(e){console.error("LifeOne restore failed",e);return false}
+}
 // Demo snapshot of the seeded sample data (used only by "Load demo data")
 const DEMO=clone({tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,inf:FIN.inf,cats:FIN.cats,tx:TX});
 Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-powered life copilot & productivity hub.",tabIn:"Sign in",tabUp:"Create account",google:"Continue with Google",orLbl:"or",nameLbl:"Full name",byEmail:"Email",byMobile:"Mobile",emailLbl:"Email address",phoneLbl:"Mobile number",sendCode:"Send verification code",secNote:"Your session is kept on this device. Demo mode: no real SMS or email is sent.",otpTitle:"Verify your identity",otpSub:"Enter the 6-digit code sent to {c}",verify:"Verify",resend:"Resend code",resendIn:"Resend in {s}s",change:"Change details",demoOtp:"Demo mode: no SMS or email is sent. Your code is {c}.",errName:"Please enter your full name.",errEmail:"Enter a valid email address.",errPhone:"Enter a valid mobile number.",errNoAcc:"No account for this contact. Create one first.",errHasAcc:"An account already exists. Sign in instead.",errOtp:"Incorrect code. Try again.",errOtpMax:"Too many attempts. Request a new code.",errOtpExp:"This code expired. Request a new code.",errGoogle:"Google sign-in could not be read. Try again.",gDemo:"Google Client ID not set. Using demo sign-in.",emptyTasks:"No tasks yet. Add your first task to start your rhythm.",emptyFam:"No contacts yet. Family and friends you connect will appear here.",emptyTx:"No transactions yet.",welcomeNote:"Welcome to LifeOne. Your dashboard is ready.",demoBtn:"Load demo data",demoOn:"Demo data loaded",demoBoxTxt:"Preview only. Your account data stays empty until you add it."});
@@ -1022,6 +1045,7 @@ function forgotPassword(){clearAuthMsgs();authErr(t("resetLocal"))}
 function applySession(acc){document.body.classList.remove("unauth");
  freshState(acc.name);
  S.user.uid=acc.uid||"";S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
+ restoreUserData(S.user.uid);
  S.user.verified=!!acc.verified;S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
  $("authScreen").classList.add("hidden");
  if(!geoStarted){geoStarted=true;startGeo();startBattery()}
@@ -1073,7 +1097,7 @@ function initFeatures(){const el=$("featSlides");
 /* ---------- log out, data load, boot ---------- */
 // Local mode: transactions live in memory for this session (nothing is fetched from a server)
 function loadRemoteTx(){}
-function logout(){closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
+function logout(){saveUserData();closeM("mOut");S.authed=false;S.user.uid="";store.del(SESS_KEY);freshState("");showAuth();renderAll()}
 
 // Opens the dashboard straight away when a device session exists; otherwise shows Sign Up / Log In
 function authBoot(){
@@ -1095,7 +1119,7 @@ Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
 function renderAll(){[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
- $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
+ $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords();saveUserData()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
 const CITIES="Kahror Pakka|PK|29.6243|71.9171;Lodhran|PK|29.5393|71.6324;Multan|PK|30.1575|71.5249;Bahawalpur|PK|29.3956|71.6836;Vehari|PK|30.0453|72.3489;Lahore|PK|31.5497|74.3436;Karachi|PK|24.8607|67.0011;Islamabad|PK|33.6844|73.0479;Rawalpindi|PK|33.5651|73.0169;Faisalabad|PK|31.4504|73.1350;Peshawar|PK|34.0151|71.5249;Quetta|PK|30.1798|66.9750;Hyderabad|PK|25.3960|68.3578;Sialkot|PK|32.4945|74.5229;Gujranwala|PK|32.1877|74.1945;Sukkur|PK|27.7052|68.8574;Jhang|PK|31.2681|72.3181;Sargodha|PK|32.0740|72.6861;Mardan|PK|34.1989|72.0231;Abbottabad|PK|34.1688|73.2215;Dubai|AE|25.2048|55.2708;Abu Dhabi|AE|24.4539|54.3773;Riyadh|SA|24.7136|46.6753;Jeddah|SA|21.4858|39.1925;Doha|QA|25.2854|51.5310;Kuwait City|KW|29.3759|47.9774;Muscat|OM|23.5880|58.3829;Istanbul|TR|41.0082|28.9784;Cairo|EG|30.0444|31.2357;London|GB|51.5074|-0.1278;Manchester|GB|53.4808|-2.2426;Paris|FR|48.8566|2.3522;Berlin|DE|52.5200|13.4050;Madrid|ES|40.4168|-3.7038;Rome|IT|41.9028|12.4964;Amsterdam|NL|52.3676|4.9041;New York|US|40.7128|-74.0060;Los Angeles|US|34.0522|-118.2437;Chicago|US|41.8781|-87.6298;Houston|US|29.7604|-95.3698;San Francisco|US|37.7749|-122.4194;Toronto|CA|43.6532|-79.3832;Vancouver|CA|49.2827|-123.1207;Mexico City|MX|19.4326|-99.1332;Sao Paulo|BR|-23.5505|-46.6333;Delhi|IN|28.6139|77.2090;Mumbai|IN|19.0760|72.8777;Bengaluru|IN|12.9716|77.5946;Kolkata|IN|22.5726|88.3639;Dhaka|BD|23.8103|90.4125;Kabul|AF|34.5553|69.2075;Tehran|IR|35.6892|51.3890;Beijing|CN|39.9042|116.4074;Shanghai|CN|31.2304|121.4737;Shenzhen|CN|22.5431|114.0579;Hong Kong|HK|22.3193|114.1694;Tokyo|JP|35.6762|139.6503;Seoul|KR|37.5665|126.9780;Singapore|SG|1.3521|103.8198;Kuala Lumpur|MY|3.1390|101.6869;Bangkok|TH|13.7563|100.5018;Jakarta|ID|-6.2088|106.8456;Sydney|AU|-33.8688|151.2093;Melbourne|AU|-37.8136|144.9631;Johannesburg|ZA|-26.2041|28.0473;Lagos|NG|6.5244|3.3792;Nairobi|KE|-1.2921|36.8219;Moscow|RU|55.7558|37.6173".split(";").map(s=>{const p=s.split("|");return{n:p[0],c:p[1],la:+p[2],ln:+p[3]}});
@@ -1130,7 +1154,13 @@ const DB={
 };
 
 /* ---------- boot ---------- */
-document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
+// Save after UI actions and before the page is closed or refreshed.
+let userSaveTimer=null;
+function queueUserSave(){if(!S.authed)return;clearTimeout(userSaveTimer);userSaveTimer=setTimeout(saveUserData,0)}
+document.addEventListener("click",queueUserSave,true);
+document.addEventListener("change",queueUserSave,true);
+window.addEventListener("pagehide",saveUserData);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")saveUserData();if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
 function boot(){try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});

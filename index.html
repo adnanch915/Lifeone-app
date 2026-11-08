@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LifeOne V1.0 Enterprise</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <style>
 :root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#7C3AED;--pri2:#F5F3FF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -583,7 +583,7 @@ function saveTx(){const amt=parseFloat($("txAmt").value);if(!(amt>0)){toast(t("t
  const inc=txType==="income",cat=$("txCat").value,src=$("txSrc").value;
  const base=amt/CUR[S.cur].r*CUR.PKR.r;
  const note=$("txNote").value.trim()||t(cat);
- TX.unshift({d:"",t:note,c:cat,m:src,a:base,in:inc,ts});DB.push("transactions",{user_email:S.user.email,note,category:cat,source:src,amount_pkr:base,is_income:inc,occurred_at:new Date(ts).toISOString()});
+ TX.unshift({d:"",t:note,c:cat,m:src,a:base,in:inc,ts});DB.insertTx({note,category:cat,source:src,amount_pkr:base,is_income:inc,occurred_at:new Date(ts).toISOString()}).then(r=>{if(r&&r.error)toast(t("dbErr"))});
  closeM("mTx");renderMoney();toast(t("txSaved"))}
 function setCur(k){S.cur=k;renderMoney()}
 function toggleMask(){S.mask=!S.mask;renderMoney()}
@@ -849,7 +849,6 @@ function changePw(){const a=$("pw1").value,b=$("pw2").value;if(!a||b.length<6){$
  $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
 /* ---------- auth, local session, fresh start ---------- */
 // Set googleClientId to enable real Google sign-in (see notes). Empty = demo sign-in.
-const AUTH_CFG={googleClientId:""};
 const COUNTRIES=[{d:"+92",n:"PK"},{d:"+971",n:"AE"},{d:"+966",n:"SA"},{d:"+91",n:"IN"},{d:"+44",n:"GB"},{d:"+1",n:"US"},{d:"+1",n:"CA"},{d:"+61",n:"AU"},{d:"+86",n:"CN"},{d:"+90",n:"TR"},{d:"+20",n:"EG"},{d:"+49",n:"DE"},{d:"+33",n:"FR"},{d:"+34",n:"ES"}];
 const SESS_KEY="lifeone.session",ACC_KEY="lifeone.accounts";
 const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -857,8 +856,6 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 // Demo snapshot of the seeded sample data (used only by "Load demo data")
 const DEMO=clone({tasks:S.tasks,fam:S.fam,notifs:S.notifs,chats:S.chats,habits:S.habits,gun:S.gun,inf:FIN.inf,cats:FIN.cats,tx:TX});
 Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-powered life copilot & productivity hub.",tabIn:"Sign in",tabUp:"Create account",google:"Continue with Google",orLbl:"or",nameLbl:"Full name",byEmail:"Email",byMobile:"Mobile",emailLbl:"Email address",phoneLbl:"Mobile number",sendCode:"Send verification code",secNote:"Your session is kept on this device. Demo mode: no real SMS or email is sent.",otpTitle:"Verify your identity",otpSub:"Enter the 6-digit code sent to {c}",verify:"Verify",resend:"Resend code",resendIn:"Resend in {s}s",change:"Change details",demoOtp:"Demo mode: no SMS or email is sent. Your code is {c}.",errName:"Please enter your full name.",errEmail:"Enter a valid email address.",errPhone:"Enter a valid mobile number.",errNoAcc:"No account for this contact. Create one first.",errHasAcc:"An account already exists. Sign in instead.",errOtp:"Incorrect code. Try again.",errOtpMax:"Too many attempts. Request a new code.",errOtpExp:"This code expired. Request a new code.",errGoogle:"Google sign-in could not be read. Try again.",gDemo:"Google Client ID not set. Using demo sign-in.",emptyTasks:"No tasks yet. Add your first task to start your rhythm.",emptyFam:"No contacts yet. Family and friends you connect will appear here.",emptyTx:"No transactions yet.",welcomeNote:"Welcome to LifeOne. Your dashboard is ready.",demoBtn:"Load demo data",demoOn:"Demo data loaded",demoBoxTxt:"Preview only. Your account data stays empty until you add it."});
-
-let authMode="signin",authMethod="email",otpDraft=null,otpTimer=null,geoStarted=false;
 
 function freshState(name){
  S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:false}];S.chats={g:[]};S.gun=0;S.streak=0;
@@ -873,14 +870,20 @@ function renderStreak(){const el=$("streak");if(el)el.textContent=S.streak}
 function renderDemoBox(){const el=$("demoBox");if(!el)return;
  el.innerHTML=`<div class="card p-4 flex items-center justify-between gap-3"><div class="min-w-0"><p class="text-sm font-medium">${t("demoBtn")}</p><p class="text-[11px]" style="color:var(--mut)">${t("demoBoxTxt")}</p></div><button onclick="loadDemo()" class="btn out rounded-xl px-3 py-1.5 text-xs shrink-0">${t("demoBtn")}</button></div>`}
 
-function applySession(acc){document.body.classList.remove("unauth");
- freshState(acc.name);S.user.email=acc.contact||"";S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
- store.set(SESS_KEY,acc);
- closeM("mOtp");$("authScreen").classList.add("hidden");
- if(!geoStarted){geoStarted=true;startGeo();startBattery()}
- applyLang();go("home");
-}
-function showAuth(){S.authed=false;document.body.classList.add("unauth");initGoogle();$("authScreen").classList.remove("hidden");setAuthMode(authMode);setAuthMethod(authMethod);$("authErr").classList.add("hidden")}
+let authMode="signin",authMethod="email",otpDraft=null,otpTimer=null,geoStarted=false,finishing=false;
+
+/* ---------- Supabase: client, phone/email OTP, Google, users table ---------- */
+// The publishable key is designed for browsers. Security comes from Row Level Security on every table.
+const SUPABASE={url:"https://spwrqlmtggdgzstarbuf.supabase.co",anonKey:"sb_publishable_puED1MTfUQ6DP7E9fklOHw_Vpnjb7EP"};
+let sb=null;
+try{if(window.supabase&&window.supabase.createClient)sb=window.supabase.createClient(SUPABASE.url,SUPABASE.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){sb=null}
+
+const normPhone=(cc,digits)=>cc+digits.replace(/\D/g,"").replace(/^0+/,"");
+function authFail(err){const m=String((err&&err.message)||"").toLowerCase();
+ if(m.includes("rate")||m.includes("too many"))return t("errRate");
+ if(m.includes("signups not allowed")||m.includes("not found"))return t("errNoAcc");
+ return t("errGeneric")}
+function authErr(msg){const e=$("authErr");e.textContent=msg;e.classList.remove("hidden")}
 function setAuthMode(m){authMode=m;
  $("tabIn").className="btn py-2 rounded-lg text-sm font-medium "+(m==="signin"?"bg-white shadow-sm text-slate-900":"text-slate-500");
  $("tabUp").className="btn py-2 rounded-lg text-sm font-medium "+(m==="signup"?"bg-white shadow-sm text-slate-900":"text-slate-500");
@@ -889,46 +892,50 @@ function setAuthMethod(m){authMethod=m;
  $("rEmail").classList.toggle("hidden",m!=="email");$("rMobile").classList.toggle("hidden",m!=="mobile");
  $("mEmail").className="btn py-1.5 rounded-lg text-xs font-medium "+(m==="email"?"bg-white shadow-sm text-slate-900":"text-slate-500");
  $("mMobile").className="btn py-1.5 rounded-lg text-xs font-medium "+(m==="mobile"?"bg-white shadow-sm text-slate-900":"text-slate-500")}
-function authErr(msg){const e=$("authErr");e.textContent=msg;e.classList.remove("hidden")}
-function authContinue(){
+function showAuth(){S.authed=false;document.body.classList.add("unauth");$("authScreen").classList.remove("hidden");
+ setAuthMode(authMode);setAuthMethod(authMethod);$("authErr").classList.add("hidden")}
+function login(){showAuth()}
+function applySession(acc){document.body.classList.remove("unauth");
+ freshState(acc.name);S.user.email=acc.contact||"";S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
+ closeM("mOtp");$("authScreen").classList.add("hidden");
+ if(!geoStarted){geoStarted=true;startGeo();startBattery()}
+ applyLang();go("home");loadRemoteTx()}
+
+async function authContinue(){
  $("authErr").classList.add("hidden");
  const name=$("aName").value.trim();
  if(authMode==="signup"&&!name)return authErr(t("errName"));
- let contact,key;
+ if(!sb)return authErr(t("sbOff"));
+ let target;
  if(authMethod==="email"){const e=$("aEmail").value.trim().toLowerCase();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return authErr(t("errEmail"));contact=e;key="e:"+e}
- else{const cc=$("aCC").value,d=$("aPhone").value.replace(/\D/g,"");
-  if(d.length<7||d.length>13)return authErr(t("errPhone"));contact=cc+" "+d;key="p:"+cc+d}
- const accs=store.get(ACC_KEY,{});
- if(authMode==="signin"&&!accs[key])return authErr(t("errNoAcc"));
- if(authMode==="signup"&&accs[key])return authErr(t("errHasAcc"));
- openOtp({contact,key,name:authMode==="signup"?name:(accs[key]||{}).name});
-}
-function newCode(){otpDraft.code=String(100000+Math.floor(Math.random()*900000));otpDraft.exp=Date.now()+5*60000;otpDraft.tries=0;otpDraft.resendAt=Date.now()+30000}
-function openOtp(d){otpDraft=d;newCode();
- $("otpSub").textContent=t("otpSub").replace("{c}",d.contact);
- $("otpDemo").textContent=t("demoOtp").replace("{c}",otpDraft.code);
- document.querySelectorAll(".otpi").forEach(b=>b.value="");
- $("otpErr").textContent="";openM("mOtp");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return authErr(t("errEmail"));target={email:e}}
+ else{const d=$("aPhone").value.replace(/\D/g,"");
+  if(d.length<7||d.length>13)return authErr(t("errPhone"));target={phone:normPhone($("aCC").value,d)}}
+ const opts={shouldCreateUser:authMode==="signup",data:{full_name:name}};
+ const {error}=await sb.auth.signInWithOtp(target.email?{email:target.email,options:opts}:{phone:target.phone,options:opts});
+ if(error)return authErr(authFail(error));
+ otpDraft={target,opts,name,contact:target.email||target.phone,resendAt:Date.now()+30000};
+ openOtp()}
+function openOtp(){$("otpSub").textContent=t("otpSub").replace("{c}",otpDraft.contact);$("otpDemo").style.display="none";
+ document.querySelectorAll(".otpi").forEach(b=>b.value="");$("otpErr").textContent="";openM("mOtp");
  clearInterval(otpTimer);otpTimer=setInterval(updateResend,1000);updateResend();
  setTimeout(()=>{const f=document.querySelector(".otpi");if(f)f.focus()},60)}
 function updateResend(){const b=$("otpResend");if(!otpDraft||!b)return;const s=Math.ceil((otpDraft.resendAt-Date.now())/1000);
  b.disabled=s>0;b.textContent=s>0?t("resendIn").replace("{s}",s):t("resend")}
-function resendOtp(){if(!otpDraft||Date.now()<otpDraft.resendAt)return;newCode();
- $("otpDemo").textContent=t("demoOtp").replace("{c}",otpDraft.code);
- document.querySelectorAll(".otpi").forEach(b=>b.value="");$("otpErr").textContent="";
+async function resendOtp(){if(!otpDraft||!sb||Date.now()<otpDraft.resendAt)return;
+ const {error}=await sb.auth.signInWithOtp(otpDraft.target.email?{email:otpDraft.target.email,options:otpDraft.opts}:{phone:otpDraft.target.phone,options:otpDraft.opts});
+ if(error)return otpFail(authFail(error));
+ otpDraft.resendAt=Date.now()+30000;document.querySelectorAll(".otpi").forEach(b=>b.value="");$("otpErr").textContent="";
  document.querySelector(".otpi").focus();updateResend()}
 function otpFail(msg){$("otpErr").textContent=msg;document.querySelectorAll(".otpi").forEach(b=>b.value="");document.querySelector(".otpi").focus()}
-function verifyOtp(){if(!otpDraft)return;
- const v=[...document.querySelectorAll(".otpi")].map(i=>i.value).join("");
- if(Date.now()>otpDraft.exp)return otpFail(t("errOtpExp"));
- if(otpDraft.tries>=5)return otpFail(t("errOtpMax"));
- if(v.length<6)return otpFail(t("errOtp"));
- if(v!==otpDraft.code){otpDraft.tries++;return otpFail(otpDraft.tries>=5?t("errOtpMax"):t("errOtp"))}
- const accs=store.get(ACC_KEY,{});
- let acc=accs[otpDraft.key];
- if(!acc){acc={name:otpDraft.name||"",contact:otpDraft.contact,key:otpDraft.key,createdAt:Date.now()};accs[otpDraft.key]=acc;store.set(ACC_KEY,accs);DB.push("accounts",{contact:acc.contact,name:acc.name,provider:"phone_or_email"})}
- otpDraft=null;clearInterval(otpTimer);applySession(acc)}
+async function verifyOtp(){if(!otpDraft||!sb)return;
+ const token=[...document.querySelectorAll(".otpi")].map(i=>i.value).join("");
+ if(token.length<6)return otpFail(t("errOtp"));
+ const p=otpDraft.target.email?{email:otpDraft.target.email,token,type:"email"}:{phone:otpDraft.target.phone,token,type:"sms"};
+ const {data,error}=await sb.auth.verifyOtp(p);
+ if(error||!data||!data.user)return otpFail(t("errOtp"));
+ const name=otpDraft.name;otpDraft=null;clearInterval(otpTimer);
+ await finishSignIn(data.user,name)}
 function buildOtpBoxes(){const w=$("otpBoxes");
  w.innerHTML=Array.from({length:6},(_,i)=>`<input class="otpi inp text-center text-lg font-semibold" style="width:2.6rem;height:3rem;padding:0" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("");
  const bx=[...w.querySelectorAll(".otpi")];
@@ -938,34 +945,41 @@ function buildOtpBoxes(){const w=$("otpBoxes");
   b.addEventListener("paste",e=>{e.preventDefault();const d=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6);
    d.split("").forEach((c,k)=>{if(bx[k])bx[k].value=c});(bx[Math.min(d.length,5)]||b).focus();if(d.length===6)verifyOtp()})});
 }
-function b64url(s){s=s.replace(/-/g,"+").replace(/_/g,"/");s+="=".repeat((4-s.length%4)%4);return new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)))}
-function onGoogleCred(r){try{
- const p=JSON.parse(b64url(r.credential.split(".")[1]));
- if(p.aud!==AUTH_CFG.googleClientId||!p.email||p.email_verified===false)throw new Error("unverified");
- const contact=p.email.toLowerCase(),key="g:"+contact,accs=store.get(ACC_KEY,{});
- if(!accs[key]){accs[key]={name:p.name||contact,contact,key,createdAt:Date.now(),provider:"google",picture:p.picture||""};store.set(ACC_KEY,accs)}
- applySession(accs[key])}catch(e){authErr(t("errGoogle"))}}
-function initGoogle(tries){
- if(!AUTH_CFG.googleClientId)return;
- if(!(window.google&&google.accounts)){if((tries||0)<30)setTimeout(()=>initGoogle((tries||0)+1),300);return}
- google.accounts.id.initialize({client_id:AUTH_CFG.googleClientId,callback:onGoogleCred,auto_select:false,cancel_on_tap_outside:true});
- const box=$("gBtn");box.innerHTML="";
- google.accounts.id.renderButton(box,{type:"standard",theme:"outline",size:"large",text:"continue_with",shape:"rectangular",width:300});
- box.classList.remove("hidden");box.classList.add("flex");$("gFallback").classList.add("hidden")}
-function googleSignIn(){
- if(!AUTH_CFG.googleClientId){toast(t("gNotCfg"));return}
- if(window.google&&google.accounts)google.accounts.id.prompt();else toast(t("gLoading"))}
 
-function authBoot(){initHdrCur();
+// Creates or updates the signed-in user's row in the `users` table, then opens the dashboard.
+async function finishSignIn(user,name){
+ if(finishing)return;finishing=true;
+ try{
+  const meta=user.user_metadata||{};const fullName=name||meta.full_name||meta.name||"";
+  const provider=(user.app_metadata&&user.app_metadata.provider)||"email";
+  const row={id:user.id,full_name:fullName,email:user.email||null,phone:user.phone?"+"+String(user.phone).replace(/^\+/,""):null,provider};
+  const {error}=await DB.upsertUser(row);
+  if(error){toast(t("dbErr"));await sb.auth.signOut();showAuth();return}
+  const accs=store.get(ACC_KEY,{});accs[user.id]={name:fullName,contact:row.email||row.phone||"",key:user.id,provider,picture:meta.avatar_url||"",createdAt:Date.now()};store.set(ACC_KEY,accs);
+  applySession({name:fullName,contact:row.email||row.phone||"",provider,picture:meta.avatar_url||"",key:user.id})
+ }finally{finishing=false}}
+async function googleSignIn(){
+ if(!sb)return toast(t("sbOff"));
+ const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.href.split("#")[0]}});
+ if(error)toast(t("errGeneric"))}
+function loadRemoteTx(){if(!sb)return;
+ DB.loadTx().then(r=>{if(r&&!r.error&&Array.isArray(r.data)&&r.data.length){
+  TX=r.data.map(x=>({d:"",t:x.note||"",c:x.category,m:x.source,a:+x.amount_pkr,in:!!x.is_income,ts:new Date(x.occurred_at).getTime()}));renderMoney()}}).catch(()=>{})}
+async function logout(){closeM("mOut");S.authed=false;store.del(SESS_KEY);freshState("");showAuth();renderAll();
+ if(sb){try{await sb.auth.signOut()}catch(e){}}}
+async function authBoot(){
  $("aCC").innerHTML=COUNTRIES.map(c=>`<option value="${c.d}">${c.n} ${c.d}</option>`).join("");
- buildOtpBoxes();setAuthMode("signin");setAuthMethod("email");
- const s=store.get(SESS_KEY,null);
- if(s&&s.contact){freshState(s.name);applySession(s)}
+ buildOtpBoxes();setAuthMode("signin");setAuthMethod("email");initHdrCur();
+ if(!sb){freshState("");showAuth();return}
+ sb.auth.onAuthStateChange((ev,session)=>{
+  if(ev==="SIGNED_IN"&&session&&session.user&&!S.authed)finishSignIn(session.user).catch(()=>{});
+  if(ev==="SIGNED_OUT"&&S.authed){S.authed=false;showAuth()}});
+ const {data}=await sb.auth.getSession();
+ if(data&&data.session&&data.session.user)await finishSignIn(data.session.user);
  else{freshState("");showAuth()}
 }
-// Sign-out: clears the local session and returns to the auth screen
-function logout(){store.del(SESS_KEY);closeM("mOut");freshState("");showAuth();renderAll()}
-function login(){showAuth()}
+
+Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
 Object.assign(T.en,{inc_salary:"Salary",inc_biz:"Business Income",inc_free:"Freelance",inc_inv:"Investment",inc_gift:"Gift",inc_other:"Other Income",cDine:"Dining / Food",cShop:"Shopping",cTravel:"Travel",cEdu:"Education",source:"Payment source",when:"Date & time",whenBad:"Please choose a date and time.",s_bank:"Bank Transfer",s_cash:"Cash",s_wallet:"Mobile Wallet (EasyPaisa / JazzCash)",s_card:"Credit / Debit Card"});
 Object.assign(T.en,{lifeUser:"Active Member",locBtn:"Location",inviteMember:"Invite Member",inviteMsgName:"Hi {n}, join me on LifeOne: {u}",invNamePh:"Name (optional)",invPh:"Mobile number, e.g. 03001234567",inviteSug:"Invite",notOnAppShort:"Not on LifeOne yet",gVerified:"Verified Google Account"});
@@ -999,17 +1013,11 @@ function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI(
  if(geoWatch===null)geoWatch=navigator.geolocation.watchPosition(onPos,()=>{},{enableHighAccuracy:true,maximumAge:10000})}
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
-/* ---------- data API: LocalStorage now, Supabase when configured ---------- */
-// Get the URL and anon key from your Supabase project (Settings > API). The anon key is public by design:
-// every table must have Row Level Security policies before you rely on it.
-const SUPABASE={url:"",anonKey:""};
+/* ---------- data API: Supabase tables ---------- */
 const DB={
- enabled(){return !!(SUPABASE.url&&SUPABASE.anonKey)},
- // Write-through: stores the row remotely in the background. Local data stays the source the UI reads.
- push(table,row){if(!this.enabled())return Promise.resolve(false);
-  return fetch(`${SUPABASE.url.replace(/\/$/,"")}/rest/v1/${encodeURIComponent(table)}`,{method:"POST",
-   headers:{"Content-Type":"application/json","apikey":SUPABASE.anonKey,"Authorization":"Bearer "+SUPABASE.anonKey,"Prefer":"resolution=merge-duplicates,return=minimal"},
-   body:JSON.stringify(row)}).then(r=>r.ok).catch(()=>false)}
+ upsertUser(row){return sb?sb.from("users").upsert(row,{onConflict:"id"}):Promise.resolve({error:null})},
+ insertTx(row){return sb?sb.from("transactions").insert(row):Promise.resolve({error:null})},
+ loadTx(){return sb?sb.from("transactions").select("note,category,source,amount_pkr,is_income,occurred_at").order("occurred_at",{ascending:false}):Promise.resolve({data:[],error:null})}
 };
 
 /* ---------- boot ---------- */

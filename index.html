@@ -88,6 +88,15 @@ html.dark .text-white{color:#fff!important}
 html.dark .pri{color:#fff!important}
 html.dark .tab{color:#B8C2D3}
 html.dark .tab.on{color:#C4B5FD}
+
+/* ---- Dark mode: hover, press and selection stay solid and readable ---- */
+html.dark .hover\:bg-slate-50:hover,html.dark .hover\:bg-slate-50:active,html.dark .hover\:bg-slate-50:focus,html.dark button:active,html.dark button:focus-visible{background:#1E293B!important;color:#F9FAFB!important}
+html.dark .hover\:bg-slate-50:hover *,html.dark .hover\:bg-slate-50:active *,html.dark button:active *{color:inherit}
+html.dark .hover\:bg-slate-50:hover .text-slate-500,html.dark .hover\:bg-slate-50:active .text-slate-500{color:#D1D5DB!important}
+html.dark ::selection{background:#334155;color:#F9FAFB}
+html.dark .out:hover,html.dark .out:active{background:#1E293B!important;color:#F9FAFB!important}
+html.dark .card:active{background:#1E293B!important}
+html.dark .tab.on{color:#C4B5FD}
 </style>
 </head>
 <body class="unauth">
@@ -204,12 +213,12 @@ html.dark .tab.on{color:#C4B5FD}
 
  <section id="tab-family" class="tab-content space-y-3">
   <div class="flex items-center justify-between gap-2"><h2 class="text-xl font-bold" data-i18n="fam"></h2><button onclick="openSearchModal()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 shrink-0"><span data-ic="plus" data-s="14"></span><span data-i18n="searchMember"></span></button></div>
-  <div id="chatList" class="card p-2 space-y-1"></div>
   <div class="card p-4 space-y-3">
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
     <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off"></div>
    <div id="famRes" class="space-y-2"></div>
   </div>
+  <div id="chatList" class="card p-2 space-y-1"></div>
   <div id="famList" class="space-y-3"></div>
  </section>
 

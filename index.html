@@ -718,11 +718,38 @@ function cpVoice(){if(S.plan!=="plus"){cpCard({icon:"lock",title:t("cpVoiceNo"),
 $("cpIn").addEventListener("keydown",e=>{if(e.key==="Enter")cpRun()});
 
 /* family */
-const GROUP_AV=()=>`<div class="flex -space-x-2 rtl:space-x-reverse">${S.fam.slice(0,4).map(f=>`<span class="w-9 h-9 rounded-full text-white text-xs font-semibold flex items-center justify-center border-2 border-white" style="background:var(--pri)">${esc(ini(f.n))}</span>`).join("")}</div>`;
+const GROUP_AV=()=>`<div class="flex -space-x-2 rtl:space-x-reverse">${S.fam.slice(0,4).map(f=>`<span class="rounded-full border-2 border-white inline-flex">${avHTML(f.n,36,f.img)}</span>`).join("")}</div>`;
 const consentOf=f=>f.me&&f.them?"active":f.them?"in":f.me?"out":"none";
 const sharing=f=>S.shareOn&&consentOf(f)==="active";
 const canShare=f=>consentOf(f)==="active"||S.fam.filter(x=>x!==f&&consentOf(x)==="active").length<pl().max;
-function cAct(i,a){const f=S.fam[i],n=f.n.split(" ")[0];
+async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=new Date().toISOString();
+ try{
+  if(a==="req"){const {error}=await sb.from("location_requests").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;toast(t("reqSent").replace("{n}",n))}
+  else if(a==="acc"){if(!canShare(f)){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
+    const {error}=await sb.from("location_requests").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me);if(error)throw error;
+    S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:false});renderNotifs()}
+  else if(a==="dec"){const {error}=await sb.from("location_requests").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
+  else{const {error}=await sb.from("location_requests").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
+    if(a==="stop")toast(t("stopped").replace("{n}",n))}
+ }catch(e){console.warn("location request:",e&&e.message);toast(t("errGeneric"))}
+ await loadLocReqs()}
+let locSig="";
+// Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
+async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
+ const {data,error}=await sb.from("location_requests").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
+ if(error||!data)return;
+ const pair={};data.forEach(r=>{const o=r.requester_id===me?r.target_id:r.requester_id;if(!pair[o])pair[o]=r});
+ await ensureContacts(Object.keys(pair));
+ S.fam.forEach(f=>{const r=pair[f.key];f.me=false;f.them=false;if(!r)return;
+  if(r.status==="accepted"){f.me=true;f.them=true}
+  else if(r.status==="pending"){if(r.requester_id===me)f.me=true;else f.them=true}});
+ S.fam.forEach(f=>{if(consentOf(f)!=="active"){f.lat=null;f.lng=null}});
+ const act=S.fam.filter(f=>consentOf(f)==="active").map(f=>f.key);
+ if(act.length){const {data:locs}=await sb.from("live_locations").select("owner_id,latitude,longitude,formatted_address,updated_at").in("owner_id",act);
+  (locs||[]).forEach(l=>{const f=S.fam.find(x=>x.key===l.owner_id);if(!f)return;f.lat=l.latitude;f.lng=l.longitude;if(l.formatted_address){f.addr=l.formatted_address;f.city=l.formatted_address}f.ts=Date.parse(l.updated_at)||Date.now()})}
+ const sig=JSON.stringify(S.fam.map(f=>[f.key,f.me,f.them,f.lat,f.lng,f.addr]));
+ if(sig!==locSig){locSig=sig;renderFam();renderTrust();renderShield();renderHomeFam();renderTabs()}}
+function cAct(i,a){if(sb&&["req","acc","dec","cancel","stop"].includes(a)){locDb(S.fam[i],a);return}const f=S.fam[i],n=f.n.split(" ")[0];
  if((a==="acc"&&f.them&&!canShare(f))||(a==="demo"&&f.me&&!canShare(f))){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
  if(a==="req"){f.me=true;toast(t("reqSent").replace("{n}",n))}
  else if(a==="acc"){f.me=true;if(consentOf(f)==="active"){S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:false});renderNotifs()}}
@@ -829,7 +856,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
   if(c==="active"&&S.shareOn)body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
   else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
   else if(c==="in")body=`<p class="text-sm mt-3">${t("wantsLoc").replace("{n}",n)}</p><div class="grid grid-cols-2 gap-2 mt-2"><button onclick="cAct(${i},'acc')" class="btn pri py-2 rounded-xl text-sm">${t("accept")}</button><button onclick="cAct(${i},'dec')" class="btn out py-2 rounded-xl text-sm">${t("decline")}</button></div>`;
-  else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button><button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button></div>`;
+  else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button>${sb?"":`<button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button>`}</div>`;
   else body=`<button onclick="cAct(${i},'req')" class="btn pri rounded-xl px-4 py-2 text-sm mt-3 w-full">${ic("pin",16)}${t("reqLoc")}</button>`;
   return `<div class="card p-4"><div class="flex items-center gap-3">
  <div class="relative">${avHTML(f.n,48,f.img)}
@@ -902,7 +929,7 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
- $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
+ $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${consentOf(f)==="active"&&f.lat!=null?t("vlive")+": "+esc(f.addr):t("locHidden")}</span>${trustBadge(f.ts)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
@@ -1291,7 +1318,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
-function loadRemoteTx(){askNotifPerm();loadUserData();if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
+function loadRemoteTx(){askNotifPerm();loadUserData();S.fam.forEach(f=>{f.me=false;f.them=false;f.lat=null;f.lng=null});if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages).then(loadLocReqs);startRealtime()}
 function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
 async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
@@ -1350,7 +1377,7 @@ function showMsgBanner(title,body,k){let b=$("msgBanner");
  b.innerHTML=`<span class="w-9 h-9 rounded-full grid place-items-center text-white shrink-0" style="background:var(--pri)">${ic("chat",18)}</span><span class="min-w-0 flex-1"><b class="block text-sm truncate">${esc(title)}</b><span class="block text-xs truncate" style="color:var(--mut)">${esc(body)}</span></span>`;
  b.onclick=()=>{b.style.display="none";openChat(k)};b.style.display="flex";clearTimeout(showMsgBanner.h);showMsgBanner.h=setTimeout(()=>{b.style.display="none"},5000)}
 function unreadCount(){return (S.gun?1:0)+S.fam.filter(f=>(f.un||0)>0).length}
-function updateBell(){const el=$("bellDot");if(!el)return;const n=unreadCount()+S.notifs.filter(x=>!x.r).length;
+function updateBell(){const el=$("bellDot");if(!el)return;const n=unreadCount();
  el.textContent=n>99?"99+":String(n);el.style.display=n?"flex":"none"}
 async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.sender_id===me;
  if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
@@ -1386,7 +1413,7 @@ function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
   else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
  const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
  cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
- pollT=setInterval(()=>pollMsgs(),4000)}
+ pollT=setInterval(()=>{pollMsgs();loadLocReqs()},4000)}
 window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 
@@ -1407,6 +1434,7 @@ Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
 Object.assign(T.en,{premFeat:"Premium Feature - Please purchase premium to unlock calls",voiceLimit:"Free plan allows 3 voice messages per day. Upgrade to Premium for unlimited voice messages."});
+Object.assign(T.en,{locHidden:"Location hidden until accepted"});
 function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting,refreshVoiceBtn].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
@@ -1431,10 +1459,12 @@ async function syncLocation(force){if(!sb||!S.user.uid)return;
  const on=!!S.shareOn&&S.geo.st==="ok"&&S.user.lat!=null,now=Date.now();
  if(!force&&on&&lastSyncLL&&haversine(S.user.lat,S.user.lng,lastSyncLL[0],lastSyncLL[1])<0.02&&now-lastSyncT<60000)return;
  lastSyncT=now;lastSyncLL=on?[S.user.lat,S.user.lng]:null;
- const row=on?{latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null}:{latitude:null,longitude:null,formatted_address:null};
- try{const {error}=await sb.from("profiles").update(row).eq("id",S.user.uid);if(error)console.warn("location sync:",error.message)}catch(e){}}
-function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";
- if(r.latitude!=null&&r.longitude!=null){f.lat=r.latitude;f.lng=r.longitude;if(r.formatted_address){f.addr=r.formatted_address;f.city=r.formatted_address}f.ts=Date.now()}}
+ try{
+  if(on)await sb.from("live_locations").upsert({owner_id:S.user.uid,latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null,updated_at:new Date().toISOString()},{onConflict:"owner_id"});
+  else await sb.from("live_locations").delete().eq("owner_id",S.user.uid);
+  if(!syncLocation.cleaned){syncLocation.cleaned=true;await sb.from("profiles").update({latitude:null,longitude:null,formatted_address:null}).eq("id",S.user.uid)}
+ }catch(e){}}
+function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";}
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
 function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=p.coords.accuracy;S.geo.st="ok";
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}

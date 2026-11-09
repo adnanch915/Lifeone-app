@@ -1,28 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%237C3AED'/%3E%3Cstop offset='1' stop-color='%2322D3EE'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 5l21 7.5v15.5c0 13.5-8.8 24-21 28.5C19.8 52 11 41.5 11 28V12.5z' fill='url(%23g)'/%3E%3Cpath d='M23 32.5l6.5 6.5 12-13' fill='none' stroke='%23ffffff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2310B981'/%3E%3Cstop offset='1' stop-color='%2334D399'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M32 5l21 7.5v15.5c0 13.5-8.8 24-21 28.5C19.8 52 11 41.5 11 28V12.5z' fill='url(%23g)'/%3E%3Cpath d='M23 32.5l6.5 6.5 12-13' fill='none' stroke='%23ffffff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LifeOne V1.0 Enterprise</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <style>
-:root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#7C3AED;--pri2:#F5F3FF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#059669;--acc:#10B981;--pri2:#ECFDF5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,-apple-system,"Noto Sans","Noto Sans Arabic","Noto Nastaliq Urdu",sans-serif;min-height:100vh}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px}
 .btn{transition:transform .15s,background .2s,border-color .2s;display:inline-flex;align-items:center;justify-content:center;gap:.4rem}.btn:active{transform:scale(.96)}
-.pri{background:var(--pri);color:#fff}.pri:hover{background:#6D28D9}
-.out{background:#fff;border:1px solid var(--line);color:var(--ink)}.out:hover{border-color:#C4B5FD;background:var(--pri2)}
+.pri{background:var(--pri);color:#fff}.pri:hover{background:#047857}
+.out{background:#fff;border:1px solid var(--line);color:var(--ink)}.out:hover{border-color:#6EE7B7;background:var(--pri2)}
 .inp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem .8rem;width:100%;color:var(--ink);outline:none}
-.inp:focus{border-color:var(--pri);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(16,185,129,.12)}
 .tab-content{display:none}.tab-content.active{display:block;animation:in .25s ease}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .modal{display:none;position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.45);align-items:flex-end;justify-content:center;padding:1rem}
 .modal.on{display:flex;animation:fadeIn .2s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@media(min-width:640px){.modal{align-items:center}}
 .sheet{background:#fff;border:1px solid var(--line);border-radius:22px;width:100%;max-width:440px;max-height:88vh;overflow:auto;padding:1.25rem;box-shadow:0 24px 60px rgba(15,23,42,.18)}
-.tab{color:var(--mut)}.tab.on{color:var(--pri)}.tab.on .bar{opacity:1}.bar{opacity:0;height:3px;width:28px;border-radius:3px;background:var(--pri);transition:opacity .2s}
+.tab{color:var(--mut)}.tab.on{color:var(--acc)}.tab.on .bar{opacity:1}.bar{opacity:0;height:3px;width:28px;border-radius:3px;background:var(--pri);transition:opacity .2s}
 .ping{animation:p 1.6s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}100%{box-shadow:0 0 0 8px rgba(244,63,94,0)}}
 .gp{animation:g 1.6s infinite}@keyframes g{0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)}100%{box-shadow:0 0 0 7px rgba(16,185,129,0)}}
 .done .t{text-decoration:line-through;color:var(--mut)}
@@ -30,15 +30,15 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
 .spin{animation:s .8s linear infinite}@keyframes s{to{transform:rotate(360deg)}}
 .lock{filter:blur(5px);pointer-events:none;user-select:none}
 .chk{width:26px;height:26px;border-radius:50%;border:2px solid #CBD5E1;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0;transition:background .2s,border-color .2s}
-.chk:hover{border-color:var(--pri)}
+.chk:hover{border-color:var(--acc)}
 .chk svg{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .3s .08s}
-.chk.on{background:var(--pri);border-color:var(--pri);animation:pop .35s}.chk.on svg{stroke-dashoffset:0}
+.chk.on{background:var(--pri);border-color:var(--acc);animation:pop .35s}.chk.on svg{stroke-dashoffset:0}
 @keyframes pop{50%{transform:scale(1.25)}}
 .done .t{transition:color .3s}
 .ring{animation:rg .5s infinite alternate}@keyframes rg{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .unauth>header,.unauth>main,.unauth>nav{display:none!important}
-.tile[aria-pressed="true"]{border-color:var(--pri);background:var(--pri2)}
+.tile[aria-pressed="true"]{border-color:var(--acc);background:var(--pri2)}
 html[dir=rtl] .text-left{text-align:right}
 html[dir=rtl] .text-right{text-align:left}
 html[dir=rtl] #bal,html[dir=rtl] #inf,html[dir=rtl] #outf,html[dir=rtl] #allocTot,html[dir=rtl] #alloc b,html[dir=rtl] #txList b,html[dir=rtl] #rate,html[dir=rtl] #cnt,html[dir=rtl] #ringPct,html[dir=rtl] #callTime,html[dir=rtl] .ltr{direction:ltr;unicode-bidi:isolate}
@@ -47,12 +47,12 @@ html[dir=rtl] input,html[dir=rtl] textarea,html[dir=rtl] select{text-align:start
 html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
 
 /* ---- Dark theme: applies to the whole app ---- */
-html.dark{color-scheme:dark;--bg:#0B1120;--card:#121B2E;--line:#27324A;--ink:#E2E8F0;--mut:#94A3B8;--pri2:#1E1B3A}
+html.dark{color-scheme:dark;--bg:#0B1120;--card:#121B2E;--line:#27324A;--ink:#E2E8F0;--mut:#94A3B8;--pri2:#0E2A22}
 html.dark body{background:var(--bg);color:var(--ink)}
 html.dark .bg-white,html.dark header,html.dark nav,html.dark .sheet{background:#0F1729!important;color:var(--ink)}
 html.dark .card{background:var(--card);border-color:var(--line)}
 html.dark .out{background:#121B2E;color:var(--ink);border-color:var(--line)}
-html.dark .out:hover{background:#1E1B3A}
+html.dark .out:hover{background:#0E2A22}
 html.dark .inp{background:#0F1729;color:var(--ink);border-color:var(--line)}
 html.dark .inp[readonly]{background:#162238!important}
 html.dark .bg-slate-50,html.dark .bg-slate-100,html.dark [style*="#F8FAFC"],html.dark [style*="#F1F5F9"]{background:#162238!important;border-color:var(--line)}
@@ -63,9 +63,9 @@ html.dark .bg-emerald-50{background:rgba(16,185,129,.14)!important}
 html.dark .bg-amber-50{background:rgba(245,158,11,.14)!important}
 html.dark .bg-rose-50{background:rgba(244,63,94,.14)!important}
 html.dark .modal{background:rgba(2,6,23,.7)}
-html.dark #proCard{background:var(--card)!important;border-color:#3B2F6B!important}
+html.dark #proCard{background:var(--card)!important;border-color:#1D4D3E!important}
 html.dark .tab{color:var(--mut)}
-html.dark .tab.on{color:var(--pri)}
+html.dark .tab.on{color:var(--acc)}
 
 /* ---- Dark mode contrast pass ---- */
 html.dark{--ink:#F1F5F9;--mut:#B8C2D3;--card:#131C30;--line:#2B3650;--bg:#080D1A}
@@ -87,7 +87,7 @@ html.dark .border-amber-200,html.dark .border-emerald-200,html.dark .border-rose
 html.dark .text-white{color:#fff!important}
 html.dark .pri{color:#fff!important}
 html.dark .tab{color:#B8C2D3}
-html.dark .tab.on{color:#C4B5FD}
+html.dark .tab.on{color:#6EE7B7}
 
 /* ---- Dark mode: hover, press and selection stay solid and readable ---- */
 html.dark .hover\:bg-slate-50:hover,html.dark .hover\:bg-slate-50:active,html.dark .hover\:bg-slate-50:focus,html.dark button:active,html.dark button:focus-visible{background:#1E293B!important;color:#F9FAFB!important}
@@ -96,10 +96,10 @@ html.dark .hover\:bg-slate-50:hover .text-slate-500,html.dark .hover\:bg-slate-5
 html.dark ::selection{background:#334155;color:#F9FAFB}
 html.dark .out:hover,html.dark .out:active{background:#1E293B!important;color:#F9FAFB!important}
 html.dark .card:active{background:#1E293B!important}
-html.dark .tab.on{color:#C4B5FD}
+html.dark .tab.on{color:#6EE7B7}
 
 /* ---- Dark mode: inline white backgrounds and gradients become dark slate ---- */
-html.dark [style*="background:#fff"],html.dark [style*="background:#FFF"],html.dark [style*="#F5F3FF"]{background:#1E293B!important;border-color:#334155!important}
+html.dark [style*="background:#fff"],html.dark [style*="background:#FFF"],html.dark [style*="#ECFDF5"]{background:#1E293B!important;border-color:#334155!important}
 html.dark [style*="background:#F8FAFC"],html.dark [style*="background:#F1F5F9"]{background:#1E293B!important}
 html.dark .sheet,html.dark .card,html.dark #proCard{background:#1E293B!important;border-color:#334155!important;color:#F8FAFC}
 html.dark #mChat{padding:0}
@@ -121,8 +121,8 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3 gap-2">
   <div class="flex items-center gap-2 min-w-0">
    <span class="w-8 h-8 rounded-lg pri flex items-center justify-center" data-ic="shield" data-s="18"></span>
-   <b class="text-lg tracking-tight whitespace-nowrap">LifeOne <span style="color:var(--pri)">V1.0</span></b>
-   <span id="proChip" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:var(--pri2);color:var(--pri)">PRO</span>
+   <b class="text-lg tracking-tight whitespace-nowrap">LifeOne <span style="color:var(--acc)">V1.0</span></b>
+   <span id="proChip" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:var(--pri2);color:var(--acc)">PRO</span>
   </div>
   <div class="flex items-center gap-2">
    
@@ -141,8 +141,25 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 </header>
 
 <main class="max-w-3xl mx-auto px-4 pt-4 pb-28">
- <section id="tab-home" class="tab-content space-y-4">
-  <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF 0%,#FFFFFF 70%);border:1px solid #DDD6FE">
+ <section id="tab-chats" class="tab-content space-y-3">
+ <h1 class="text-xl font-bold" data-lbl="navChats"></h1>
+<div class="card p-4 space-y-3">
+   <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
+    <input id="famQ" oninput="famSearch();renderChatsPanel()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-fam"></div>
+   <div id="famRes" class="space-y-2"></div>
+  </div>
+   <div id="chats_list" class="space-y-2"></div>
+</section>
+<section id="tab-groups" class="tab-content space-y-3">
+ <div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-lbl="navGroups"></h1><button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openNewGroup()"><span data-ic="plus" data-s="16"></span><span data-lbl="newGroup"></span></button></div>
+ <div id="groups_list" class="space-y-2"></div>
+</section>
+<section id="tab-calls" class="tab-content space-y-3">
+ <div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-lbl="navCalls"></h1><button onclick="clearCalls()" class="btn out rounded-xl px-3 py-1.5 text-xs" data-lbl="clearCalls"></button></div>
+ <div id="calls_list" class="space-y-2"></div>
+</section>
+<section id="tab-home" class="tab-content space-y-4">
+  <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#ECFDF5 0%,#FFFFFF 70%);border:1px solid #A7F3D0">
    <div class="flex items-start justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
      <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
@@ -154,7 +171,6 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
    </div>
   </div>
 
-  <div id="locSetting" class="card p-4"></div>
 
   <div class="p-1 rounded-2xl flex gap-1" style="background:var(--card);border:1px solid var(--line)" role="tablist" aria-label="Home sections">
    <button id="seg_chats" type="button" role="tab" onclick="setSeg('chats')" class="btn flex-1 py-2 rounded-xl text-sm font-semibold"></button>
@@ -169,7 +185,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
    <div class="card p-5 flex items-center gap-4">
-    <svg width="96" height="96" viewBox="0 0 96 96" class="shrink-0" aria-hidden="true"><defs><linearGradient id="gHar" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#C4B5FD"/></linearGradient></defs><circle id="ringTrack" cx="48" cy="48" r="38" fill="none" stroke="#E2E8F0" stroke-width="9"/><circle id="ringArc" cx="48" cy="48" r="38" fill="none" stroke="url(#gHar)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset .6s ease"/><text id="ringPct" x="48" y="54" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">0%</text></svg>
+    <svg width="96" height="96" viewBox="0 0 96 96" class="shrink-0" aria-hidden="true"><defs><linearGradient id="gHar" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#6EE7B7"/></linearGradient></defs><circle id="ringTrack" cx="48" cy="48" r="38" fill="none" stroke="#E2E8F0" stroke-width="9"/><circle id="ringArc" cx="48" cy="48" r="38" fill="none" stroke="url(#gHar)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset .6s ease"/><text id="ringPct" x="48" y="54" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">0%</text></svg>
     <div class="min-w-0"><p class="text-[11px] uppercase tracking-wider" style="color:var(--mut)" data-i18n="harmony"></p><p id="cnt" class="font-semibold mt-1 text-sm"></p><p id="ringSub" class="text-xs mt-1" style="color:var(--mut)"></p></div>
    </div>
    <div class="card p-5">
@@ -193,21 +209,102 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  </div>
  </section>
 
- <section id="tab-tasks" class="tab-content space-y-4" hidden>
-  <div class="flex items-center justify-between gap-3"><h2 class="text-2xl font-extrabold tracking-tight" data-i18n="tasks"></h2>
-   <button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openM('mTask')"><span data-ic="plus" data-s="16"></span><span data-i18n="newTask"></span></button></div>
-  <p class="text-sm leading-relaxed -mt-2" style="color:var(--mut)">Master your day, shape your future. Small daily tasks build unstoppable success.</p>
-  <div id="filters" class="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4" style="scrollbar-width:none"></div>
-  <ul id="taskList" class="space-y-2"></ul>
+ 
+
+ 
+
+ <section id="tab-family" class="tab-content space-y-3">
+ <button onclick="go('profile')" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+  <div id="chatList" class="card p-2 space-y-1"></div>
+  <div id="famList" class="space-y-3"></div>
  </section>
 
- <section id="tab-money" class="tab-content space-y-4" hidden>
+<button id="fabAdd" onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
+
+ <section id="tab-profile" class="tab-content space-y-3">
+ <div id="moreTop"><h1 class="text-xl font-bold" data-lbl="navMore"></h1></div>
+ <div id="moreRoot" class="space-y-3">
+  <button onclick="openMore('personal')" class="card w-full p-3 flex items-center gap-3 text-start btn"><div id="moreAv" class="shrink-0"></div><div class="flex-1 min-w-0"><b id="moreName" class="block truncate"></b><span class="text-xs" style="color:var(--mut)" data-lbl="moPersonal"></span></div></button>
+  <div class="card p-2 space-y-1">
+  <button onclick="openMore('money')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moMoney"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
+  <button onclick="openMore('tasks')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moTasks"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
+<button onclick="openMore('personal')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moPersonal"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('privacy')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moPrivacy"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('security')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moSecurity"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('notif')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moNotif"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('lang')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moLang"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('storage')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moStorage"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('account')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moAccount"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><!-- Business settings: hidden until backend is ready --><button onclick="openMore('ai')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moAI"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button><button onclick="openMore('adv')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moAdv"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
+  </div>
+ </div>
+<div id="mp_personal" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moPersonal"></h2>
+  <div class="card p-5 space-y-4">
+   <div class="flex items-center gap-4"><div class="av big cursor-pointer" role="button" tabindex="0" title="Change photo" onclick="$('file').click()"></div>
+    <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
+   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
+   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
+   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
+   <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
+   <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
+  </div>
+  
+
+</div>
+<div id="mp_privacy" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moPrivacy"></h2>
+<div id="locSetting" class="card p-4"></div>
+</div>
+<div id="mp_security" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moSecurity"></h2>
+<button onclick="openM('mPw')" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="key" data-s="18"></span><span data-lbl="moPw"></span></button>
+</div>
+<div id="mp_notif" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moNotif"></h2>
+<div class="card p-4 space-y-2"><button onclick="openM('mNotif')" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="bell" data-s="18"></span><span data-lbl="moOpenNotif"></span></button><button onclick="askNotifPerm()" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="bell" data-s="18"></span><span data-lbl="moEnableNotif"></span></button></div>
+</div>
+<div id="mp_lang" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moLang"></h2>
+<select id="moLang" class="inp" onchange="setLangMore(this.value)"><option value="en">English</option><option value="ur">اردو</option><option value="ar">العربية</option><option value="zh">中文</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option></select>
+</div>
+<div id="mp_storage" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moStorage"></h2>
+<div class="card p-4 space-y-2"><button onclick="openWall()" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="bell" data-s="18"></span><span data-lbl="moWall"></span></button><button onclick="toggleTheme()" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="bell" data-s="18"></span><span data-lbl="moTheme"></span></button></div>
+</div>
+<div id="mp_account" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moAccount"></h2>
+  <div id="profBlueRow" class="mb-2"></div><div id="profTrust" style="display:none"></div>
+  <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#ECFDF5,#fff);border:1px solid #A7F3D0"></div>
+
+  <div class="card p-5 space-y-3"><button onclick="openInvite('')" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="share" data-s="18"></span><span data-lbl="moInvite"></span></button></div>
+  <button onclick="openM('mOut')" class="btn w-full py-3.5 rounded-xl text-sm font-semibold text-white" style="background:#E11D48"><span data-ic="logout" data-s="18"></span><span data-lbl="moLogout"></span></button>
+</div>
+<div id="mp_business" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moBusiness"></h2>
+<div class="card p-5 text-sm" style="color:var(--mut)" data-lbl="bizSoon"></div>
+</div>
+<div id="mp_ai" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moAI"></h2>
+<button onclick="openAI()" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="sparkle" data-s="18"></span><span data-lbl="moOpenAI"></span></button>
+</div>
+<div id="mp_adv" class="mp space-y-3" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ <h2 class="text-lg font-bold" data-lbl="moAdv"></h2>
+<button onclick="go('family')" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="family" data-s="18"></span><span data-lbl="moOpenFamily"></span></button>
+ <button onclick="clearCalls()" class="btn out w-full py-2.5 rounded-xl text-sm"><span data-ic="phone" data-s="18"></span><span data-lbl="clearCalls"></span></button>
+</div>
+<div id="mp_money" class="mp space-y-4" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+
   <div class="flex items-start justify-between gap-3">
    <div class="min-w-0"><h2 class="text-lg font-bold" data-i18n="trk"></h2></div>
    <div class="flex items-center gap-2 shrink-0"><select id="curHdr" onchange="setCur(this.value)" class="inp text-xs" style="width:auto;padding:.3rem .5rem" aria-label="Currency"></select><button id="maskBtn" onclick="toggleMask()" class="btn out w-9 h-9 rounded-full"></button></div>
   </div>
   
-  <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE">
+  <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#ECFDF5,#fff);border:1px solid #A7F3D0">
    <div class="flex items-center justify-between gap-2"><p class="text-[11px] uppercase tracking-wider" style="color:var(--mut)" data-i18n="bal"></p><div class="flex items-center gap-2"><button onclick="openTx()" class="btn pri rounded-full px-2.5 py-1 text-[11px] font-medium" aria-label="Add Transaction"><span data-ic="plus" data-s="12"></span><span data-i18n="addTx"></span></button></div></div>
    <p id="bal" class="text-2xl sm:text-3xl font-bold mt-2 tracking-tight"></p>
   </div>
@@ -226,60 +323,57 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
    <p class="text-[11px] mt-2" style="color:var(--mut)" data-i18n="sample"></p>
   </div>
   <p id="rate" class="text-[11px] text-center" style="color:var(--mut)"></p>
- </section>
+ </div>
+<div id="mp_tasks" class="mp space-y-4" hidden>
+ <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
 
- <section id="tab-family" class="tab-content space-y-3">
-  <div class="card p-4 space-y-3">
-   <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
-    <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-fam"></div>
-   <div id="famRes" class="space-y-2"></div>
-  </div>
-  <div id="chatList" class="card p-2 space-y-1"></div>
-  <div id="famList" class="space-y-3"></div>
- </section>
-
-<button id="fabAdd" onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
-
- <section id="tab-profile" class="tab-content space-y-4">
-  <h2 class="text-lg font-bold" data-i18n="profile"></h2>
-  <div class="card p-5 space-y-4">
-   <div class="flex items-center gap-4"><div class="av big cursor-pointer" role="button" tabindex="0" title="Change photo" onclick="$('file').click()"></div>
-    <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-   <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
-   <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
-  </div>
-  
-  <div id="profBlueRow" class="mb-2"></div><div id="profTrust" style="display:none"></div>
-  <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE"></div>
-  <div class="card p-5 space-y-3">
-   <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openInvite('')"><span data-ic="share" data-s="18"></span><span data-i18n="invite"></span></button>
-   <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openM('mPw')"><span data-ic="key" data-s="18"></span><span data-i18n="pw"></span></button>
-  </div>
-  <div class="pt-2"><button onclick="openM('mOut')" class="btn w-full py-3.5 rounded-xl text-sm font-semibold text-white" style="background:#E11D48"><span data-ic="logout" data-s="18"></span><span data-i18n="logout"></span></button></div>
- </section>
+  <div class="flex items-center justify-between gap-3"><h2 class="text-2xl font-extrabold tracking-tight" data-i18n="tasks"></h2>
+   <button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openM('mTask')"><span data-ic="plus" data-s="16"></span><span data-i18n="newTask"></span></button></div>
+  <p class="text-sm leading-relaxed -mt-2" style="color:var(--mut)">Master your day, shape your future. Small daily tasks build unstoppable success.</p>
+  <div id="filters" class="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4" style="scrollbar-width:none"></div>
+  <ul id="taskList" class="space-y-2"></ul>
+ </div>
+</section>
 </main>
 
-<button id="aiFab" onclick="openAI()" class="fixed end-4 bottom-24 z-40 w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#7C3AED,#22D3EE)" aria-label="AI Copilot" title="AI Copilot"><span data-ic="sparkle" data-s="24"></span></button>
+<button id="aiFab" onclick="openAI()" class="fixed end-4 bottom-24 z-40 w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#10B981,#34D399)" aria-label="AI Copilot" title="AI Copilot"><span data-ic="sparkle" data-s="24"></span></button>
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)">
  <div class="max-w-3xl mx-auto grid grid-cols-3" id="tabs"></div>
 </nav>
 
 <!-- Modals -->
+<div id="mNewGrp" class="modal"><div class="sheet space-y-3" style="max-width:440px">
+ <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg" data-lbl="grpNew"></h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mNewGrp')" aria-label="Close">&times;</button></div>
+ <input id="ngName" class="inp" maxlength="80" autocomplete="off">
+ <p class="text-xs" style="color:var(--mut)" data-lbl="grpPickHint"></p>
+ <div id="ngList" class="space-y-1 overflow-auto" style="max-height:44vh"></div>
+ <p id="ngErr" class="text-xs text-rose-600" hidden></p>
+ <button id="ngGo" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" onclick="createGroup()" data-lbl="grpCreate"></button>
+</div></div>
+<div id="mDelGrp" class="modal"><div class="sheet space-y-3" style="max-width:420px">
+ <h3 class="font-bold text-lg text-rose-600" data-lbl="grpDelTitle"></h3>
+ <p id="delGrpText" class="text-sm" style="color:var(--mut)"></p>
+ <p id="delGrpName" class="text-sm font-semibold"></p>
+ <input id="delGrpIn" class="inp" autocomplete="off" oninput="delGrpCheck()" aria-label="Type the group name to confirm">
+ <div class="flex gap-2"><button type="button" class="btn out flex-1 rounded-xl py-2.5 text-sm" onclick="closeM('mDelGrp')" data-lbl="grpCancel"></button><button id="delGrpGo" type="button" disabled class="btn flex-1 rounded-xl py-2.5 text-sm font-semibold text-white disabled:opacity-50" style="background:#E11D48" onclick="grpDeleteConfirm()" data-lbl="grpDelBtn"></button></div>
+</div></div>
+<div id="mGrp" class="modal"><div class="sheet space-y-3" style="max-width:440px">
+ <div class="flex items-center justify-between gap-3"><h3 id="grpTitle" class="font-bold text-lg truncate"></h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mGrp')" aria-label="Close">&times;</button></div>
+ <div id="grpBody" class="space-y-3"></div>
+</div></div>
+
 <div id="mTrust" class="modal"><div class="sheet space-y-3"><div class="flex items-center justify-between gap-3"><h3 id="trustTitle" class="font-bold text-lg"></h3><button class="btn out w-9 h-9 rounded-full shrink-0" onclick="closeM('mTrust')" aria-label="Close">&times;</button></div><div id="trustBody" class="text-sm"></div></div></div>
 <div id="mTask" class="modal"><div class="sheet space-y-3">
  <h3 class="font-bold text-lg" data-i18n="newTask"></h3>
  <input id="tTitle" class="inp" data-ph="title"><select id="tCat" class="inp"></select><select id="tUrg" class="inp"></select>
- <div><span class="text-sm" style="color:var(--mut)" data-i18n="time"></span><input id="tTime" type="time" class="inp mt-1"><button type="button" onclick="plus1()" class="text-sm mt-1.5 inline-flex items-center gap-1" style="color:var(--pri)"><span data-ic="clock" data-s="14"></span><span data-i18n="in1"></span></button></div>
+ <div><span class="text-sm" style="color:var(--mut)" data-i18n="time"></span><input id="tTime" type="time" class="inp mt-1"><button type="button" onclick="plus1()" class="text-sm mt-1.5 inline-flex items-center gap-1" style="color:var(--acc)"><span data-ic="clock" data-s="14"></span><span data-i18n="in1"></span></button></div>
  <div class="flex gap-2"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="closeM('mTask')" data-i18n="cancel"></button>
  <button class="btn pri flex-1 py-2.5 rounded-xl" onclick="addTask()" data-i18n="add"></button></div>
 </div></div>
 
 <div id="mNotif" class="modal"><div class="sheet">
  <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-lg" data-i18n="notif"></h3>
-  <button class="text-sm" style="color:var(--pri)" onclick="readAll()" data-i18n="readAll"></button></div>
+  <button class="text-sm" style="color:var(--acc)" onclick="readAll()" data-i18n="readAll"></button></div>
  <ul id="nList" class="space-y-2"></ul>
  <button class="btn out w-full py-2.5 rounded-xl mt-3" onclick="closeM('mNotif')" data-i18n="close"></button>
 </div></div>
@@ -291,7 +385,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  </div>
  <div id="audBox" class="pt-2"><div class="mx-auto w-fit" id="callAv"></div></div>
  <h3 class="font-bold text-xl" id="callName"></h3><div id="callLoc" class="text-start"></div>
- <p id="callType" class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--mut)"></p><p id="callState" style="color:var(--pri)"></p><p id="callNote" class="text-[11px]" style="color:var(--mut)"></p>
+ <p id="callType" class="text-[11px] font-semibold uppercase tracking-wider" style="color:var(--mut)"></p><p id="callState" style="color:var(--acc)"></p><p id="callNote" class="text-[11px]" style="color:var(--mut)"></p>
  <p id="callTime" class="text-2xl font-mono">00:00</p>
  <p class="text-xs inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="14"></span><span data-i18n="secure"></span></p>
  <div class="grid grid-cols-5 gap-2 pt-1">
@@ -306,7 +400,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 <div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0">
  <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
   <button class="p-2 -ms-2" style="color:var(--mut)" onclick="closeChat()" aria-label="Back" data-ic="left" data-s="20"></button>
-  <button type="button" id="chatHead" onclick="openPublicProfile()" class="flex items-center gap-3 min-w-0 text-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex items-center gap-1.5"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><div id="chatLoc" class="hidden"></div></button>
+  <button type="button" id="chatHead" onclick="openHeadInfo()" class="flex items-center gap-3 min-w-0 text-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex items-center gap-1.5"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><div id="chatLoc" class="hidden"></div></button>
   <div class="flex items-center gap-1 shrink-0"><button type="button" onclick="openWall()" class="btn out w-9 h-9 rounded-full" aria-label="Chat wallpaper" title="Chat wallpaper"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></button><div id="chatCalls" class="flex items-center gap-1"></div></div>
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
@@ -329,7 +423,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 
 <div id="mPay" class="modal"><div class="sheet" style="max-width:560px">
  <div class="flex items-center justify-between mb-3">
-  <div class="flex items-center gap-2" style="color:var(--pri)"><span data-ic="crown" data-s="20"></span><h3 class="font-bold text-lg" style="color:var(--ink)" data-i18n="planT"></h3></div>
+  <div class="flex items-center gap-2" style="color:var(--acc)"><span data-ic="crown" data-s="20"></span><h3 class="font-bold text-lg" style="color:var(--ink)" data-i18n="planT"></h3></div>
   <button onclick="closeM('mPay')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button>
  </div>
  <p id="planHint" class="text-sm mb-3 rounded-xl px-3 py-2 hidden" style="background:var(--pri2);color:#5B21B6"></p>
@@ -338,7 +432,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 </div></div>
 
 <div id="mOut" class="modal"><div class="sheet text-center space-y-3">
- <span class="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--pri)" data-ic="logout" data-s="24"></span>
+ <span class="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--acc)" data-ic="logout" data-s="24"></span>
  <h3 class="font-bold text-lg" id="outT" data-i18n="logoutQ"></h3>
  <div class="flex gap-2" id="outBtns"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="closeM('mOut')" data-i18n="cancel"></button>
  <button class="btn pri flex-1 py-2.5 rounded-xl" onclick="logout()" data-i18n="logout"></button></div>
@@ -346,7 +440,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 </div></div>
 
 <div id="mAlarm" class="modal" style="z-index:80"><div class="sheet text-center space-y-3">
- <span class="ring mx-auto w-16 h-16 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--pri)" data-ic="alarm" data-s="32"></span>
+ <span class="ring mx-auto w-16 h-16 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--acc)" data-ic="alarm" data-s="32"></span>
  <h3 class="font-bold text-xl" data-i18n="alertT"></h3>
  <p id="alarmMsg" class="text-base"></p>
  <div class="flex gap-2"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="snooze()" data-i18n="snooze"></button><button class="btn pri flex-1 py-2.5 rounded-xl" onclick="dismissAlarm()" data-i18n="dismiss"></button></div>
@@ -398,7 +492,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
    <form id="formLogin" class="card p-5 space-y-3" method="post" action="#" onsubmit="event.preventDefault();logIn();return false" style="display:none">
     <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblId"></span><input id="auth-username" name="username" type="text" class="inp mt-1" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
     <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="auth-password" name="password" type="password" class="inp mt-1" autocomplete="current-password" required></label>
-    <div class="flex justify-end"><button type="button" onclick="openForgot()" class="text-xs" style="color:var(--pri)" data-i18n="forgot"></button></div>
+    <div class="flex justify-end"><button type="button" onclick="openForgot()" class="text-xs" style="color:var(--acc)" data-i18n="forgot"></button></div>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="logInBtn"></button>
    </form>
 
@@ -456,7 +550,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 </div></div>
 <div id="mAI" class="modal" style="z-index:70"><div class="sheet" style="max-width:520px;padding:.75rem">
 <div class="flex justify-end mb-1"><button type="button" onclick="closeM('mAI')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
-  <div class="rounded-2xl p-4 bg-white" style="border:1px solid #DDD6FE;box-shadow:0 12px 32px -14px rgba(124,58,237,.28)">
+  <div class="rounded-2xl p-4 bg-white" style="border:1px solid #A7F3D0;box-shadow:0 12px 32px -14px rgba(16,185,129,.28)">
    <div class="flex items-center justify-between gap-2 mb-2">
     <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg pri flex items-center justify-center" data-ic="sparkle" data-s="15"></span><b class="text-sm" data-i18n="cpTitle"></b></div>
     <span id="cpUsage" class="text-[11px]" style="color:var(--mut)"></span>
@@ -523,14 +617,14 @@ const CUR={PKR:{r:278,s:"Rs "},USD:{r:1,s:"$"},EUR:{r:.92,s:"€"},GBP:{r:.79,s:
 const HDR_CUR=["PKR","USD","USDT","AED","SAR","EUR","GBP","CAD","INR","QAR","KWD","OMR"];
 const APP_URL="https://lifeone-app.vercel.app";
 const BASE={bal:12450,inf:8200,outf:5120}; // USD base
-const P={home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',tasks:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/>',money:'<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h3"/>',family:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.5 4 2.3 4 6"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-7 8-7s8 2.5 8 7"/>',bell:'<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/>',plus:'<path d="M12 5v14M5 12h14"/>',phone:'<path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z"/>',video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/>',chat:'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-5.4A8 8 0 1121 12z"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',micoff:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/>',speaker:'<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/>',send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',pin:'<path d="M12 21s7-6 7-11.5A7 7 0 005 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',battery:'<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2"/>',check:'<path d="M5 12l5 5 9-10"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M20.8 5.6a5.2 5.2 0 00-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 00-7.4 7.4L12 21.6l8.8-8.6a5.2 5.2 0 000-7.4z"/>',briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18"/>',wallet:'<path d="M3 7a2 2 0 012-2h13v4"/><path d="M3 7v11a2 2 0 002 2h15a1 1 0 001-1V10a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>',sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 001 .8h9.7a1 1 0 001-.8L21 7H6"/>',utensils:'<path d="M7 3v7a2 2 0 004 0V3M9 3v18M17 3c-2 1-3 4-3 7s1 4 3 4v7M17 3v18"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',arrowin:'<path d="M12 5v14M6 13l6 6 6-6"/>',arrowout:'<path d="M12 19V5M6 11l6-6 6 6"/>',alarm:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M4 5l3-2M20 5l-3-2"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',crown:'<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',play:'<path d="M7 4l13 8-13 8z"/>',pause:'<path d="M8 5v14M16 5v14"/>',logout:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',chevd:'<path d="M6 9l6 6 6-6"/>',chevu:'<path d="M6 15l6-6 6 6"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M17.94 17.94A10.8 10.8 0 0112 19c-6.4 0-10-7-10-7a18.5 18.5 0 015.06-5.94M9.9 5.1A10.4 10.4 0 0112 5c6.4 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/>',flip:'<path d="M3 7h11a4 4 0 014 4M21 17H10a4 4 0 01-4-4"/><path d="M16 4l3 3-3 3M8 20l-3-3 3-3"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',trendup:'<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7M7.5 8a2.5 2.5 0 010-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 010 5"/>',coins:'<circle cx="9" cy="9" r="6"/><path d="M15.5 11.5A6 6 0 1111.5 19"/>',coffee:'<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/>',bag:'<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/>',car:'<path d="M5 17h14M3 17v-5l2-5h14l2 5v5"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/>',landmark:'<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7z"/>',banknote:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',smartphone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',creditcard:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>'};
+const P={chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',tasks:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/>',money:'<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20M6 15h3"/>',family:'<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6M16 4.5a3.5 3.5 0 010 7M18 14c2.5.5 4 2.3 4 6"/>',profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.5 3.6-7 8-7s8 2.5 8 7"/>',bell:'<path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/>',plus:'<path d="M12 5v14M5 12h14"/>',phone:'<path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 1.9.7 2.8a2 2 0 01-.5 2.1L8 9.9a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.4c.9.3 1.8.6 2.8.7a2 2 0 011.7 2z"/>',video:'<rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/>',chat:'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-5.4A8 8 0 1121 12z"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',micoff:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M3 3l18 18"/>',speaker:'<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 010 7M19 5a10 10 0 010 14"/>',send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',pin:'<path d="M12 21s7-6 7-11.5A7 7 0 005 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',battery:'<rect x="2" y="7" width="17" height="10" rx="2"/><path d="M22 11v2"/>',check:'<path d="M5 12l5 5 9-10"/>',shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',heart:'<path d="M20.8 5.6a5.2 5.2 0 00-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 00-7.4 7.4L12 21.6l8.8-8.6a5.2 5.2 0 000-7.4z"/>',briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2M3 13h18"/>',wallet:'<path d="M3 7a2 2 0 012-2h13v4"/><path d="M3 7v11a2 2 0 002 2h15a1 1 0 001-1V10a1 1 0 00-1-1H5a2 2 0 01-2-2z"/><circle cx="16.5" cy="14.5" r="1"/>',sparkle:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/>',cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a1 1 0 001 .8h9.7a1 1 0 001-.8L21 7H6"/>',utensils:'<path d="M7 3v7a2 2 0 004 0V3M9 3v18M17 3c-2 1-3 4-3 7s1 4 3 4v7M17 3v18"/>',bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',arrowin:'<path d="M12 5v14M6 13l6 6 6-6"/>',arrowout:'<path d="M12 19V5M6 11l6-6 6 6"/>',alarm:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M4 5l3-2M20 5l-3-2"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',flame:'<path d="M12 3c1 4 5 5 5 10a5 5 0 01-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/>',crown:'<path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/>',lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',play:'<path d="M7 4l13 8-13 8z"/>',pause:'<path d="M8 5v14M16 5v14"/>',logout:'<path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>',key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',upload:'<path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>',chevd:'<path d="M6 9l6 6 6-6"/>',chevu:'<path d="M6 15l6-6 6 6"/>',eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M17.94 17.94A10.8 10.8 0 0112 19c-6.4 0-10-7-10-7a18.5 18.5 0 015.06-5.94M9.9 5.1A10.4 10.4 0 0112 5c6.4 0 10 7 10 7a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/>',flip:'<path d="M3 7h11a4 4 0 014 4M21 17H10a4 4 0 01-4-4"/><path d="M16 4l3 3-3 3M8 20l-3-3 3-3"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',building:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/>',trendup:'<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7M7.5 8a2.5 2.5 0 010-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 010 5"/>',coins:'<circle cx="9" cy="9" r="6"/><path d="M15.5 11.5A6 6 0 1111.5 19"/>',coffee:'<path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 2v3M10 2v3M14 2v3"/>',bag:'<path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 01-8 0"/>',car:'<path d="M5 17h14M3 17v-5l2-5h14l2 5v5"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/>',landmark:'<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7z"/>',banknote:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',smartphone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',creditcard:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',left:'<path d="M15 18l-6-6 6-6"/>',right:'<path d="M9 18l6-6-6-6"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>'};
 const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
 const $=id=>document.getElementById(id);
 const t=k=>(T[S.lang][k]??T.en[k]??k);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=(v,c)=>CUR[c].s+Math.round(v).toLocaleString("en-US");
 const ini=n=>n.trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase()||"?";
-const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"free",mask:false,authed:true,cpDay:{d:"",n:0},busyPlan:null,habits:[{k:"hab1",d:8,g:21},{k:"hab2",d:5,g:14},{k:"hab3",d:12,g:30}],shareOn:false,pwChanged:false,geo:{st:"idle",acc:null},gun:2,
+const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"free",mask:false,authed:true,cpDay:{d:"",n:0},busyPlan:null,habits:[{k:"hab1",d:8,g:21},{k:"hab2",d:5,g:14},{k:"hab3",d:12,g:30}],shareOn:false,pwChanged:false,geo:{st:"idle",acc:null},gun:2,groups:[],
  user:{name:"",email:"",loc:"",img:null,lat:null,lng:null,b:null,locManual:false},
  tasks:[{id:1,t:"Morning workout",c:"Health",u:"Medium",time:"06:30",d:true},{id:2,t:"Review Q4 budget",c:"Finance",u:"High",time:"09:00",d:false},{id:3,t:"Send client proposal",c:"Work",u:"High",time:"11:30",d:false},{id:4,t:"Call mom",c:"Personal",u:"Medium",time:"14:00",d:false},{id:5,t:"Book dentist visit",c:"Health",u:"Medium",time:"17:30",d:false},{id:6,t:"Read 20 pages",c:"Personal",u:"Low",time:"21:00",d:false}],
  notifs:[{t:"Hassan Ahmed’s live location was verified in Kahror Pakka",r:false},{t:"Your 12-day streak is still going",r:false},{t:"Monthly budget report is ready",r:false}],
@@ -594,14 +688,14 @@ function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("
  $("tCat").innerHTML=CATS.map(c=>`<option value="${c}">${t(c)}</option>`).join("");$("tUrg").innerHTML=["High","Medium","Low"].map(u=>`<option value="${u}">${t({High:"uHigh",Medium:"uMed",Low:"uLow"}[u])}</option>`).join("");$("tUrg").value="Medium";
  $("today").textContent=new Date().toLocaleDateString(LOC[l],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
  renderAll();if($("mChat").classList.contains("on"))openChatHead()}
-$("lang").onchange=e=>{S.lang=e.target.value;applyLang()};
+$("lang").onchange=e=>{S.lang=e.target.value;setTimeout(()=>{setLabels();renderTabs();renderHomePanels()},0);applyLang()};
 
 /* tabs */
-function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=unreadCount();const badge={tasks:pend,family:un};
- $("tabs").innerHTML=["home","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
- <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
-function savedTab(){try{const v=localStorage.getItem("lifeone.tab");return ["home","family","profile"].includes(v)?v:"home"}catch(e){return "home"}}
-function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};{const fb=$("fabAdd");if(fb)fb.style.display=v==="family"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="home"?"":"none"};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
+const NAV=[["chats","navChats","chat"],["groups","navGroups","family"],["calls","navCalls","phone"],["profile","navMore","more"]];
+function renderTabs(){updateBell();const cur=S.view==="family"?"profile":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn};
+ $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${cur===k?"on":""}"><span class="relative">${ic(ik,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(lk)}<i class="bar"></i></button>`).join("");setLabels()}
+function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","calls","profile","family"].includes(v)?v:"chats"}catch(e){return "chats"}}
+function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -612,7 +706,7 @@ const taskRow=x=>`<li class="card ${x.d?"done":""} flex items-center gap-3 p-3">
  <button class="chk ${x.d?"on":""}" role="checkbox" aria-checked="${!!x.d}" onclick="toggle(${x.id},this)" aria-label="${esc(x.t)}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></button>
  <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${CC[x.c]}">${ic(CI[x.c],18)}</span>
  <span class="flex-1 min-w-0"><span class="t block truncate">${esc(x.t)}</span><span class="flex flex-wrap items-center gap-1.5 mt-0.5"><span class="text-xs" style="color:var(--mut)">${t(x.c)}</span><span class="text-[11px] px-1.5 py-0.5 rounded-full border ${UC[x.u||"Medium"]}">${t(UK[x.u||"Medium"])}</span></span></span>
- ${x.time?`<span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${x.d?"opacity-50":""}" style="background:var(--pri2);color:var(--pri);border-color:#DDD6FE">${ic("alarm",14)}${fmtT(x.time)}</span>`:""}</li>`;
+ ${x.time?`<span class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${x.d?"opacity-50":""}" style="background:var(--pri2);color:var(--acc);border-color:#A7F3D0">${ic("alarm",14)}${fmtT(x.time)}</span>`:""}</li>`;
 function toggle(id,el){const x=S.tasks.find(a=>a.id===id);x.d=!x.d;if(el){el.classList.toggle("on",x.d);el.setAttribute("aria-checked",x.d);el.closest("li").classList.toggle("done",x.d)}setTimeout(renderAll,380)}
 function plus1(){$("tTime").value=hhmm(new Date(Date.now()+60000))}
 function addTask(){const v=$("tTitle").value.trim();if(!v){$("tTitle").focus();return}const tm=$("tTime").value||null;
@@ -623,7 +717,7 @@ function addTask(){const v=$("tTitle").value.trim();if(!v){$("tTitle").focus();r
 /* ---------- browser notifications + sound + haptics ---------- */
 function askNotifPerm(){try{if(!("Notification" in window)||Notification.permission!=="default")return;const r=Notification.requestPermission(()=>{});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
 function sysNotify(title,body,tag){try{if(!("Notification" in window)||Notification.permission!=="granted")return;
- const n=new Notification(title,{body:body||"",tag:tag||undefined,renotify:!!tag,icon:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#7C3AED"/><text x="32" y="43" font-size="30" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">L1</text></svg>')});
+ const n=new Notification(title,{body:body||"",tag:tag||undefined,renotify:!!tag,icon:"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#10B981"/><text x="32" y="43" font-size="30" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">L1</text></svg>')});
  n.onclick=()=>{try{window.focus();n.close()}catch(e){}}}catch(e){}}
 function chime(){const c=audio();if(!c)return;[[988,0],[1319,.14],[1568,.28]].forEach(([f,d])=>{const o=c.createOscillator(),g=c.createGain(),s=c.currentTime+d;o.type="triangle";o.frequency.value=f;o.connect(g);g.connect(c.destination);
  g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.35,s+.015);g.gain.exponentialRampToValueAtTime(.001,s+.25);o.start(s);o.stop(s+.27)})}
@@ -667,7 +761,7 @@ function renderTasks(){const n=S.tasks.length,d=S.tasks.filter(x=>x.d).length,p=
  $("taskList").innerHTML=L.length?L.map(taskRow).join(""):`<li class="text-center py-10" style="color:var(--mut)">${t("none")}</li>`}
 
 function renderHabits(){const el=$("habitList");if(!el)return;
- el.innerHTML=S.habits.map(h=>{const p=Math.min(100,Math.round(h.d/h.g*100));return `<div><div class="flex justify-between items-center text-xs mb-1.5"><span class="font-medium">${t(h.k)}</span><span class="inline-flex items-center gap-1 font-semibold" style="color:var(--pri)">${ic("flame",12)}${h.d} ${t("days")}</span></div><div class="h-2 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full" style="width:${p}%;background:linear-gradient(90deg,#7C3AED,#C4B5FD);box-shadow:0 0 12px rgba(124,58,237,.35);transition:width .6s ease"></div></div></div>`}).join("")}
+ el.innerHTML=S.habits.map(h=>{const p=Math.min(100,Math.round(h.d/h.g*100));return `<div><div class="flex justify-between items-center text-xs mb-1.5"><span class="font-medium">${t(h.k)}</span><span class="inline-flex items-center gap-1 font-semibold" style="color:var(--acc)">${ic("flame",12)}${h.d} ${t("days")}</span></div><div class="h-2 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full" style="width:${p}%;background:linear-gradient(90deg,#10B981,#6EE7B7);box-shadow:0 0 12px rgba(16,185,129,.35);transition:width .6s ease"></div></div></div>`}).join("")}
 function renderShield(){const b=$("shieldPill");if(!b)return;const on=S.shareOn;
  b.className="btn px-3 py-1.5 rounded-full text-xs font-medium border "+(on?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-white text-slate-700 border-slate-200");
  b.innerHTML=`<span class="${on?"gp":""} w-2 h-2 rounded-full inline-block ${on?"bg-emerald-500":"bg-slate-400"}"></span>${t(on?"sharingOn":"privShield")}`}
@@ -680,12 +774,12 @@ function renderHomeFam(){const el=$("homeFam");if(!el)return;if(!S.fam.length){e
   return `<div class="flex items-center gap-3"><div class="relative shrink-0">${avHTML(f.n,36,f.img)}<i class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(f.n)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(f.rel)}</p></div><span class="text-[11px] px-2 py-0.5 rounded-full border shrink-0 ${cls}">${st}</span></div>`}).join("")}
 
 /* money */
-const FIN={inf:376500,cats:[["cHouse","home","#7C3AED",75000],["cGroc","cart","#10B981",32400],["cDine","utensils","#F59E0B",11800],["cHealth","heart","#F43F5E",7200],["cUtil","bolt","#3B82F6",5400]]};
+const FIN={inf:376500,cats:[["cHouse","home","#10B981",75000],["cGroc","cart","#10B981",32400],["cDine","utensils","#F59E0B",11800],["cHealth","heart","#F43F5E",7200],["cUtil","bolt","#3B82F6",5400]]};
 const CURR=["PKR","USD","EUR","GBP","SAR","AED","INR","CAD","AUD","JPY","CHF","CNY","SGD","TRY","MYR","THB","IDR"];
 let TX=[{d:"Nov 07",t:"Salary",c:"Income",m:"bank",a:300000,in:true},{d:"Nov 05",t:"Freelance retainer",c:"Income",m:"bank",a:56500,in:true},{d:"Nov 04",t:"Quarterly dividend",c:"Income",m:"crypto",a:20000,in:true},{d:"Nov 03",t:"Rent",c:"cHouse",m:"bank",a:75000},{d:"Nov 02",t:"Groceries",c:"cGroc",m:"card",a:32400},{d:"Nov 02",t:"Client dinner",c:"cDine",m:"card",a:11800},{d:"Oct 30",t:"Pharmacy and clinic",c:"cHealth",m:"cash",a:7200},{d:"Oct 28",t:"Electricity and gas",c:"cUtil",m:"bank",a:5400}];
 const cv=v=>v/CUR.PKR.r*CUR[S.cur].r;
 const money=v=>S.mask?"••••••":fmt(cv(v),S.cur);
-const FIN_CATS=[["cHouse","home","#7C3AED"],["cGroc","cart","#10B981"],["cDine","utensils","#F59E0B"],["cHealth","heart","#F43F5E"],["cUtil","bolt","#3B82F6"],["cShop","cart","#EC4899"],["cTravel","globe","#0EA5E9"],["cEdu","briefcase","#6366F1"],["cOther","wallet","#64748B"]];
+const FIN_CATS=[["cHouse","home","#10B981"],["cGroc","cart","#10B981"],["cDine","utensils","#F59E0B"],["cHealth","heart","#F43F5E"],["cUtil","bolt","#3B82F6"],["cShop","cart","#EC4899"],["cTravel","globe","#0EA5E9"],["cEdu","briefcase","#6366F1"],["cOther","wallet","#64748B"]];
 const finCalc=()=>{let inf=0,out=0;const cat={};const known=new Set(FIN_CATS.map(x=>x[0]));
  TX.forEach(x=>{if(x.in)inf+=x.a;else{out+=x.a;const k=known.has(x.c)?x.c:"cOther";cat[k]=(cat[k]||0)+x.a}});
  const cats=FIN_CATS.filter(([k])=>cat[k]).map(([k,ico,col])=>[k,ico,col,cat[k]]);
@@ -707,7 +801,7 @@ const SRC_CATS=["s_bank","s_cash","s_wallet","s_card"];
 const ICON_CAT={inc_salary:"briefcase",inc_biz:"building",inc_free:"laptop",inc_inv:"trendup",inc_gift:"gift",inc_other:"coins",cHouse:"home",cGroc:"cart",cDine:"coffee",cHealth:"heart",cUtil:"bolt",cShop:"bag",cTravel:"car"};
 const ICON_SRC={s_bank:"landmark",s_cash:"banknote",s_wallet:"smartphone",s_card:"creditcard"};
 function initHdrCur(){const s=$("curHdr");if(!s)return;s.innerHTML=HDR_CUR.map(k=>`<option value="${k}">${k}</option>`).join("");s.value=S.cur}
-function tile(fn,k,icon){return `<button type="button" onclick="${fn}('${k}')" data-k="${k}" aria-pressed="false" class="tile btn out flex-col gap-1.5 py-2.5 px-1 rounded-xl text-[11px] font-medium"><span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--pri2);color:var(--pri)">${ic(icon,17)}</span><span class="text-center leading-tight">${t(k)}</span></button>`}
+function tile(fn,k,icon){return `<button type="button" onclick="${fn}('${k}')" data-k="${k}" aria-pressed="false" class="tile btn out flex-col gap-1.5 py-2.5 px-1 rounded-xl text-[11px] font-medium"><span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--pri2);color:var(--acc)">${ic(icon,17)}</span><span class="text-center leading-tight">${t(k)}</span></button>`}
 function markTiles(id,k){document.querySelectorAll(`#${id} .tile`).forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.k===k)))}
 function pickCat(k){$("txCat").value=k;markTiles("txCatTiles",k)}
 function pickSrc(k){$("txSrc").value=k;markTiles("txSrcTiles",k)}
@@ -756,9 +850,9 @@ function renderPlanGrid(){const el=$("planGrid");if(!el)return;
   const price=p.price?"$"+p.price.toFixed(2):"$0";
   const btn=cur?`<button disabled class="btn out w-full py-2 rounded-xl text-sm opacity-60">${t("current")}</button>`:`<button ${S.busyPlan?"disabled":""} onclick="buyPlan('${k}')" class="btn pri w-full py-2 rounded-xl text-sm">${busy?`<span class="spin inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white"></span>`:t("btnSoon")}</button>`;
   const help=k==="plus"&&cur?`<button onclick="helpTicket()" class="btn out w-full py-2 rounded-xl text-xs mb-2">${t("helpBtn")}</button>`:"";
-  return `<div class="rounded-2xl p-4" style="border:1px solid ${cur?"var(--pri)":"var(--line)"};background:${k==="plus"?"linear-gradient(135deg,#F5F3FF,#fff)":"#fff"}">
+  return `<div class="rounded-2xl p-4" style="border:1px solid ${cur?"var(--pri)":"var(--line)"};background:${k==="plus"?"linear-gradient(135deg,#ECFDF5,#fff)":"#fff"}">
    <div class="flex items-baseline justify-between"><b class="text-base">${p.name}</b><span><b class="text-xl">${price}</b><span class="text-xs" style="color:var(--mut)"> / ${t("mo")}</span></span></div>
-   <ul class="text-xs space-y-1.5 my-3">${planLines(k).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--pri)">${ic("check",13)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
+   <ul class="text-xs space-y-1.5 my-3">${planLines(k).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--acc)">${ic("check",13)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
    ${help}${btn}</div>`}).join("")}
 function comingSoon(){const e=$("toast");e.textContent=t("soonMsg");e.style.maxWidth="90vw";e.style.whiteSpace="normal";e.style.textAlign="center";
  e.classList.remove("hidden");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.add("hidden"),4500)}
@@ -782,7 +876,7 @@ function cpChips(){const extra=(S.plan!=="free"||true)?[["aiMissing","missing ta
 function cpCard(c){const o=$("cpOut");
  const items=c.items?`<ol class="mt-2 space-y-1.5 list-none">${c.items.map(x=>`<li class="flex gap-2 text-sm"><span class="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style="background:var(--pri)"></span><span>${esc(x)}</span></li>`).join("")}</ol>`:"";
  const act=c.act?`<button onclick="cpAct('${c.act}')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-3">${esc(c.label)}</button>`:"";
- o.innerHTML=`<div class="rounded-xl p-4 bg-white" style="border:1px solid #DDD6FE;animation:in .25s ease"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--pri2);color:var(--pri)">${ic(c.icon||"sparkle",15)}</span><b class="text-sm">${esc(c.title)}</b></div>${c.body?`<p class="text-sm mt-2" style="color:var(--mut)">${esc(c.body)}</p>`:""}${items}${act}</div>`;
+ o.innerHTML=`<div class="rounded-xl p-4 bg-white" style="border:1px solid #A7F3D0;animation:in .25s ease"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg flex items-center justify-center" style="background:var(--pri2);color:var(--acc)">${ic(c.icon||"sparkle",15)}</span><b class="text-sm">${esc(c.title)}</b></div>${c.body?`<p class="text-sm mt-2" style="color:var(--mut)">${esc(c.body)}</p>`:""}${items}${act}</div>`;
  o.classList.remove("hidden")}
 function cpAct(k){if(k==="money")go("home");else if(k==="plans")openPlans();else if(k==="plus")openPlans()}
 function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.value="";
@@ -963,9 +1057,9 @@ function renderFam(){requestAnimationFrame(applyFamFilter);renderChatList();rend
  const sw=`<div class="card p-4 flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic(S.shareOn?"pin":"lock",18)}</span>
  <div class="flex-1 min-w-0"><b class="block">${t(S.shareOn?"shareOn":"shareOff")}</b><span class="text-xs" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</span></div>
  <button role="switch" aria-checked="${S.shareOn}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0 ${S.shareOn?"pri":""}" style="${S.shareOn?"":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow transition-all"></span></button></div>`;
- const grp=`<div class="rounded-2xl p-4 flex items-center gap-3" style="background:var(--pri2);border:1px solid #DDD6FE">${GROUP_AV()}
+ const grp=`<div class="rounded-2xl p-4 flex items-center gap-3" style="background:var(--pri2);border:1px solid #A7F3D0">${GROUP_AV()}
  <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")} <span class="text-[10px] px-1.5 py-0.5 rounded-full align-middle inline-flex items-center gap-0.5" style="background:#FEF3C7;color:#92400E">${ic("crown",10)}PRO</span>${S.plan==="free"?ic("lock",12):""}</b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
- <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
+ <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--acc)">${S.gun}</b>`:""}</button></div>`;
  const locFor=(f,i)=>{if(consentOf(f)!=="active")return "";if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("waitLive")}</p>`;
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
   if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)} · ${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}</span></div></div>`;
@@ -988,7 +1082,7 @@ const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
  <div class="grid grid-cols-3 gap-2 mt-3">
   <button onclick="chatCall(false,${i})" class="btn out rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${callIc("phone",16,canCall(false))}<span>Call</span></button>
   <button onclick="chatCall(true,${i})" class="btn out rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${callIc("video",16,canCall(true))}<span>Video</span></button>
-  <button onclick="openChat(${i})" class="btn pri rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${ic("chat",16)}<span>Chat</span>${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button>
+  <button onclick="openChat(${i})" class="btn pri rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${ic("chat",16)}<span>Chat</span>${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--acc)">${f.un}</b>`:""}</button>
  </div></div>`};
  $("famList").innerHTML=`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
 }
@@ -1050,6 +1144,7 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
 let chatK=0;
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
 function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
+ if(isGK(chatK)){const g=groupOf(chatK);if(!g){closeM("mChat");return}$("chatName").textContent=g.name;setBlueFor(null);$("chatAv").innerHTML=avHTML(g.name,38,"");$("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1" style="color:var(--acc)">${ic("family",13)}${g.members.length} ${t("members")}</span>`;if(cc)cc.innerHTML="";return}
  if(chatK==="g"){$("chatName").textContent=t("grp");setBlueFor(null);$("chatAv").innerHTML=GROUP_AV();
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
@@ -1058,7 +1153,7 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
-function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
+function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";el.style.display="none";return;
@@ -1069,7 +1164,7 @@ function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";e
     <span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>
    <button onclick="chatCall(false,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",15)}</button>
    <button onclick="chatCall(true,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",15)}</button></div>`}).join("");
- const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
+ const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--acc)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
  el.innerHTML=(rows||emptyBox(t("noContactsChat")))+grp}
 /* voice notes: playback, progress and "new voice" state */
 let audioPlayer=null,audioIdx=null,audioChat=null,audioRAF=null;
@@ -1130,7 +1225,7 @@ function renderMsgs(keep){const L=S.chats[chatK]||[];const el=$("msgs");const y=
  el.innerHTML=L.map((m,i)=>{const fresh=isNewVoice(m);const own=!!m.me;const body=m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
   const style=own?"background:var(--pri);color:#fff;border-radius:18px 18px 6px 18px":fresh?"background:var(--pri2);border:1px solid var(--pri);color:var(--ink);border-radius:18px 18px 18px 6px":"background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:18px 18px 18px 6px";
   const badge=fresh?`<span class="inline-flex items-center gap-1 mb-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold text-white" style="background:var(--pri)">${ic("mic",10)}${t("newVoice")}</span>`:"";
-  const name=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:var(--pri)">${esc(m.from)}</p>`:"";
+  const name=!own&&(chatK==="g"||isGK(chatK))?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:var(--acc)">${esc(m.from)}</p>`:"";
   return `<div class="flex ${own?"justify-end":"justify-start"} px-1"><div class="max-w-[80%] min-w-0">${name}<div class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed shadow-sm" style="${style}">${badge}${body}<div class="flex items-center justify-end gap-0.5 mt-1 text-[10px] leading-none" style="opacity:.75">${msgTime(m.ts)}${own?tickHTML(m):""}</div></div></div></div>`}).join("");
  if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData()}
 // Optional columns: removed from an insert automatically if the messages table does not have them.
@@ -1140,7 +1235,7 @@ const MISSING=new Set();
 function missingCol(e){const msg=String((e&&e.message)||"");
  const m=msg.match(/['"]([a-z_]+)['"]\s*column/i)||msg.match(/column\s+(?:[a-z_]+\.)?['"]?([a-z_]+)['"]?/i);
  return m?m[1].toLowerCase():null}
-const msgFilter=me=>`sender_id.eq.${me},receiver_id.eq.${me}`+(MISSING.has("audience")?"":`,audience.cs.{${me}}`);
+const msgFilter=me=>`sender_id.eq.${me},receiver_id.eq.${me}`+(MISSING.has("audience")?"":`,audience.cs.{${me}}`)+(S.groups.length?`,group_id.in.(${S.groups.map(g=>g.id).join(",")})`:"");
 // Reads the message history; if a column is missing it is recorded and the query is retried without it
 async function fetchMsgs(me,after){
  const run=()=>{let q=sb.from("messages").select("*").or(msgFilter(me));if(after)q=q.gt("created_at",after);
@@ -1172,7 +1267,8 @@ async function sendToRecipients(it){const {msg,k,to,m}=it;
  if(m.v){body.voice_url=m.url;body.voice_dur=m.d}
  if(m.file){body.media_url=m.url;body.media_type=m.ft;body.media_name=m.name}
  let res;
- if(k==="g"){
+ if(isGK(k)){res=await insertRow(Object.assign({},body,{group_id:groupOf(k)?.id}))}
+ else if(k==="g"){
   res=await insertRow(Object.assign({},body,{audience:[S.user.uid,...to]}));
   if(res.error&&res.error.code==="NO_AUDIENCE"){
    res=null;
@@ -1186,7 +1282,7 @@ async function sendToRecipients(it){const {msg,k,to,m}=it;
  dropMsg(it);
  toast(e.code==="MEDIA"?"Media sharing needs the messages media columns. Run the setup SQL.":t(e.code==="VOICE"?"voiceNeedsCol":"msgFail"))}
 function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
- const to=k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
+ const to=isGK(k)?(groupOf(k)?.members||[]).map(x=>x.id).filter(id=>id!==S.user.uid):k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
  if(!to.length){toast(t("noContactsChat"));return}
  const msg=Object.assign({me:true,from:S.user.name,pending:true,ts:new Date().toISOString()},m);
@@ -1264,8 +1360,8 @@ async function uploadAvatar(dataUrl){
 
 
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
- $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--pri)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
- <ul class="text-sm space-y-1.5 my-3">${planLines(S.plan).slice(0,4).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--pri)">${ic("check",14)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
+ $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--acc)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
+ <ul class="text-sm space-y-1.5 my-3">${planLines(S.plan).slice(0,4).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--acc)">${ic("check",14)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
  <button class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="openPlans()">${ic("crown",16)}${t("planT")}</button>`}
 function renderAuth(){const el=$("authCard");if(!el)return;
  if(!S.authed){el.innerHTML=`<div class="text-center space-y-3"><p class="font-semibold">${t("signedOut")}</p><button onclick="login()" class="btn pri w-full py-2.5 rounded-xl text-sm">${t("signIn")}</button></div>`;return}
@@ -1575,7 +1671,7 @@ function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
  const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,provider,trust_score,last_seen,battery").in("id",need);
  (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r));applyProfLoc(r)})}
-function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
+function chatKeyOf(r){if(r.group_id)return "G:"+r.group_id;if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
  return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true},r.media_url?{file:1,ft:r.media_type||"",name:r.media_name||"File",url:r.media_url}:r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
@@ -1584,7 +1680,7 @@ function readMap(){return store.get("lifeone.read."+S.user.uid,{})}
 function lastTsOf(key){const idx=S.fam.findIndex(f=>f.key===key);const L=idx>=0?(S.chats[idx]||[]):[];let best="";for(const m of L){if(m.ts&&m.ts>best)best=m.ts}return best||new Date().toISOString()}
 function markRead(other){if(!other||!S.user.uid)return;const ts=lastTsOf(other),rm=readMap();if(!rm[other]||ts>rm[other]){rm[other]=ts;store.set("lifeone.read."+S.user.uid,rm)}
  if(!sb)return;sb.from("messages").update({is_read:true}).eq("receiver_id",S.user.uid).eq("sender_id",other).eq("is_read",false).then(r=>{if(r&&r.error)console.warn("markRead:",r.error.message)},()=>{})}
-async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
+async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;await loadGroups();
  const {data,error}=await fetchMsgs(me);
  if(error||!data)return;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
@@ -1604,20 +1700,20 @@ function showMsgBanner(title,body,k){let b=$("msgBanner");
 function unreadCount(){return (S.gun?1:0)+S.fam.filter(f=>(f.un||0)>0).length}
 function updateBell(){const el=$("bellDot");if(!el)return;const n=S.notifs.filter(x=>!x.r).length;
  el.textContent=n>99?"99+":String(n);el.style.display=n?"flex":"none"}
-const isIncomingMsg=r=>{const me=S.user.uid;if(!r||!me)return false;if(String(r.sender_id).toLowerCase()===String(me).toLowerCase())return false;return r.receiver_id===me||(r.audience||[]).includes(me)};
+const isIncomingMsg=r=>{const me=S.user.uid;if(!r||!me)return false;if(String(r.sender_id).toLowerCase()===String(me).toLowerCase())return false;return r.receiver_id===me||(r.audience||[]).includes(me)||!!r.group_id};
 async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=String(r.sender_id).toLowerCase()===String(me).toLowerCase();
- if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
+ if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me)&&!(r.group_id&&groupOf(gkey(r.group_id))))return;
  if(r.created_at&&(!lastMsgTs||r.created_at>lastMsgTs))lastMsgTs=r.created_at;
  if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
  if(mine){for(const L of Object.values(S.chats)){const p=L.find(m=>m.me&&!m.id&&(r.voice_url?(m.v&&m.url===r.voice_url):(!m.v&&m.t===r.content)));if(p){p.id=r.id;p.pending=false;return}}}
  let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
  const open=chatK===k&&$("mChat").classList.contains("on"),quiet=open&&!document.hidden;
- if(isIncomingMsg(r)){const who=k==="g"?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
+ if(isIncomingMsg(r)){const who=(k==="g"||isGK(k))?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
   chime();if(!quiet){buzz();showMsgBanner(who||"LifeOne",prev,k)}
   if(!quiet||document.hidden)sysNotify(who||"LifeOne",prev,"msg-"+k)}
- if(open){renderMsgs();if(!mine&&k!=="g")markRead(S.fam[k].key)}
- else if(isIncomingMsg(r)){if(k==="g")S.gun=1;else if(r.receiver_id===me)S.fam[k].un++}
+ if(open){renderMsgs();if(!mine&&typeof k==="number")markRead(S.fam[k].key)}
+ else if(isIncomingMsg(r)){if(k==="g")S.gun=1;else if(isGK(k)){const g=groupOf(k);if(g)g.un=(g.un||0)+1}else if(r.receiver_id===me)S.fam[k].un++}
  renderTabs();renderFam();saveUserData()}
 function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
  if(r.id===S.user.uid&&r.trust_score!=null)S.user.points=clampTrust(r.trust_score);if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
@@ -1647,7 +1743,14 @@ function tickOnline(){
    if(data!=null){S.user.points=Number(data)||0;renderTrust()}})}}
 function watchBattery(){if(!navigator.getBattery||S.bwatch)return;S.bwatch=true;navigator.getBattery().then(b=>{const u=()=>{S.user.bat=Math.round(b.level*100)};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 function updatePresence(){if(!sb||!S.user.uid)return;const up={last_seen:new Date().toISOString()};if(S.user.bat!=null)up.battery=S.user.bat;sb.from("profiles").update(up).eq("id",S.user.uid).then(()=>{},()=>{})}
-function startRealtime(){watchBattery();updatePresence();if(!presT)presT=setInterval(updatePresence,60000);if(!onT)onT=setInterval(tickOnline,60000);stopRealtime();if(!sb||!S.user.uid)return;
+let grpT=null;let rtGrp=null;let grpDebounce=null;
+function scheduleGroups(){clearTimeout(grpDebounce);grpDebounce=setTimeout(loadGroups,300)}
+function startGroupRealtime(){if(!sb||!S.user.uid)return;if(rtGrp){try{sb.removeChannel(rtGrp)}catch(e){}rtGrp=null}
+ const ch=sb.channel("lo-grp-"+S.user.uid);rtGrp=ch;
+ ch.on("postgres_changes",{event:"*",schema:"public",table:"group_members"},scheduleGroups)
+   .on("postgres_changes",{event:"*",schema:"public",table:"groups"},scheduleGroups)
+   .subscribe(st=>{if(ch!==rtGrp)return;if(st==="SUBSCRIBED")loadGroups()});}
+function startRealtime(){if(!grpT)grpT=setInterval(()=>{if(S.authed)loadGroups()},30000);startGroupRealtime();watchBattery();updatePresence();if(!presT)presT=setInterval(updatePresence,60000);if(!onT)onT=setInterval(tickOnline,60000);stopRealtime();if(!sb||!S.user.uid)return;
  const ch=sb.channel("lo-msg-"+S.user.uid);rtMsg=ch;
  ch.on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe(st=>{
   if(ch!==rtMsg)return;                       // ignore events of channels we replaced on purpose
@@ -1806,31 +1909,149 @@ let SEG="chats";
 function setSeg(k){SEG=k;try{localStorage.setItem("lifeone.seg",k)}catch(e){}renderHomePanels()}
 function previewOf(m){if(!m)return "No messages yet";const who=m.me?"You: ":"";if(m.v)return who+"Voice message";if(m.file)return who+(m.name||"File");return who+(m.t||"")}
 function renderSegBar(){[["chats","chatsTab"],["groups","groupsTab"],["calls","callsTab"]].forEach(([k,lk])=>{const b=$("seg_"+k);if(!b)return;const on=SEG===k;b.textContent=t(lk);b.setAttribute("aria-selected",on);b.style.background=on?"var(--pri)":"transparent";b.style.color=on?"#fff":"var(--mut)"})}
-function renderHomePanels(){if(!$("panel_chats"))return;renderSegBar();
- ["chats","groups","calls"].forEach(k=>{const p=$("panel_"+k);if(p)p.style.display=SEG===k?"":"none"});
- renderChatsPanel();renderGroupsPanel();renderCallsPanel()}
-function renderChatsPanel(){const el=$("panel_chats");if(!el)return;
+function renderHomePanels(){renderChatsPanel();renderGroupsPanel();renderCallsPanel();renderTabs()}
+function renderChatsPanel(){const el=$("chats_list");if(!el)return;const q=((($("famQ")||{}).value)||"").trim().toLowerCase();
  if(!S.fam.length){el.innerHTML=emptyBox(t("noChats"));return}
- const rows=S.fam.map((f,i)=>{const L=S.chats[i]||[];const last=L[L.length-1];return {f,i,last,ts:last&&last.ts?Date.parse(last.ts)||0:0}}).sort((a,b)=>b.ts-a.ts);
- el.innerHTML=rows.map(({f,i,last})=>`<button onclick="openChat(${i})" class="card w-full p-3 flex items-center gap-3 text-start btn"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2"><b class="truncate text-[15px]">${esc(f.n)}</b><span class="text-[11px] shrink-0" style="color:var(--mut)">${last&&last.ts?msgTime(last.ts):""}</span></div><div class="flex items-center justify-between gap-2 mt-0.5"><span class="text-sm truncate" style="color:var(--mut)">${esc(previewOf(last))}</span>${f.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shrink-0" style="background:var(--pri)">${f.un}</b>`:""}</div></div></button>`).join("")}
-function renderGroupsPanel(){const el=$("panel_groups");if(!el)return;const on=S.fam.filter(f=>sharing(f)).length;
- el.innerHTML=`<button onclick="openChat('g')" class="card w-full p-3 flex items-center gap-3 text-start btn"><div class="shrink-0">${GROUP_AV()}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${t("grp")}</b><span class="text-sm" style="color:var(--mut)">${S.fam.length+1} ${t("members")} · ${on} ${t("vlive")}</span></div>${S.gun?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center" style="background:var(--pri)">${S.gun}</b>`:""}</button>`}
+ const rows=S.fam.map((f,i)=>{const L=S.chats[i]||[];const last=L[L.length-1];return {f,i,last,ts:last&&last.ts?Date.parse(last.ts)||0:0}}).filter(r=>!q||r.f.n.toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts);
+ el.innerHTML=rows.length?rows.map(({f,i,last})=>`<button onclick="openChat(${i})" class="card w-full p-3 flex items-center gap-3 text-start btn"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2"><b class="truncate text-[15px]">${esc(f.n)}</b><span class="text-[11px] shrink-0" style="color:var(--mut)">${last&&last.ts?msgTime(last.ts):""}</span></div><div class="flex items-center justify-between gap-2 mt-0.5"><span class="text-sm truncate" style="color:var(--mut)">${esc(previewOf(last))}</span>${f.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shrink-0" style="background:var(--pri)">${f.un}</b>`:""}</div></div></button>`).join(""):emptyBox(t("noChats"))}
+function renderGroupsPanel(){const el=$("groups_list");if(!el)return;
+ if(!S.groups.length){el.innerHTML=emptyBox(t("grpEmpty"));return}
+ el.innerHTML=S.groups.map(g=>{const k=gkey(g.id);return `<div class="card p-3 flex items-center gap-3"><button onclick="openChat('${k}')" class="flex-1 min-w-0 flex items-center gap-3 text-start btn"><div class="shrink-0">${avHTML(g.name,46,"")}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(g.name)}</b><span class="text-xs" style="color:var(--mut)">${g.members.length} ${t("members")} · ${g.role==="admin"?t("grpAdmin"):t("grpMember")}</span></div>${g.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center" style="background:var(--pri)">${g.un}</b>`:""}</button><button onclick="openGroupInfo('${k}')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("grpInfo")}">${ic("more",15)}</button></div>`}).join("")}
+
+/* ---------- groups: keys, lookup, data load ---------- */
+const gkey=id=>"G:"+id;
+const isGK=k=>typeof k==="string"&&k.indexOf("G:")===0;
+function groupById(id){return S.groups.find(g=>g.id===id)}
+function groupOf(k){return S.groups.find(g=>gkey(g.id)===k)}
+function openHeadInfo(){if(isGK(chatK)){openGroupInfo(chatK);return}openPublicProfile()}
+async function loadGroups(){if(!sb||!S.user.uid)return;const me=S.user.uid;
+ const {data:mine,error}=await sb.from("group_members").select("group_id,role").eq("user_id",me);
+ if(error||!mine)return;
+ const ids=mine.map(r=>r.group_id);
+ if(!ids.length){S.groups=[];renderHomePanels();refreshOpenGroup();return}
+ const [gr,mr]=await Promise.all([sb.from("groups").select("id,name,created_by").in("id",ids),sb.from("group_members").select("group_id,user_id,role").in("group_id",ids)]);
+ if(gr.error||mr.error)return;
+ const others=[...new Set((mr.data||[]).map(m=>m.user_id))].filter(id=>id!==me);
+ let prof=[];if(others.length){const p=await sb.from("profiles").select("id,full_name,avatar_url").in("id",others);prof=p.data||[]}
+ const pm=new Map(prof.map(p=>[p.id,p]));
+ const prev=new Map(S.groups.map(g=>[g.id,g.un||0]));
+ S.groups=(gr.data||[]).map(g=>{const mem=(mr.data||[]).filter(m=>m.group_id===g.id);const my=mem.find(m=>m.user_id===me);
+  return {id:g.id,name:g.name,createdBy:g.created_by,role:my?my.role:"member",un:prev.get(g.id)||0,
+   members:mem.map(m=>{const p=pm.get(m.user_id)||{};return {id:m.user_id,name:m.user_id===me?S.user.name:(p.full_name||"Member"),avatar:p.avatar_url||"",role:m.role}})}});
+ renderHomePanels();refreshOpenGroup();
+}
+
+/* ---------- group info and admin ---------- */
+let grpOpenKey=null;
+function openGroupInfo(k){const g=groupOf(k);if(!g){toast(t("grpGone"));return}grpOpenKey=k;renderGroupInfo(g);openM("mGrp")}
+function refreshOpenGroup(){if(isGK(chatK)&&!groupOf(chatK)&&$("mChat").classList.contains("on")){closeChat();toast(t("grpGone"))}
+ if($("mGrp").classList.contains("on")&&grpOpenKey){const g=groupOf(grpOpenKey);if(!g)closeM("mGrp");else if(document.activeElement!==$("grpNameIn"))renderGroupInfo(g)}}
+function renderGroupInfo(g){const me=S.user.uid,admin=g.role==="admin";
+ $("grpTitle").textContent=g.name;
+ const rows=g.members.map(m=>{const isMe=m.id===me;
+  const acts=admin&&!isMe?`<div class="flex gap-1.5 shrink-0"><button class="btn out rounded-lg px-2 py-1 text-[11px]" onclick="grpRole('${g.id}','${m.id}','${m.role==="admin"?"member":"admin"}')">${m.role==="admin"?t("grpDemote"):t("grpMakeAdmin")}</button><button class="btn out rounded-lg px-2 py-1 text-[11px] text-rose-600" onclick="grpRemove('${g.id}','${m.id}')">${t("grpRemove")}</button></div>`:"";
+  return `<div class="flex items-center gap-3 py-2">${avHTML(m.name,36,m.avatar)}<div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(m.name)}${isMe?" ("+esc(t("grpYou"))+")":""}</p><p class="text-[11px]" style="color:var(--mut)">${m.role==="admin"?t("grpAdmin"):t("grpMember")}</p></div>${acts}</div>`}).join("");
+ const rename=admin?`<div class="flex gap-2"><input id="grpNameIn" class="inp" maxlength="80" value="${esc(g.name)}"><button class="btn pri rounded-xl px-3 text-sm" onclick="grpRename('${g.id}')">${t("grpSave")}</button></div>`:"";
+ const add=admin?`<button class="btn out w-full rounded-xl py-2.5 text-sm" onclick="grpPickAdd('${g.id}')">${ic("plus",16)}${t("grpAddMember")}</button><div id="grpAddList" class="space-y-1"></div>`:"";
+ const del=admin?`<button class="btn out w-full rounded-xl py-2.5 text-sm text-rose-600" onclick="grpDelete('${g.id}')">${t("grpDelete")}</button>`:"";
+ $("grpBody").innerHTML=rename+`<div class="divide-y" style="border-color:var(--line)">${rows}</div>`+add+
+  `<button class="btn w-full rounded-xl py-2.5 text-sm font-semibold text-white" style="background:#E11D48" onclick="grpLeave('${g.id}')">${t("grpLeave")}</button>`+del}
+async function grpDo(p,ok){const {data,error}=await p;if(error||(Array.isArray(data)&&data.length===0)){console.warn("group:",error?(error.message||error):"no rows changed");toast(t("grpFail"));return false}if(ok)toast(t(ok));await loadGroups();return true}
+async function grpRename(id){const v=(($("grpNameIn")||{}).value||"").trim();if(!v){toast(t("grpNeedName"));return}
+ if(await grpDo(sb.from("groups").update({name:v}).eq("id",id).select("id"),"grpSaved"))openGroupInfo(gkey(id))}
+function grpPickAdd(id){const g=groupById(id);if(!g)return;const have=new Set(g.members.map(m=>m.id));
+ const cands=S.fam.filter(f=>f.key&&!have.has(f.key));
+ $("grpAddList").innerHTML=cands.length?cands.map(f=>`<div class="flex items-center gap-3 py-1.5">${avHTML(f.n,32,f.img)}<span class="flex-1 min-w-0 text-sm truncate">${esc(f.n)}</span><button onclick="grpAdd('${id}','${esc(f.key)}')" class="btn pri rounded-lg px-3 py-1 text-xs">${t("grpAdd")}</button></div>`).join(""):`<p class="text-xs" style="color:var(--mut)">${t("grpNoContacts")}</p>`}
+async function grpAdd(id,uid){if(await grpDo(sb.from("group_members").insert({group_id:id,user_id:uid,role:"member"}),"grpAdded"))openGroupInfo(gkey(id))}
+async function grpRole(id,uid,role){const g=groupById(id);if(!g)return;
+ if(role==="member"&&g.members.filter(m=>m.role==="admin").length<=1){toast(t("grpLastAdmin"));return}
+ if(await grpDo(sb.from("group_members").update({role}).eq("group_id",id).eq("user_id",uid).select("group_id"),"grpSaved"))openGroupInfo(gkey(id))}
+async function grpRemove(id,uid){if(!confirm(t("grpConfirmRemove")))return;
+ if(await grpDo(sb.from("group_members").delete().eq("group_id",id).eq("user_id",uid).select("group_id"),"grpRemoved"))openGroupInfo(gkey(id))}
+async function grpLeave(id){const g=groupById(id);if(!g)return;const me=S.user.uid;const mine=g.members.find(m=>m.id===me);
+ const admins=g.members.filter(m=>m.role==="admin").length;
+ if(mine&&mine.role==="admin"&&admins<=1&&g.members.length>1){toast(t("grpLastAdmin"));return}
+ if(!confirm(t("grpConfirmLeave")))return;
+ if(await grpDo(sb.from("group_members").delete().eq("group_id",id).eq("user_id",me).select("group_id"),"grpLeft")){closeM("mGrp");if(chatK===gkey(id))closeChat();renderTabs()}}
+let delGrpId=null;
+function grpDelete(id){const g=groupById(id);if(!g)return;if(g.role!=="admin"){toast(t("grpFail"));return}
+ delGrpId=id;$("delGrpName").textContent=g.name;$("delGrpIn").value="";$("delGrpGo").disabled=true;
+ $("delGrpText").textContent=t("grpDelText").replace("{n}",String(g.members.length));openM("mDelGrp");setTimeout(()=>$("delGrpIn").focus(),60)}
+function delGrpCheck(){const g=groupById(delGrpId);$("delGrpGo").disabled=!g||$("delGrpIn").value.trim()!==g.name}
+async function grpDeleteConfirm(){const g=groupById(delGrpId);if(!g||$("delGrpIn").value.trim()!==g.name)return;
+ const btn=$("delGrpGo");btn.disabled=true;
+ const ok=await grpDo(sb.from("groups").delete().eq("id",g.id).select("id"),"grpDeleted");
+ btn.disabled=false;
+ if(ok){delGrpId=null;closeM("mDelGrp");closeM("mGrp");if(chatK===gkey(g.id))closeChat()}}
+
+/* ---------- create group ---------- */
+function openNewGroup(){if(S.plan==="free"){openPlans(t("groupLocked"));return}
+ $("ngName").value="";$("ngErr").hidden=true;
+ const contacts=S.fam.filter(f=>f.key);
+ $("ngList").innerHTML=contacts.length?contacts.map(f=>`<label class="flex items-center gap-3 py-2 px-1 rounded-xl cursor-pointer">${avHTML(f.n,36,f.img)}<span class="flex-1 min-w-0 text-sm font-medium truncate">${esc(f.n)}</span><input type="checkbox" value="${esc(f.key)}" class="ng-pick w-5 h-5 accent-emerald-600"></label>`).join(""):emptyBox(t("grpNoContacts"));
+ openM("mNewGrp")}
+async function createGroup(){const name=(($("ngName").value)||"").trim();const picks=[...document.querySelectorAll(".ng-pick:checked")].map(i=>i.value);
+ const err=m=>{const e=$("ngErr");e.textContent=m;e.hidden=false};
+ if(!name){err(t("grpNeedName"));return}
+ if(!picks.length){err(t("grpNeedMember"));return}
+ if(!sb||!S.user.uid){toast(t("sbOff"));return}
+ const btn=$("ngGo");btn.disabled=true;
+ try{
+  // One server-side transaction: the group and its members are created together or not at all.
+  const {data,error}=await sb.rpc("create_group",{p_name:name,p_members:picks});
+  if(error||!data)throw error||new Error("no group id returned");
+  await loadGroups();closeM("mNewGrp");toast(t("grpCreated"));openChat(gkey(data));
+ }catch(e){console.warn("create group:",e.message||e);err(t("grpFail"))}
+ finally{btn.disabled=false}
+}
+
+/* ---------- calls: clear local history ---------- */
+function clearCalls(){if(!confirm(t("callsClearConfirm")))return;try{localStorage.removeItem("lifeone.calls")}catch(e){}renderCallsPanel()}
+
+/* ---------- More / Settings ---------- */
+function openMore(k){document.querySelectorAll("#tab-profile .mp").forEach(e=>{e.hidden=(e.id!=="mp_"+k)});
+ const root=$("moreRoot");if(root)root.hidden=!!k;const top=$("moreTop");if(top)top.hidden=!!k;
+ if(!k)paintMore();if(k==="money")renderMoney();if(k==="tasks")renderTasks();scrollTo({top:0})}
+function paintMore(){const n=S.user.name||"";const a=$("moreAv");if(a)a.innerHTML=avHTML(n||"?",52,S.user.img||"");
+ const nm=$("moreName");if(nm)nm.textContent=n;const sl=$("moLang");if(sl)sl.value=S.lang}
+function setLangMore(v){const l=$("lang");if(!l)return;l.value=v;if(l.onchange)l.onchange({target:{value:v}});setLabels();paintMore()}
+
+/* ---------- labels for new screens ---------- */
+function setLabels(){document.querySelectorAll("[data-lbl]").forEach(e=>{e.textContent=t(e.dataset.lbl)});
+ const n=$("ngName");if(n)n.placeholder=t("grpName")}
+
 function loadCalls(){try{return JSON.parse(localStorage.getItem("lifeone.calls")||"[]")}catch(e){return[]}}
 function logCall(i,video){const f=S.fam[i];if(!f)return;const L=loadCalls();L.unshift({k:f.key,n:f.n,v:!!video,ts:Date.now()});try{localStorage.setItem("lifeone.calls",JSON.stringify(L.slice(0,100)))}catch(e){}renderCallsPanel()}
-function renderCallsPanel(){const el=$("panel_calls");if(!el)return;const L=loadCalls();
+function renderCallsPanel(){const el=$("calls_list");if(!el)return;const L=loadCalls();
  if(!L.length){el.innerHTML=emptyBox(t("noCalls"));return}
  el.innerHTML=L.map(c=>{const i=S.fam.findIndex(f=>f.key===c.k),ok=i>=0;
   return `<div class="card p-3 flex items-center gap-3"><div class="shrink-0">${avHTML(c.n,44,ok?S.fam[i].img:"")}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(c.n)}</b><span class="text-xs inline-flex items-center gap-1" style="color:var(--mut)">${ic(c.v?"video":"phone",12)}${c.v?"Video":"Voice"} · ${new Date(c.ts).toLocaleString(LOC[S.lang]||undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</span></div>${ok?`<button onclick="chatCall(${c.v?"true":"false"},${i})" class="btn out w-10 h-10 rounded-full shrink-0" aria-label="Call back">${ic(c.v?"video":"phone",16)}</button>`:""}</div>`}).join("")}
 Object.assign(T.en,{chatsTab:"Chats",groupsTab:"Groups",callsTab:"Calls",noChats:"No chats yet. Add a member from the Family tab to start one.",noCalls:"No calls yet. Your call history appears here."});
 
 /* ---------- chat wallpaper ---------- */
-const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(124,58,237,.14),rgba(34,211,238,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};
+const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(16,185,129,.14),rgba(52,211,153,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};
 function curWall(){try{const k=localStorage.getItem("lifeone.wall");return WALLS[k]?k:"plain"}catch(e){return"plain"}}
 function applyWall(){const el=$("msgs");if(el)el.style.background=WALLS[curWall()].bg}
 function openWall(){const g=$("wallGrid");if(!g)return;const cur=curWall();
  g.innerHTML=Object.keys(WALLS).map(k=>`<button type="button" class="tile h-20 rounded-xl text-sm font-medium flex items-center justify-center" aria-pressed="${k===cur}" onclick="setWall('${k}')" style="background:${WALLS[k].bg||"var(--card)"};border:1px solid var(--line)"><span class="px-2 py-0.5 rounded-md" style="background:var(--card);color:var(--ink)">${WALLS[k].l}</span></button>`).join("");
  openM("mWall")}
 function setWall(k){try{localStorage.setItem("lifeone.wall",k)}catch(e){}applyWall();closeM("mWall")}
+
+Object.assign(T.en,{moMoney:"Money tracker",moTasks:"Tasks",grpDelTitle:"Delete group?",grpDelText:"Deleting this group removes it for all {n} members and deletes every message in it. This cannot be undone. Type the group name to confirm.",grpDelBtn:"Delete group",grpCancel:"Cancel",navChats:"Chats",navGroups:"Groups",navCalls:"Calls",navMore:"More",back:"Back",
+ newGroup:"New group",grpNew:"New group",grpName:"Group name",grpPickHint:"Choose members from your contacts.",grpCreate:"Create group",
+ grpNeedName:"Enter a group name.",grpNeedMember:"Choose at least one member.",grpNoContacts:"No contacts to add yet. Connect with people first.",
+ grpEmpty:"No groups yet. Tap New group to create one.",grpCreated:"Group created",grpFail:"Something went wrong. Check your connection and try again.",
+ grpGone:"This group is no longer available.",grpAdmin:"Admin",grpMember:"Member",grpYou:"You",grpMakeAdmin:"Make admin",grpDemote:"Remove admin",
+ grpRemove:"Remove",grpAddMember:"Add member",grpAdd:"Add",grpAdded:"Member added",grpSave:"Save",grpSaved:"Saved",grpRemoved:"Member removed",
+ grpLeave:"Leave group",grpLeft:"You left the group",grpDelete:"Delete group",grpDeleted:"Group deleted",grpInfo:"Group info",
+ grpLastAdmin:"Make another member admin before you leave or demote the last admin.",grpConfirmRemove:"Remove this member from the group?",
+ grpConfirmLeave:"Leave this group?",grpConfirmDel:"Delete this group for everyone? All its messages will be removed.",
+ callsClearConfirm:"Clear call history on this device?",clearCalls:"Clear call history",
+ bizSoon:"Business settings are not set up yet. They will appear here when available.",
+ moPersonal:"Personal profile",moPrivacy:"Privacy",moSecurity:"Security",moNotif:"Notifications",moLang:"Language",moStorage:"Storage and data",
+ moAccount:"Account settings",moBusiness:"Business settings",moAI:"AI assistant",moAdv:"Advanced features",moPw:"Change password",
+ moOpenNotif:"Open notifications",moEnableNotif:"Enable browser notifications",moWall:"Chat wallpaper",moTheme:"Dark or light theme",
+ moInvite:"Invite someone",moLogout:"Log out",moOpenAI:"Open AI assistant",moOpenFamily:"Family and live location"});
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});

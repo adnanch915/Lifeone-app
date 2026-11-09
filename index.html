@@ -65,7 +65,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
     <option value="en">English</option><option value="ur">اردو</option><option value="ar">العربية</option><option value="zh">中文</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
    </select></label>
    <button id="bell" class="btn out relative w-10 h-10 rounded-full" aria-label="Notifications"><span data-ic="bell"></span>
-    <span id="bellDot" class="ping absolute top-1.5 end-2 w-2.5 h-2.5 rounded-full bg-rose-500"></span></button>
+    <span id="bellDot" class="absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold items-center justify-center" style="display:none"></span></button>
   </div>
  </div>
 </header>
@@ -492,7 +492,7 @@ function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("
 $("lang").onchange=e=>{S.lang=e.target.value;applyLang()};
 
 /* tabs */
-function renderTabs(){const pend=S.tasks.filter(x=>!x.d).length,un=S.gun+S.fam.reduce((a,f)=>a+f.un,0);const badge={tasks:pend,family:un};
+function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=S.gun+S.fam.reduce((a,f)=>a+f.un,0);const badge={tasks:pend,family:un};
  $("tabs").innerHTML=["home","tasks","money","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
  <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
 function go(v){S.view=v;document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
@@ -802,7 +802,7 @@ function inviteWA(){const n=waNum($("invTo").value);window.open((n?`https://wa.m
 function inviteSMS(){const to=$("invTo").value.replace(/[^\d+]/g,"");location.href="sms:"+to+"?body="+encodeURIComponent($("invMsg").value)}
 async function inviteCopy(){try{await navigator.clipboard.writeText($("invMsg").value);toast(t("copied"))}catch(e){$("invMsg").select();toast(t("copyFail"))}}
 async function inviteShare(){if(navigator.share){try{await navigator.share({text:$("invMsg").value})}catch(e){}}else inviteCopy()}
-function toggleShare(){S.shareOn=!S.shareOn;renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
+function toggleShare(){S.shareOn=!S.shareOn;syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 function renderLocSetting(){const el=$("locSetting");if(!el)return;
  if(!S.authed){el.innerHTML="";return}
  const on=S.shareOn;
@@ -902,7 +902,7 @@ function openChatHead(){const cc=$("chatCalls");
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",16)}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",16)}</button>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t(video?"upVideo":"upVoice"));return}startCall(k,video)}
-function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else S.fam[k].un=0;openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
+function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;
@@ -939,9 +939,12 @@ function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  if(!sb||!S.user.uid||!to.length){toast(t(sb?"noContactsChat":"sbOff"));return}
  const id=randomId(),msg=Object.assign({me:true,from:S.user.name,id},m);
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
- const row={id,sender_id:S.user.uid,sender_name:S.user.name,body:m.v?null:m.t,voice_url:m.v?m.url:null,voice_dur:m.v?m.d:null};
+ const row={id,sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:m.t,is_read:false,voice_url:m.v?m.url:null,voice_dur:m.v?m.d:null};
  if(k==="g")row.audience=[S.user.uid,...to];else row.receiver_id=to[0];
- DB.sendMessage(row).then(r=>{if(r&&r.error){const i=S.chats[k].indexOf(msg);if(i>-1)S.chats[k].splice(i,1);renderMsgs();toast(t("sbOff"))}})}
+ const it={row,msg,k};
+ DB.sendMessage(row).then(r=>{const e=r&&r.error;if(!e)return;
+  if(isNetErr(e)){msg.pending=true;outbox.push(it);renderMsgs()}      // offline / dropped connection: keep it and retry silently
+  else{console.warn("message insert:",e.message);dropMsg(it);toast(t("msgFail"))}})}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";push({t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
 $("tTitle").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
@@ -965,7 +968,7 @@ function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=
  else{if(r.stream)r.stream.getTracks().forEach(x=>x.stop());if(send)toast(t("micNo"))}}
 /* notifications */
 function renderNotifs(){$("nList").innerHTML=S.notifs.map((n,i)=>`<li onclick="S.notifs[${i}].r=true;renderNotifs()" class="card p-3 text-sm cursor-pointer flex gap-2 items-start">${n.r?"":'<i class="mt-1.5 w-2 h-2 rounded-full bg-rose-500 shrink-0"></i>'}<span class="${n.r?"opacity-50":""}">${esc(n.t)}</span></li>`).join("");
- $("bellDot").style.display=S.notifs.some(n=>!n.r)?"block":"none"}
+ updateBell()}
 function readAll(){S.notifs.forEach(n=>n.r=true);renderNotifs()}
 $("bell").onclick=()=>{renderNotifs();openM("mNotif")};
 
@@ -1246,8 +1249,8 @@ function authBoot(){
 
 /* ---------- Supabase data: profiles + messages (live) ---------- */
 async function loadProfiles(){if(!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url").limit(1000);
- (data||[]).forEach(r=>PROF.set(r.id,r));
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address").limit(1000);
+ (data||[]).forEach(r=>{PROF.set(r.id,r);applyProfLoc(r)});
  try{famSearch();renderMemberSearch()}catch(e){}}
 async function loadMyProfile(){if(!sb||!S.user.uid)return;
  const {data}=await DB.getProfile(S.user.uid);if(!data)return;
@@ -1259,39 +1262,70 @@ function syncProfile(){if(!sb||!S.user.uid)return;
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
  S.fam.push({key:u.id,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url").in("id",need);
- (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r))})}
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address").in("id",need);
+ (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r));applyProfLoc(r)})}
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
- return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.body||""})}
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
+let lastMsgTs=null;
+function markRead(other){if(!sb||!S.user.uid||!other)return;sb.from("messages").update({is_read:true}).eq("receiver_id",S.user.uid).eq("sender_id",other).eq("is_read",false).then(()=>{},()=>{})}
 async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  const {data,error}=await sb.from("messages").select("*").or(`sender_id.eq.${me},receiver_id.eq.${me},audience.cs.{${me}}`).order("created_at",{ascending:true}).limit(500);
  if(error||!data)return;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
- S.chats={g:[]};
- data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r))});
- renderAll();if($("mChat").classList.contains("on"))renderMsgs()}
+ S.chats={g:[]};const un={};
+ data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
+  if(r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length))un[k]=(un[k]||0)+1});
+ S.fam.forEach((f,i)=>{f.un=un[i]||0});
+ lastMsgTs=data.length?data[data.length-1].created_at:new Date(Date.now()-60000).toISOString();
+ renderAll();if($("mChat").classList.contains("on")){renderMsgs();if(chatK!=="g"&&S.fam[chatK]){S.fam[chatK].un=0;markRead(S.fam[chatK].key);renderTabs()}}}
+async function pollMsgs(){if(!sb||!S.user.uid||!lastMsgTs)return;const me=S.user.uid;
+ try{const {data,error}=await sb.from("messages").select("*").or(`sender_id.eq.${me},receiver_id.eq.${me},audience.cs.{${me}}`).gt("created_at",lastMsgTs).order("created_at",{ascending:true}).limit(100);
+  if(!error&&data)for(const r of data)await onMsgRow(r)}catch(e){}}
+function showMsgBanner(title,body,k){let b=$("msgBanner");
+ if(!b){b=document.createElement("div");b.id="msgBanner";b.className="fixed left-1/2 -translate-x-1/2 top-3 z-[96] w-[92%] max-w-md card p-3 flex items-center gap-3 cursor-pointer shadow-lg";document.body.appendChild(b)}
+ b.innerHTML=`<span class="w-9 h-9 rounded-full grid place-items-center text-white shrink-0" style="background:var(--pri)">${ic("chat",18)}</span><span class="min-w-0 flex-1"><b class="block text-sm truncate">${esc(title)}</b><span class="block text-xs truncate" style="color:var(--mut)">${esc(body)}</span></span>`;
+ b.onclick=()=>{b.style.display="none";openChat(k)};b.style.display="flex";clearTimeout(showMsgBanner.h);showMsgBanner.h=setTimeout(()=>{b.style.display="none"},5000)}
+function updateBell(){const el=$("bellDot");if(!el)return;const n=S.gun+S.fam.reduce((a,f)=>a+(f.un||0),0)+S.notifs.filter(x=>!x.r).length;
+ el.textContent=n>99?"99+":String(n);el.style.display=n?"flex":"none"}
 async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.sender_id===me;
  if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
+ if(r.created_at&&(!lastMsgTs||r.created_at>lastMsgTs))lastMsgTs=r.created_at;
  if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
  let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
- if(!mine){const quiet=chatK===k&&$("mChat").classList.contains("on")&&!document.hidden;
-  if(!quiet){chime();buzz()}
-  if(!quiet||document.hidden)sysNotify((r.sender_name||"").split(" ")[0]||"LifeOne",r.voice_url?t("voiceMsg"):(r.body||""),"msg-"+k)}
- if(chatK===k&&$("mChat").classList.contains("on"))renderMsgs();
- else if(!mine){if(k==="g")S.gun++;else S.fam[k].un++;renderTabs();renderFam()}
- saveUserData()}
-function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);
+ const open=chatK===k&&$("mChat").classList.contains("on"),quiet=open&&!document.hidden;
+ if(!mine){const who=k==="g"?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
+  if(!quiet){chime();buzz();showMsgBanner(who||"LifeOne",prev,k)}
+  if(!quiet||document.hidden)sysNotify(who||"LifeOne",prev,"msg-"+k)}
+ if(open){renderMsgs();if(!mine&&k!=="g")markRead(S.fam[k].key)}
+ else if(!mine){if(k==="g")S.gun++;else S.fam[k].un++}
+ renderTabs();renderFam();saveUserData()}
+function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
  if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
  S.fam.forEach(f=>{if(f.key===r.id&&r.full_name)f.n=r.full_name});
  try{renderFam();famSearch();renderMemberSearch()}catch(e){}}
-let rtMsg=null,rtProf=null;
-function stopRealtime(){[rtMsg,rtProf].forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}});rtMsg=rtProf=null}
+let rtMsg=null,rtProf=null,rtJoined=false,rtRetry=0,rtT=null,pollT=null;
+const outbox=[];
+const isNetErr=e=>!navigator.onLine||/fetch|network|timeout|offline|abort|load failed/i.test(String((e&&e.message)||e||""));
+function dropMsg(it){const L=S.chats[it.k]||[],i=L.indexOf(it.msg);if(i>-1)L.splice(i,1);if($("mChat").classList.contains("on"))renderMsgs()}
+function flushOutbox(){const q=outbox.splice(0);q.forEach(async it=>{const r=await DB.sendMessage(it.row),e=r&&r.error;
+ if(!e){it.msg.pending=false;if($("mChat").classList.contains("on"))renderMsgs()}else if(isNetErr(e))outbox.push(it);else{dropMsg(it);toast(t("msgFail"))}})}
+function stopRealtime(){clearTimeout(rtT);clearInterval(pollT);pollT=null;const a=[rtMsg,rtProf];rtMsg=rtProf=null;rtJoined=false;
+ a.forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}})}
+function scheduleRt(){clearTimeout(rtT);if(!S.authed)return;rtRetry=Math.min(rtRetry+1,6);rtT=setTimeout(startRealtime,Math.min(30000,1000*2**rtRetry))}
 function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
- rtMsg=sb.channel("lo-msg-"+S.user.uid).on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe();
- rtProf=sb.channel("lo-prof-"+S.user.uid).on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe()}
+ const ch=sb.channel("lo-msg-"+S.user.uid);rtMsg=ch;
+ ch.on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe(st=>{
+  if(ch!==rtMsg)return;                       // ignore events of channels we replaced on purpose
+  if(st==="SUBSCRIBED"){rtJoined=true;rtRetry=0;pollMsgs();flushOutbox()}
+  else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
+ const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
+ cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
+ pollT=setInterval(()=>{if(!rtJoined)pollMsgs()},10000)}
+window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 
 Object.assign(T.en,{connected:"In Call",end:"End Call",calling:"Calling…",groupLocked:"Family Group Chat is available on Pro and Pro Plus. Upgrade to join.",grpOn:"Family group chat",voiceCall:"Voice call",videoCall:"Video call",voiceMsg:"Voice message",noMsgs:"No messages yet",audioErr:"Tap play again to start the voice note.",micNo:"Microphone is not available. Allow microphone access and try again.",locSettingT:"Personal live location sharing"});
 Object.assign(T.en,{searchMember:"Search Member",msHint:"Type a name, @username or mobile number to find registered LifeOne users.",msNone:"No registered LifeOne user matches this search.",msPh:"Name, @username or mobile number",noContactsChat:"No connected contacts yet. Search for a member to start chatting.",refConnected:"Connected with {n} from the referral link.",locBadgeOn:"Live Location: Enabled",locBadgeOff:"Live Location: Disabled"});
@@ -1300,6 +1334,7 @@ Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",lo
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
+Object.assign(T.en,{msgFail:"Message could not be sent. Please try again."});
 Object.assign(T.en,{fpTitle:"Reset your password",fpSub:"Enter your account email and we will send you a reset link.",fpSend:"Send reset link"});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
 Object.assign(T.en,{inc_salary:"Salary",inc_biz:"Business Income",inc_free:"Freelance",inc_inv:"Investment",inc_gift:"Gift",inc_other:"Other Income",cDine:"Dining / Food",cShop:"Shopping",cTravel:"Travel",cEdu:"Education",source:"Payment source",when:"Date & time",whenBad:"Please choose a date and time.",s_bank:"Bank Transfer",s_cash:"Cash",s_wallet:"Mobile Wallet (EasyPaisa / JazzCash)",s_card:"Credit / Debit Card"});
@@ -1316,29 +1351,42 @@ function haversine(a,b,c,d){const R=6371,r=x=>x*Math.PI/180,h=Math.sin(r(c-a)/2)
 function offlinePlace(la,ln){let b=null,bd=1e9;CITIES.forEach(c=>{const d=haversine(la,ln,c.la,c.ln);if(d<bd){bd=d;b=c}});return(bd>60?t("locNear")+" ":"")+b.n+", "+b.c}
 const geoPlace=()=>geoOK()?S.user.loc:S.geo.st==="loading"?t("locating"):S.geo.st==="denied"?t("locDenied"):S.geo.st==="na"?t("locNA"):t("locAsk");
 let lastGeoc=null,geoWatch=null,lastLL=null;
-async function reverse(la,ln){ /* online refinement; hosts that block network requests keep the offline city name */
- if(lastGeoc&&haversine(la,ln,lastGeoc[0],lastGeoc[1])<1)return;lastGeoc=[la,ln];
- try{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),4000);
-  const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat=${la}&lon=${ln}`,{signal:ac.signal});clearTimeout(to);
-  const a=(await r.json()).address||{},n=a.city||a.town||a.village||a.suburb||a.county||a.state_district||a.state;
-  if(n&&!S.user.locManual){S.user.loc=n+", "+(a.country_code||"").toUpperCase();refreshGeoUI()}}catch(e){}}
+let lastGeocT=0,lastSyncLL=null,lastSyncT=0;
+function fmtAddr(a){const pick=(...k)=>{for(const x of k)if(a[x])return a[x]};
+ const parts=[pick("amenity","building","tourism","shop","leisure","historic","office"),pick("road","pedestrian","footway","path"),pick("neighbourhood","suburb","quarter","hamlet","residential"),pick("city","town","village","municipality"),pick("state_district","county")].filter(Boolean);
+ return parts.filter((x,i)=>parts.indexOf(x)===i).join(", ")}
+async function reverse(la,ln){ /* OpenStreetMap Nominatim: street / mohallah / landmark / city / district */
+ if(lastGeoc&&(haversine(la,ln,lastGeoc[0],lastGeoc[1])<0.03||Date.now()-lastGeocT<15000))return;lastGeoc=[la,ln];lastGeocT=Date.now();
+ try{const ac=new AbortController(),to=setTimeout(()=>ac.abort(),8000);
+  const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language=en&lat=${la}&lon=${ln}`,{signal:ac.signal,headers:{Accept:"application/json"}});clearTimeout(to);
+  const j=await r.json(),f=fmtAddr(j.address||{})||String(j.display_name||"").split(",").slice(0,3).join(",").trim();
+  if(f){S.user.addr=f;if(!S.user.locManual)S.user.loc=f;refreshGeoUI();syncLocation(true)}}catch(e){lastGeoc=null}}
+// Saves latitude / longitude / formatted_address to profiles (cleared when sharing is off)
+async function syncLocation(force){if(!sb||!S.user.uid)return;
+ const on=!!S.shareOn&&S.geo.st==="ok"&&S.user.lat!=null,now=Date.now();
+ if(!force&&on&&lastSyncLL&&haversine(S.user.lat,S.user.lng,lastSyncLL[0],lastSyncLL[1])<0.02&&now-lastSyncT<60000)return;
+ lastSyncT=now;lastSyncLL=on?[S.user.lat,S.user.lng]:null;
+ const row=on?{latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null}:{latitude:null,longitude:null,formatted_address:null};
+ try{const {error}=await sb.from("profiles").update(row).eq("id",S.user.uid);if(error)console.warn("location sync:",error.message)}catch(e){}}
+function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;
+ if(r.latitude!=null&&r.longitude!=null){f.lat=r.latitude;f.lng=r.longitude;if(r.formatted_address){f.addr=r.formatted_address;f.city=r.formatted_address}f.ts=Date.now()}}
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
 function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=p.coords.accuracy;S.geo.st="ok";
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}
- if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:false});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln)}
+ if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:false});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);syncLocation()}
 function onErr(e){S.geo.st=e&&e.code===1?"denied":"na";refreshGeoUI()}
 function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI();return}
  if(manual===true){S.user.locManual=false;lastLL=null}
  S.geo.st="loading";refreshGeoUI();
- navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000,maximumAge:30000});
- if(geoWatch===null)geoWatch=navigator.geolocation.watchPosition(onPos,()=>{},{enableHighAccuracy:true,maximumAge:10000})}
+ navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+ if(geoWatch===null)geoWatch=navigator.geolocation.watchPosition(onPos,()=>{},{enableHighAccuracy:true,maximumAge:0})}
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
 /* ---------- data API: Supabase tables ---------- */
 const DB={
  upsertUser(row,opt){if(!sb)return Promise.resolve({error:{message:"offline"}});return sb.from("profiles").upsert(row,Object.assign({onConflict:"id"},opt||{}))},
  getProfile(id){if(!sb)return Promise.resolve({data:null});return sb.from("profiles").select("*").eq("id",id).maybeSingle()},
- sendMessage(row){if(!sb)return Promise.resolve({error:{message:"offline"}});return sb.from("messages").insert(row)},
+ async sendMessage(row){if(!sb)return {error:{message:"offline"}};try{return await sb.from("messages").insert(row)}catch(e){return {error:{message:String(e&&e.message||e)}}}},
  insertTx(row){return Promise.resolve({error:null})},
  loadTx(){return Promise.resolve({data:[],error:null})}
 };

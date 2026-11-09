@@ -654,8 +654,9 @@ function renderHabits(){const el=$("habitList");if(!el)return;
 function renderShield(){const b=$("shieldPill");if(!b)return;const on=S.shareOn;
  b.className="btn px-3 py-1.5 rounded-full text-xs font-medium border "+(on?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-white text-slate-700 border-slate-200");
  b.innerHTML=`<span class="${on?"gp":""} w-2 h-2 rounded-full inline-block ${on?"bg-emerald-500":"bg-slate-400"}"></span>${t(on?"sharingOn":"privShield")}`}
+function homeRecent(){return S.fam.map((f,i)=>{const L=S.chats[i]||[];let ts="";for(const m of L){if(m.ts&&m.ts>ts)ts=m.ts}return {f,ts}}).sort((a,b)=>(b.ts||"").localeCompare(a.ts||"")).slice(0,5).map(x=>x.f)}
 function renderHomeFam(){const el=$("homeFam");if(!el)return;if(!S.fam.length){el.innerHTML=emptyBox(t("emptyFam"));return}
- el.innerHTML=S.fam.map(f=>{const c=consentOf(f),sh=sharing(f);let st,cls;
+ el.innerHTML=homeRecent().map(f=>{const c=consentOf(f),sh=sharing(f);let st,cls;
   if(sh){const km=S.user.lat!=null&&f.lat!=null?haversine(S.user.lat,S.user.lng,f.lat,f.lng):null;st=km==null?t("live"):`${t("live")} · ${km<1?"<1":km.toFixed(km<10?1:0)} km`;cls="bg-emerald-50 text-emerald-700 border-emerald-200"}
   else if(c==="out"||c==="in"){st=t("waiting");cls="bg-amber-50 text-amber-700 border-amber-200"}
   else {st=t("priv");cls="bg-slate-50 text-slate-600 border-slate-200"}
@@ -1041,7 +1042,7 @@ function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){o
 function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
-function renderChatList(){const el=$("chatList");if(!el)return;
+function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";el.style.display="none";return;
  const paid=S.plan!=="free";
  const rows=S.fam.map((f,i)=>{const last=(S.chats[i]||[]).slice(-1)[0];
   return `<div class="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-50">
@@ -1563,7 +1564,7 @@ function startRealtime(){watchBattery();updatePresence();if(!presT)presT=setInte
   else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
  const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
  cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
- pollT=setInterval(()=>{pollMsgs();loadLocReqs();syncReceipts();if(++profTick%8===0)loadProfiles()},4000)}
+ pollT=setInterval(()=>{pollMsgs();loadLocReqs();syncReceipts();if(++profTick%4===0)loadProfiles()},4000)}
 window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 

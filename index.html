@@ -729,21 +729,21 @@ function locErrMsg(e){const m=String((e&&(e.message||e.code))||""),c=String((e&&
 function setOwnShare(on){if(S.shareOn===on)return;S.shareOn=on;saveUserData();if(on)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=new Date().toISOString();
  try{
-  if(a==="req"){const {error}=await sb.from("location_requests").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;
+  if(a==="req"){const {error}=await sb.from("location_shares").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;
     setOwnShare(true);toast(t("reqSent").replace("{n}",n))}
   else if(a==="acc"){if(!canShare(f)){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
-    const {data,error}=await sb.from("location_requests").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me).select();if(error)throw error;
+    const {data,error}=await sb.from("location_shares").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me).select();if(error)throw error;
     if(!data||!data.length){toast(t("locGone"));await loadLocReqs();return}
     setOwnShare(true);S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:true});renderNotifs()}
-  else if(a==="dec"){const {error}=await sb.from("location_requests").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
-  else{const {error}=await sb.from("location_requests").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
+  else if(a==="dec"){const {error}=await sb.from("location_shares").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
+  else{const {error}=await sb.from("location_shares").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
     if(a==="stop")toast(t("stopped").replace("{n}",n))}
  }catch(e){console.warn("location request:",e&&(e.code||e.message));toast(locErrMsg(e))}
  await loadLocReqs()}
 let locSig="";
 // Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
 async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
- const {data,error}=await sb.from("location_requests").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
+ const {data,error}=await sb.from("location_shares").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
  if(error||!data)return;
  const pair={};data.forEach(r=>{const o=r.requester_id===me?r.target_id:r.requester_id;if(!pair[o])pair[o]=r});
  await ensureContacts(Object.keys(pair));
@@ -856,7 +856,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
  const locFor=(f,i)=>{if(consentOf(f)!=="active")return "";if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("waitLive")}</p>`;
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
-  if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
+  if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)} · ${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
@@ -1048,18 +1048,23 @@ async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voice
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){toast(t("micSecure"));return}
  let stream;
  try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast(micErrMsg(e));return}
- voiceUse();refreshVoiceBtn();
- rec={on:true,mr:null,stream:stream,chunks:[],sec:0,timer:null};
+ const types=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
+ const mt=types.find(m=>{try{return MediaRecorder.isTypeSupported(m)}catch(e){return false}});
+ let mr=null;
+ try{mr=mt?new MediaRecorder(stream,{mimeType:mt}):new MediaRecorder(stream)}catch(e){try{mr=new MediaRecorder(stream)}catch(e2){mr=null}}
+ if(!mr){stream.getTracks().forEach(x=>x.stop());toast(t("micUnsupported"));return}
+ const cur={on:true,mr:mr,stream:stream,chunks:[],sec:0,timer:null};
+ mr.ondataavailable=e=>{if(e.data&&e.data.size)cur.chunks.push(e.data)};
+ try{mr.start(250)}catch(e){stream.getTracks().forEach(x=>x.stop());toast(t("micUnsupported"));return}
+ rec=cur;voiceUse();refreshVoiceBtn();
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
- rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);
- try{rec.mr=new MediaRecorder(stream);rec.mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};rec.mr.start()}
- catch(e){rec.mr=null;toast(t("micNo"))}}
+ rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000)}
 function blobToDataURL(blob){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(blob)})}
 function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=Math.max(1,r.sec);rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("recBar").classList.add("hidden");$("recBar").classList.remove("flex");$("inBar").classList.remove("hidden");
  const finish=async()=>{
   if(!send)return;
-  if(!r.chunks.length){toast(t("micNo"));return}
+  if(!r.chunks.length){toast(t("micEmpty"));return}
   const url=await blobToDataURL(new Blob(r.chunks,{type:r.mr&&r.mr.mimeType||"audio/webm"}));
   if(!url){toast(t("micNo"));return}
   push({v:1,d,url});toast(t("voiceAlert"))};
@@ -1454,6 +1459,7 @@ Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! 
 Object.assign(T.en,{premFeat:"Premium Feature - Please purchase premium to unlock calls",voiceLimit:"Free plan allows 3 voice messages per day. Upgrade to Premium for unlimited voice messages."});
 Object.assign(T.en,{locHidden:"Location hidden until accepted"});
 Object.assign(T.en,{locSetup:"Location sharing is not set up on the server yet. Run the setup SQL in Supabase.",locRls:"The server blocked this request. Check the location sharing policies in Supabase.",locGone:"This request is no longer available.",waitLive:"Waiting for live location…",micDenied:"Microphone access is blocked. Allow the microphone for this site in your browser settings and try again.",micNone:"No microphone was found on this device.",micSecure:"Voice notes need a secure (HTTPS) connection and a supported browser."});
+Object.assign(T.en,{micUnsupported:"Voice recording is not supported in this browser. Try Chrome, Edge, Safari or Firefox.",micEmpty:"Nothing was recorded. Hold the mic button and try again."});
 function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting,refreshVoiceBtn].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 

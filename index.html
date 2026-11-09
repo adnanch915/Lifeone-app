@@ -114,6 +114,21 @@ html.dark .font-mono{color:#E2E8F0}
 html.dark [style*="#F0FDF4"]{background:rgba(16,185,129,.12)!important;border-color:#14532D!important}
 html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 #aiFab{transition:transform .2s}#aiFab:active{transform:scale(.92)}
+/* ---- Profile / More screen: text is always readable in both themes ----
+   Elements with their own coloured background (buttons, badges) keep their colour;
+   muted captions keep their inline muted colour. */
+#profScreen,#profScreen *:not(.pri):not([style*="background"]):not([style*="color:var(--mut)"]){color:var(--ink)}
+html.dark #profScreen,html.dark #profScreen *:not(.pri):not([style*="background"]):not([style*="color:var(--mut)"]){color:#F1F5F9}
+
+/* ---- Profile / Settings screen: dark surface, slate-100 text, in any theme ---- */
+#profScreen{background:#0F172A!important;color:#F1F5F9}
+#profScreen header,#profScreen .bg-white,#profScreen #profHead{background:#0F172A!important;color:#F1F5F9}
+#profScreen .card,#profScreen .out,#profScreen button.w-full:not([style*="background"]){background:#1E293B!important;border-color:#334155!important;color:#F1F5F9!important}
+#profScreen *:not(.pri):not([style*="background"]):not([style*="color:var(--mut)"]){color:#F1F5F9}
+#profScreen [style*="color:var(--mut)"]{color:#94A3B8!important}
+#profScreen .text-slate-900,#profScreen .text-slate-800,#profScreen .text-slate-700,#profScreen .text-slate-600{color:#F1F5F9!important}
+#profScreen .text-slate-500,#profScreen .text-slate-400{color:#94A3B8!important}
+#profScreen [style*="background:#E11D48"],#profScreen [style*="background:#E11D48"] *{color:#FFFFFF!important}
 </style>
 </head>
 <body class="unauth">
@@ -406,7 +421,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   <div class="flex items-center gap-1 shrink-0"><div id="chatCalls" class="flex items-center gap-1"></div><button type="button" onclick="openHeadInfo()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
- <div id="inBar" class="flex gap-2 pt-2"><input id="msgIn" class="inp" data-ph="msg" data-kbd="1" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send">
+ <div id="inBar" class="flex gap-2 pt-2"><input id="msgIn" class="inp" data-ph="msg" data-kbd="1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send">
   <button class="btn out w-11 rounded-xl shrink-0" onclick="$('attachIn').click()" aria-label="Attach" title="Attach"><span data-ic="plus" data-s="20"></span></button><input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)"><button class="btn out w-11 rounded-xl shrink-0" onclick="$('camIn').click()" aria-label="Camera" title="Camera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button><input id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)"><button class="btn out w-11 rounded-xl shrink-0" id="voiceBtn" onclick="recStart()" aria-label="Voice note" data-ic="mic"></button>
   <button id="sendBtn" class="btn pri w-11 rounded-xl shrink-0" onclick="sendMsg()" aria-label="Send" data-ic="send" style="display:none"></button></div>
  <div id="recBar" class="hidden items-center gap-3 pt-2">
@@ -673,6 +688,7 @@ function renderLangItems(){const el=$("langItems");if(!el)return;const q=(($("la
  const tick='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
  const rows=LANGS.filter(l=>!q||l.n.toLowerCase().includes(q)||l.c.includes(q));
  el.innerHTML=rows.length?rows.map(l=>{const on=S.lang===l.c;return `<button type="button" onclick="setLang('${l.c}')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn" aria-pressed="${on}"><span class="flex items-center gap-3 min-w-0"><span class="text-xl leading-none" aria-hidden="true">${l.f}</span><span class="font-medium truncate">${l.n}</span></span>${on?tick:""}</button>`}).join(""):`<p class="text-sm text-center py-6" style="color:var(--mut)">No language found</p>`}
+const NAV=[["chats","navChats","chat"],["groups","navGroups","family"],["status","navStatus","status"],["calls","navCalls","phone"]];
 function renderTabs(){updateBell();const cur=(S.view==="family"||S.view==="profile")?"":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn};
  $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${cur===k?"on":""}"><span class="relative">${ic(ik,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(lk)}<i class="bar"></i></button>`).join("");setLabels()}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","calls"].includes(v)?v:"chats"}catch(e){return "chats"}}

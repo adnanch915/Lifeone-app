@@ -97,6 +97,14 @@ html.dark ::selection{background:#334155;color:#F9FAFB}
 html.dark .out:hover,html.dark .out:active{background:#1E293B!important;color:#F9FAFB!important}
 html.dark .card:active{background:#1E293B!important}
 html.dark .tab.on{color:#C4B5FD}
+
+/* ---- Dark mode: inline white backgrounds and gradients become dark slate ---- */
+html.dark [style*="background:#fff"],html.dark [style*="background:#FFF"],html.dark [style*="#F5F3FF"]{background:#1E293B!important;border-color:#334155!important}
+html.dark [style*="background:#F8FAFC"],html.dark [style*="background:#F1F5F9"]{background:#1E293B!important}
+html.dark .sheet,html.dark .card,html.dark #proCard{background:#1E293B!important;border-color:#334155!important;color:#F8FAFC}
+html.dark #mChat{padding:0}
+html.dark .text-gray-200,html.dark .text-slate-200{color:#E5E7EB!important}
+html.dark .text-white{color:#fff!important}
 </style>
 </head>
 <body class="unauth">
@@ -212,7 +220,6 @@ html.dark .tab.on{color:#C4B5FD}
  </section>
 
  <section id="tab-family" class="tab-content space-y-3">
-  <div class="flex items-center justify-between gap-2"><h2 class="text-xl font-bold" data-i18n="fam"></h2><button onclick="openSearchModal()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium inline-flex items-center gap-1.5 shrink-0"><span data-ic="plus" data-s="14"></span><span data-i18n="searchMember"></span></button></div>
   <div class="card p-4 space-y-3">
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
     <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off"></div>
@@ -221,6 +228,8 @@ html.dark .tab.on{color:#C4B5FD}
   <div id="chatList" class="card p-2 space-y-1"></div>
   <div id="famList" class="space-y-3"></div>
  </section>
+
+<button onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
 
  <section id="tab-profile" class="tab-content space-y-4">
   <h2 class="text-lg font-bold" data-i18n="profile"></h2>
@@ -283,7 +292,7 @@ html.dark .tab.on{color:#C4B5FD}
  </div>
 </div></div>
 
-<div id="mChat" class="modal"><div class="sheet flex flex-col" style="height:75vh">
+<div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0">
  <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
   <div class="flex items-center gap-3 min-w-0"><div id="chatAv"></div><div class="min-w-0"><h3 class="font-bold truncate" id="chatName"></h3><div id="chatLoc" class="text-xs mt-0.5 flex flex-wrap items-center gap-1"></div>
   <p class="text-xs text-emerald-600 inline-flex items-center gap-1"><span data-ic="lock" data-s="12"></span><span data-i18n="enc"></span></p></div></div>
@@ -499,6 +508,7 @@ const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"
  notifs:[{t:"Hassan Ahmed’s live location was verified in Kahror Pakka",r:false},{t:"Your 12-day streak is still going",r:false},{t:"Monthly budget report is ready",r:false}],
  fam:[{n:"David Jenkins",rel:"Spouse",cc:"PK",me:true,them:true,city:"Lahore",addr:"Gulberg III, Lahore, PK",lat:31.5104,lng:74.3430,ts:96,b:84,on:true,un:1},{n:"Sarah Ahmed",rel:"Sister",cc:"PK",me:true,them:true,city:"Multan",addr:"Cantt, Multan, PK",lat:30.1960,lng:71.4750,ts:91,b:61,on:true,un:1},{n:"Omer Ali",rel:"Brother",cc:"PK",me:true,them:false,city:"Islamabad",addr:"F-7, Islamabad, PK",lat:33.7215,lng:73.0433,ts:78,b:37,on:false,un:0},{n:"Ayesha Khan",rel:"Daughter",cc:"PK",me:false,them:false,city:"Karachi",addr:"Clifton, Karachi, PK",lat:24.8138,lng:67.0300,ts:94,b:92,on:true,un:1},{n:"Hassan Ahmed",rel:"Father",cc:"PK",me:false,them:true,city:"Kahror Pakka",addr:"Kahror Pakka, PK",lat:29.6243,lng:71.9171,ts:98,b:55,on:true,un:0}],
  chats:{g:[]}};
+const memberTrust=f=>f.trust!=null?f.trust:(70+(f.img?4:0)+(f.lat!=null?12:0));
 const trustBadge=(s,key)=>`<button type="button" onclick="openTrust('${key||"me"}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border cursor-pointer ${s>=90?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-amber-50 text-amber-700 border-amber-200"}">${ic("shield",14)}${s} · ${t(s>=90?"highT":"goodT")}</button>`;
 const geoOK=()=>S.geo.st==="ok";
 const myTrust=()=>Math.min(100,70+(/^\S+@\S+\.\S+$/.test(S.user.email)?8:0)+(geoOK()?12:0)+(S.user.img?4:0)+(S.pwChanged?3:0)+(S.pro?3:0)+((S.streak||0)>=3?2:0));
@@ -526,7 +536,7 @@ let lastTrust=null;
 function saveTrust(s){if(!sb||!S.user.uid||s===lastTrust)return;lastTrust=s;sb.from("profiles").update({trust_score:s}).eq("id",S.user.uid).then(r=>{if(r&&r.error)console.warn("trust save:",r.error.message)},()=>{})}
 function trustParts(){return [["Base account",70,true],["Verified email",8,/^\S+@\S+\.\S+$/.test(S.user.email)],["Location confirmed",12,geoOK()],["Profile photo",4,!!S.user.img],["Password strengthened",3,!!S.pwChanged],["Executive Pro",3,!!S.pro],["Daily streak (3+ days)",2,(S.streak||0)>=3]]}
 function openTrust(key){const isMe=key==="me";const f=isMe?null:S.fam.find(x=>x.key===key);
- const score=isMe?myTrust():(f&&f.trust!=null?f.trust:70);
+ const score=isMe?myTrust():(f?memberTrust(f):70);
  $("trustTitle").textContent=(isMe?"Your trust score":(f?f.n:"Trust score"))+": "+score;
  let body;
  if(isMe){body=trustParts().map(([l,p,ok])=>`<div class="flex items-center justify-between gap-3 py-1.5 border-b" style="border-color:var(--line)"><span>${l}</span><span class="font-semibold ${ok?"text-emerald-600":"text-slate-400"}">${ok?"+"+p:"0"}</span></div>`).join("")
@@ -854,7 +864,7 @@ function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
  scheduleRemote(raw);
  let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
  if(!list.length){
-  if(!q){el.innerHTML=emptyBox(t("noContacts"));return}
+  if(!q){el.innerHTML="";return}
   const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
  el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
 let lastRemoteQ="",rsT=null;
@@ -918,7 +928,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
   if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)} · ${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
- const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${t(v?"videoCall":"voiceCall")}">${callIc(v?"video":"phone",16,canCall(v))}</button>`;
+ const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${canCall(v)?t(v?"videoCall":"voiceCall"):t("premFeat")}">${callIc(v?"video":"phone",16,canCall(v))}</button>`;
 const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
   body=locFor(f,i);
   return `<div class="card p-4"><div class="flex items-center gap-3">
@@ -992,7 +1002,7 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
- $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(f.trust??70,f.key)}`;
+ $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(memberTrust(f),f.key)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}

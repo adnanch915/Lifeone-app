@@ -740,11 +740,11 @@ async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=ne
     if(a==="stop")toast(t("stopped").replace("{n}",n))}
  }catch(e){console.warn("location request:",e&&(e.code||e.message));toast(locErrMsg(e))}
  await loadLocReqs()}
-let locSig="";
+let locSig="",locWarned=false;
 // Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
 async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  const {data,error}=await sb.from("location_shares").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
- if(error||!data)return;
+ if(error||!data){console.warn("location_shares:",error&&error.message);if(error&&!locWarned){locWarned=true;toast(locErrMsg(error))}return}
  const pair={};data.forEach(r=>{const o=r.requester_id===me?r.target_id:r.requester_id;if(!pair[o])pair[o]=r});
  await ensureContacts(Object.keys(pair));
  S.fam.forEach(f=>{const r=pair[f.key];f.me=false;f.them=false;if(!r)return;
@@ -752,7 +752,7 @@ async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
   else if(r.status==="pending"){if(r.requester_id===me)f.me=true;else f.them=true}});
  S.fam.forEach(f=>{if(consentOf(f)!=="active"){f.lat=null;f.lng=null}});
  const act=S.fam.filter(f=>consentOf(f)==="active").map(f=>f.key);
- if(act.length){const {data:locs}=await sb.from("live_locations").select("owner_id,latitude,longitude,formatted_address,updated_at").in("owner_id",act);
+ if(act.length){const {data:locs,error:lerr}=await sb.from("live_locations").select("owner_id,latitude,longitude,formatted_address,updated_at").in("owner_id",act);if(lerr)console.warn("live_locations:",lerr.message);
   (locs||[]).forEach(l=>{const f=S.fam.find(x=>x.key===l.owner_id);if(!f)return;f.lat=l.latitude;f.lng=l.longitude;if(l.formatted_address){f.addr=l.formatted_address;f.city=l.formatted_address}f.ts=Date.parse(l.updated_at)||Date.now()})}
  const sig=JSON.stringify(S.fam.map(f=>[f.key,f.me,f.them,f.lat,f.lng,f.addr]));
  if(sig!==locSig){locSig=sig;renderFam();renderTrust();renderShield();renderHomeFam();renderTabs()}}
@@ -1131,7 +1131,7 @@ function freshState(name){dataReady=false;
  S.user.name=name||"";S.user.email="";S.user.img=null;
  FIN.inf=0;FIN.cats=[];TX=[];
 }
-function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam;S.notifs=d.notifs;S.chats={g:[]};S.habits=d.habits;S.gun=d.gun;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;TX.forEach((x,i)=>{if(!x.ts)x.ts=Date.now()-(i+1)*864e5});renderAll();toast(t("demoOn"))}
+function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam.map(f=>Object.assign({},f,{un:0}));S.notifs=d.notifs.map(n=>Object.assign({},n,{r:true}));S.chats={g:[]};S.habits=d.habits;S.gun=0;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;TX.forEach((x,i)=>{if(!x.ts)x.ts=Date.now()-(i+1)*864e5});renderAll();toast(t("demoOn"))}
 function emptyBox(msg){return `<div class="text-center py-8 px-4 text-sm" style="color:var(--mut)">${esc(msg)}</div>`}
 function renderStreak(){const el=$("streak");if(el)el.textContent=S.streak}
 function renderDemoBox(){const el=$("demoBox");if(!el)return;
@@ -1485,7 +1485,7 @@ async function syncLocation(force){if(!sb||!S.user.uid)return;
  if(!force&&on&&lastSyncLL&&haversine(S.user.lat,S.user.lng,lastSyncLL[0],lastSyncLL[1])<0.02&&now-lastSyncT<60000)return;
  lastSyncT=now;lastSyncLL=on?[S.user.lat,S.user.lng]:null;
  try{
-  if(on)await sb.from("live_locations").upsert({owner_id:S.user.uid,latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null,updated_at:new Date().toISOString()},{onConflict:"owner_id"});
+  if(on){const {error:ue}=await sb.from("live_locations").upsert({owner_id:S.user.uid,latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null,updated_at:new Date().toISOString()},{onConflict:"owner_id"});if(ue)console.warn("live_locations upsert:",ue.message)}
   else await sb.from("live_locations").delete().eq("owner_id",S.user.uid);
   if(!syncLocation.cleaned){syncLocation.cleaned=true;await sb.from("profiles").update({latitude:null,longitude:null,formatted_address:null}).eq("id",S.user.uid)}
  }catch(e){}}

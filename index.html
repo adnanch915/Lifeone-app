@@ -66,6 +66,28 @@ html.dark .modal{background:rgba(2,6,23,.7)}
 html.dark #proCard{background:var(--card)!important;border-color:#3B2F6B!important}
 html.dark .tab{color:var(--mut)}
 html.dark .tab.on{color:var(--pri)}
+
+/* ---- Dark mode contrast pass ---- */
+html.dark{--ink:#F1F5F9;--mut:#B8C2D3;--card:#131C30;--line:#2B3650;--bg:#080D1A}
+html.dark main{color:var(--ink)}
+html.dark .card,html.dark .sheet{color:var(--ink)}
+html.dark header,html.dark nav,html.dark .bg-white{background:#0E1628!important;color:var(--ink)}
+html.dark .text-slate-900,html.dark .text-slate-800,html.dark .text-slate-700{color:#F8FAFC!important}
+html.dark .text-slate-500,html.dark .text-slate-600,html.dark .text-slate-400,html.dark #today,html.dark #monthLbl,html.dark #hdrClock{color:#C3CCDB!important}
+html.dark .text-emerald-700,html.dark .text-emerald-600{color:#6EE7B7!important}
+html.dark .text-rose-600{color:#FDA4AF!important}
+html.dark .text-amber-700,html.dark .text-amber-600{color:#FCD34D!important}
+html.dark .text-blue-600{color:#93C5FD!important}
+html.dark [style*="color:#5B21B6"],html.dark [style*="color:#92400E"]{color:#E9D5FF!important}
+html.dark .bg-amber-50{background:rgba(245,158,11,.18)!important}
+html.dark .bg-emerald-50{background:rgba(16,185,129,.18)!important}
+html.dark .bg-rose-50{background:rgba(244,63,94,.18)!important}
+html.dark .bg-slate-100,html.dark .bg-slate-50{background:#18233B!important}
+html.dark .border-amber-200,html.dark .border-emerald-200,html.dark .border-rose-200,html.dark .border-slate-200{border-color:#3F4B66!important}
+html.dark .text-white{color:#fff!important}
+html.dark .pri{color:#fff!important}
+html.dark .tab{color:#B8C2D3}
+html.dark .tab.on{color:#C4B5FD}
 </style>
 </head>
 <body class="unauth">
@@ -880,7 +902,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
  <div class="flex-1 min-w-0"><b class="block">${t(S.shareOn?"shareOn":"shareOff")}</b><span class="text-xs" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</span></div>
  <button role="switch" aria-checked="${S.shareOn}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0 ${S.shareOn?"pri":""}" style="${S.shareOn?"":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow transition-all"></span></button></div>`;
  const grp=`<div class="rounded-2xl p-4 flex items-center gap-3" style="background:var(--pri2);border:1px solid #DDD6FE">${GROUP_AV()}
- <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")} <span class="text-[10px] px-1.5 py-0.5 rounded-full align-middle inline-flex items-center gap-0.5" style="background:#FEF3C7;color:#92400E">${ic("crown",10)}PRO</span></b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
+ <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")} <span class="text-[10px] px-1.5 py-0.5 rounded-full align-middle inline-flex items-center gap-0.5" style="background:#FEF3C7;color:#92400E">${ic("crown",10)}PRO</span>${S.plan==="free"?ic("lock",12):""}</b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
  const locFor=(f,i)=>{if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("notSharing")}</p>`;
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
@@ -1159,12 +1181,12 @@ Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-pow
 let dataReady=false;
 const dataKey=()=>"lifeone.data."+S.user.uid;
 function saveUserData(){if(!dataReady||!S.user.uid)return;
- try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,fam:S.fam,shareOn:!!S.shareOn})}
+ try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,fam:S.fam,shareOn:!!S.shareOn,img:S.user.img||null})}
  catch(e){toast(t("storeFull"))}}
 function loadUserData(){const d=store.get(dataKey(),null);
  if(d){TX=Array.isArray(d.tx)?d.tx:[];S.tasks=Array.isArray(d.tasks)?d.tasks:[];S.chats={g:[]};S.fam=Array.isArray(d.fam)?d.fam:[]}
  else{TX=[];S.tasks=[];S.chats={g:[]};S.fam=[]}
- S.shareOn=!!(d&&d.shareOn);dataReady=true}
+ S.shareOn=!!(d&&d.shareOn);if(d&&d.img)S.user.img=d.img;dataReady=true}
 function freshState(name){dataReady=false;
  S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:true}];S.chats={g:[]};S.gun=0;S.streak=0;
  S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];

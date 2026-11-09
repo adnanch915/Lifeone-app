@@ -145,7 +145,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF 0%,#FFFFFF 70%);border:1px solid #DDD6FE">
    <div class="flex items-start justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
-     <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1><p id="greetUser" class="text-xs font-semibold" style="color:var(--pri)"></p></div></div>
+     <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
     <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">0</b><span data-i18n="streak"></span></span>
    </div>
    <p class="text-sm mt-1.5" style="color:var(--mut)" data-i18n="tag"></p>
@@ -571,7 +571,7 @@ const avHTML=(n,sz,img)=>{const fb=`<div class="rounded-full text-white flex ite
  if(!img)return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}</div>`;
  return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`};
 function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
- $("greet").textContent=S.user.name||"";if($("greetUser"))$("greetUser").textContent=S.user.username?"@"+S.user.username:""}
+ $("greet").textContent=S.user.name||""}
 
 /* language */
 function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
@@ -1057,21 +1057,56 @@ function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";e
    <button onclick="chatCall(true,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",15)}</button></div>`}).join("");
  const grp=`<button onclick="openChat('g')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-slate-50"><span class="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)">${ic("family",18)}</span><span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${t("grp")}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${paid?t("grpOn"):t("groupLocked")}</span></span>${paid?"":ic("lock",14)}</button>`;
  el.innerHTML=(rows||emptyBox(t("noContactsChat")))+grp}
-let audioPlayer=null,audioIdx=null;
-function voiceCard(m,i){const me=m.me;const playing=audioIdx===i&&audioPlayer&&!audioPlayer.paused;
- return `<div class="flex items-center gap-2" style="min-width:11rem"><button onclick="toggleVoice(${i})" class="btn w-9 h-9 rounded-full shrink-0 ${me?"bg-white/25 text-white":"pri"}" aria-label="${playing?"Pause":"Play"}">${ic(playing?"pause":"play",14)}</button>
-  <div class="flex-1 min-w-0"><div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(127,127,127,.25)"><div id="vb${i}" class="h-full rounded-full" style="width:0;background:currentColor"></div></div>
-  <div class="flex justify-between text-[10px] mt-1 opacity-80"><span id="vt${i}">0:00</span><span>${dur(m.d)}</span></div></div></div>`}
-function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!m.url)return;
- if(audioPlayer&&audioIdx===i){if(audioPlayer.paused)audioPlayer.play().catch(()=>{});else audioPlayer.pause();return}
- if(audioPlayer)audioPlayer.pause();
- audioPlayer=new Audio(m.url);audioIdx=i;
- audioPlayer.ontimeupdate=()=>{const a=audioPlayer;const pct=a.duration&&isFinite(a.duration)?a.currentTime/a.duration*100:0;
-  const b=$("vb"+i),tt=$("vt"+i);if(b)b.style.width=pct+"%";if(tt)tt.textContent=dur(Math.floor(a.currentTime))};
- audioPlayer.onplay=()=>renderMsgs();
- audioPlayer.onpause=()=>renderMsgs();
- audioPlayer.onended=()=>{audioIdx=null;renderMsgs()};
- audioPlayer.play().catch(()=>toast(t("audioErr")));renderMsgs()}
+/* voice notes: playback, progress and "new voice" state */
+let audioPlayer=null,audioIdx=null,audioChat=null,audioRAF=null;
+const playedKey=()=>"lifeone.played."+S.user.uid;
+function playedMap(){let p=store.get(playedKey(),null);if(!p||typeof p!=="object"){p={_base:new Date().toISOString()};store.set(playedKey(),p)}return p}
+const voiceKeyOf=m=>m.id||(m.ts?String(m.ts):null);
+// Unplayed voice note from someone else, received after this device first tracked it (older history is not flagged)
+function isNewVoice(m){if(!m.v||m.me)return false;const k=voiceKeyOf(m);if(!k)return false;const p=playedMap();if(p[k])return false;const ts=Date.parse(m.ts||"");return !isNaN(ts)&&ts>Date.parse(p._base)}
+function markPlayed(m){const k=voiceKeyOf(m);if(!k)return;const p=playedMap();if(!p[k]){p[k]=1;store.set(playedKey(),p)}}
+// MediaRecorder WebM reports Infinity as its length; seeking far ahead makes the browser work out the real length
+function audioLength(a){return new Promise(res=>{
+ let done=false;const fin=()=>{if(!done){done=true;res()}};
+ setTimeout(fin,4000);
+ a.addEventListener("error",fin,{once:true});
+ const go=()=>{if(isFinite(a.duration)){fin();return}
+  const probe=()=>{a.removeEventListener("timeupdate",probe);a.currentTime=0;fin()};
+  a.addEventListener("timeupdate",probe);a.currentTime=1e101};
+ if(a.readyState>=1)go();else a.addEventListener("loadedmetadata",go,{once:true});
+})}
+// Position of one note, always read from the real audio element (never from a timer)
+function voiceState(m,i){
+ const on=!!audioPlayer&&audioIdx===i&&audioChat===chatK;
+ if(!on)return {pct:0,cur:0,total:m.d||0};
+ const a=audioPlayer,real=isFinite(a.duration)&&a.duration>0?a.duration:0,total=real||m.d||0;
+ const cur=Math.min(a.currentTime||0,total||Infinity);
+ return {pct:total>0?Math.min(100,cur/total*100):0,cur:cur,total:total};
+}
+function paintVoice(){if(!audioPlayer||audioIdx===null||audioChat!==chatK)return;
+ const m=(S.chats[chatK]||[])[audioIdx];if(!m)return;
+ const st=voiceState(m,audioIdx),b=$("vb"+audioIdx),tt=$("vt"+audioIdx),dd=$("vd"+audioIdx);
+ if(b)b.style.width=st.pct+"%";if(tt)tt.textContent=dur(Math.floor(st.cur));if(dd)dd.textContent=dur(Math.round(st.total))}
+function voiceLoop(){paintVoice();audioRAF=audioPlayer&&!audioPlayer.paused&&!audioPlayer.ended?requestAnimationFrame(voiceLoop):null}
+function startVoiceLoop(){if(audioRAF===null)audioRAF=requestAnimationFrame(voiceLoop)}
+function stopVoiceLoop(){if(audioRAF!==null)cancelAnimationFrame(audioRAF);audioRAF=null}
+function setVoiceBtn(i,playing){const b=document.querySelector('[data-vbtn="'+i+'"]');if(b){b.innerHTML=ic(playing?"pause":"play",14);b.setAttribute("aria-label",playing?"Pause":"Play")}}
+function voiceCard(m,i){const st=voiceState(m,i);const playing=audioIdx===i&&audioChat===chatK&&!!audioPlayer&&!audioPlayer.paused&&!audioPlayer.ended;
+ return `<div class="flex items-center gap-2" style="min-width:11rem"><button data-vbtn="${i}" onclick="toggleVoice(${i})" class="btn w-9 h-9 rounded-full shrink-0 ${m.me?"bg-white/25 text-white":"pri"}" aria-label="${playing?"Pause":"Play"}">${ic(playing?"pause":"play",14)}</button>
+  <div class="flex-1 min-w-0"><div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(127,127,127,.25)"><div id="vb${i}" class="h-full rounded-full" style="width:${st.pct}%;background:currentColor"></div></div>
+  <div class="flex justify-between text-[10px] mt-1 opacity-80"><span id="vt${i}">${dur(Math.floor(st.cur))}</span><span id="vd${i}">${dur(Math.round(st.total))}</span></div></div></div>`}
+async function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!m.url)return;
+ if(audioPlayer&&audioIdx===i&&audioChat===chatK){if(audioPlayer.paused)audioPlayer.play().catch(()=>toast(t("audioErr")));else audioPlayer.pause();return}
+ if(audioPlayer){audioPlayer.pause();stopVoiceLoop()}
+ const a=new Audio(m.url);audioPlayer=a;audioIdx=i;audioChat=chatK;
+ a.onplay=()=>{if(audioPlayer!==a)return;startVoiceLoop();setVoiceBtn(i,true)};
+ a.onpause=()=>{if(audioPlayer!==a)return;stopVoiceLoop();paintVoice();setVoiceBtn(i,false)};
+ a.onended=()=>{if(audioPlayer!==a)return;stopVoiceLoop();audioIdx=null;a.currentTime=0;renderMsgs(true)};
+ markPlayed(m);renderMsgs(true);
+ await audioLength(a);
+ if(audioPlayer!==a)return;
+ a.play().catch(()=>{if(audioPlayer===a)toast(t("audioErr"))});
+}
 const TK1='<svg width="13" height="9" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/></svg>';
 const TK2='<svg width="17" height="9" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/><path d="M6 8.5l2 0 6-7"/></svg>';
 function msgTime(ts){if(!ts)return "";return new Date(ts).toLocaleTimeString(LOC[S.lang]||undefined,{hour:"numeric",minute:"2-digit"})}
@@ -1079,10 +1114,13 @@ function tickHTML(m){if(m.read)return `<span class="inline-flex ms-1" style="col
 // Pulls "is_read" for our own sent messages so the blue double tick appears when the other person has seen them
 function syncReceipts(){if(!sb||!S.user.uid)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
  sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
-function renderMsgs(){const L=S.chats[chatK]||[];
- $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?voiceCard(m,i):esc(m.t);
-  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}<span class="flex items-center justify-end gap-0.5 mt-0.5 text-[10px] leading-none" style="opacity:.8">${msgTime(m.ts)}${m.me?tickHTML(m):""}</span></span></div></div>`}).join("");
- $("msgs").scrollTop=1e5;saveUserData()}
+function renderMsgs(keep){const L=S.chats[chatK]||[];const el=$("msgs");const y=el.scrollTop;
+ el.innerHTML=L.map((m,i)=>{const fresh=isNewVoice(m);const body=m.v?voiceCard(m,i):esc(m.t);
+  const bubble=m.me?"pri":fresh?"":"bg-slate-100";
+  const style=fresh?"background:var(--pri2);border:1px solid var(--pri);box-shadow:0 0 0 3px rgba(124,58,237,.14)":"";
+  const badge=fresh?`<span class="inline-flex items-center gap-1 mb-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold text-white" style="background:var(--pri)">${ic("mic",10)}${t("newVoice")}</span>`:"";
+  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${bubble}" style="${style}">${badge}${body}<span class="flex items-center justify-end gap-0.5 mt-0.5 text-[10px] leading-none" style="opacity:.8">${msgTime(m.ts)}${m.me?tickHTML(m):""}</span></span></div></div>`}).join("");
+ if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData()}
 // Optional columns: removed from an insert automatically if the messages table does not have them.
 const OPTIONAL_COLS=["audience","sender_name","is_read","voice_url","voice_dur"];
 const MISSING=new Set();
@@ -1209,7 +1247,7 @@ async function uploadAvatar(dataUrl){
   renderAll();
  }catch(e){console.warn("avatar:",e&&e.message);syncProfile()}
 }
-$("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();toast(t("saved"))};
+
 
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
  $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--pri)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
@@ -1225,9 +1263,23 @@ function renderAuth(){const el=$("authCard");if(!el)return;
    <div class="rounded-xl p-3" style="background:#F8FAFC;border:1px solid var(--line)"><p class="text-[11px]" style="color:var(--mut)">${t("lblEmail")}</p><p class="truncate">${esc(S.user.email||"—")}</p><div class="mt-1">${st(!!S.user.verified,t("verified"),t("notVerified"))}</div></div>
    <div class="rounded-xl p-3" style="background:#F8FAFC;border:1px solid var(--line)"><p class="text-[11px]" style="color:var(--mut)">${t("lblPhoneP")}</p><p class="truncate">${esc(S.user.phone||"—")}</p><div class="mt-1">${st(!!S.user.phone,t("phoneSaved"),t("phoneMissing"))}</div></div>
   </div>`}
-function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
- const n=$("pName").value.trim();if(n)S.user.name=n;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();renderAuth();saveUserData();syncProfile();toast(t("saved"))}
+async function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
+ const n=$("pName").value.trim(),email=$("pEmail").value.trim();
+ if(n&&n!==S.user.name){if(!await saveFullName(n)){toast(t("nameSaveFail"));return}}
+ S.user.email=email;renderAv();refreshTrust();renderAuth();saveUserData();toast(t("saved"))}
 $("saveP").onclick=saveProfile;
+// Saves the display name only. The UI updates at once; the server write is awaited and retried when back online.
+async function saveFullName(n){
+ S.user.name=n;renderAv();refreshTrust();renderAuth();saveUserData();
+ try{renderFam()}catch(e){}
+ if(!sb||!S.user.uid)return true;
+ try{
+  const {error}=await sb.from("profiles").upsert({id:S.user.uid,full_name:n},{onConflict:"id"});
+  if(error){console.warn("name save:",error.message);if(isNetErr(error))window.addEventListener("online",()=>saveFullName(n),{once:true});return false}
+  try{sb.auth.updateUser({data:{full_name:n}}).catch(()=>{})}catch(e){}
+  return true;
+ }catch(e){if(isNetErr(e))window.addEventListener("online",()=>saveFullName(n),{once:true});return false}
+}
 let recovering=false;
 async function changePw(){const a=$("pw1").value,b=$("pw2").value;if((!a&&!recovering)||b.length<6){$("pwErr").textContent=t("pwShort");return}
  if(sb&&S.user.uid){const {error}=await sb.auth.updateUser({password:b});if(error){$("pwErr").textContent=t("errGeneric");return}}
@@ -1489,7 +1541,7 @@ function authBoot(){
 /* ---------- Supabase data: profiles + messages (live) ---------- */
 async function loadProfiles(){if(!sb)return;
  const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,provider,trust_score,last_seen,battery").limit(1000);
- (data||[]).forEach(r=>{PROF.set(r.id,r);applyProfLoc(r)});
+ let nameCh=false;(data||[]).forEach(r=>{const o=S.fam.find(f=>f.key===r.id);if(o&&r.full_name&&o.n!==r.full_name)nameCh=true;PROF.set(r.id,r);applyProfLoc(r)});if(nameCh)try{renderFam()}catch(e){}
  try{famSearch();renderMemberSearch()}catch(e){}}
 // Reads plan and points from the server (points are only ever granted by database functions)
 async function syncPlanAndPoints(){if(!sb||!S.user.uid)return;
@@ -1502,7 +1554,7 @@ async function loadMyProfile(){if(!sb||!S.user.uid)return;
  if(data.full_name)S.user.name=data.full_name;if(data.username)S.user.username=data.username;if(data.phone)S.user.phone=data.phone;
  if(data.avatar_url)S.user.img=data.avatar_url;renderAll()}
 function syncProfile(){if(!sb||!S.user.uid)return;
- DB.upsertUser({id:S.user.uid,full_name:S.user.name,email:S.user.email||null,phone:S.user.phone||null,username:S.user.username||null,avatar_url:S.user.img||null,provider:S.user.provider||"email"})
+ DB.upsertUser({id:S.user.uid,full_name:S.user.name,email:S.user.email||null,phone:S.user.phone||null,...(S.user.username?{username:S.user.username}:{}),avatar_url:S.user.img||null,provider:S.user.provider||"email"})
   .then(r=>{if(r&&r.error){console.warn("profile sync:",r.error.message);if(isNetErr(r.error))window.addEventListener("online",()=>syncProfile(),{once:true})}})}
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
  S.fam.push({key:u.id,img:u.avatar||"",n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
@@ -1643,7 +1695,7 @@ async function syncLocation(force){if(!sb||!S.user.uid)return;
   else await sb.from("live_locations").delete().eq("owner_id",S.user.uid);
   if(!syncLocation.cleaned){syncLocation.cleaned=true;await sb.from("profiles").update({latitude:null,longitude:null,formatted_address:null}).eq("id",S.user.uid)}
  }catch(e){}}
-function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";if(r.trust_score!=null)f.trust=r.trust_score;if(r.last_seen!==undefined)f.seen=r.last_seen;if(r.battery!=null)f.bat=r.battery;}
+function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.full_name)f.n=r.full_name;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";if(r.trust_score!=null)f.trust=r.trust_score;if(r.last_seen!==undefined)f.seen=r.last_seen;if(r.battery!=null)f.bat=r.battery;}
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
 let geoHist=[],pubLL=null;
 function onPos(p){const acc=p.coords.accuracy||999;if(acc>60&&S.geo.st==="ok")return;
@@ -1673,6 +1725,8 @@ const DB={
  insertTx(row){return Promise.resolve({error:null})},
  loadTx(){return Promise.resolve({data:[],error:null})}
 };
+
+Object.assign(T.en,{newVoice:"New voice",nameSaveFail:"Name could not be saved. Check your connection and try again."});
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});

@@ -800,7 +800,7 @@ $("cpIn").addEventListener("keydown",e=>{if(e.key==="Enter")cpRun()});
 /* family */
 const GROUP_AV=()=>`<div class="flex -space-x-2 rtl:space-x-reverse">${S.fam.slice(0,4).map(f=>`<span class="rounded-full border-2 border-white inline-flex">${avHTML(f.n,36,f.img)}</span>`).join("")}</div>`;
 const consentOf=f=>f.me&&f.them?"active":f.them?"in":f.me?"out":"none";
-const sharing=f=>f.lat!=null;
+const sharing=f=>consentOf(f)==="active";
 const canShare=f=>consentOf(f)==="active"||S.fam.filter(x=>x!==f&&consentOf(x)==="active").length<pl().max;
 function locErrMsg(e){const m=String((e&&(e.message||e.code))||""),c=String((e&&e.code)||"");
  if(c==="42P01"||c==="PGRST205"||/does not exist|schema cache/i.test(m))return t("errGeneric");
@@ -822,16 +822,19 @@ async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=ne
  await loadLocReqs()}
 let locSig="",locWarned=false;
 // Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
-async function loadLocReqs(){if(!sb||!S.user.uid)return;
- const ids=S.fam.map(f=>f.key).filter(Boolean);
- if(!ids.length)return;
- const {data:locs,error}=await sb.from("live_locations").select("owner_id,latitude,longitude,formatted_address,updated_at").in("owner_id",ids);
- if(error){console.warn("live_locations:",error.message);return}
- const map={};(locs||[]).forEach(l=>{map[l.owner_id]=l});
- S.fam.forEach(f=>{const l=map[f.key];
-  f.lat=l?l.latitude:null;f.lng=l?l.longitude:null;
-  if(l){f.city=l.formatted_address||"";f.ts=Date.parse(l.updated_at)||Date.now()}});
- const sig=JSON.stringify(S.fam.map(f=>[f.key,f.lat,f.lng,f.city]));
+async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
+ const {data,error}=await sb.from("location_shares").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
+ if(error||!data){console.warn("location_shares:",error&&error.message);if(error&&!locWarned){locWarned=true}return}
+ const pair={};data.forEach(r=>{const o=r.requester_id===me?r.target_id:r.requester_id;if(!pair[o])pair[o]=r});
+ await ensureContacts(Object.keys(pair));
+ S.fam.forEach(f=>{const r=pair[f.key];f.me=false;f.them=false;if(!r)return;
+  if(r.status==="accepted"){f.me=true;f.them=true}
+  else if(r.status==="pending"){if(r.requester_id===me)f.me=true;else f.them=true}});
+ S.fam.forEach(f=>{if(consentOf(f)!=="active"){f.lat=null;f.lng=null}});
+ const act=S.fam.filter(f=>consentOf(f)==="active").map(f=>f.key);
+ if(act.length){const {data:locs,error:lerr}=await sb.from("live_locations").select("owner_id,latitude,longitude,formatted_address,updated_at").in("owner_id",act);if(lerr)console.warn("live_locations:",lerr.message);
+  (locs||[]).forEach(l=>{const f=S.fam.find(x=>x.key===l.owner_id);if(!f)return;f.lat=l.latitude;f.lng=l.longitude;if(l.formatted_address){f.addr=l.formatted_address;f.city=l.formatted_address}f.ts=Date.parse(l.updated_at)||Date.now()})}
+ const sig=JSON.stringify(S.fam.map(f=>[f.key,f.me,f.them,f.lat,f.lng,f.addr]));
  if(sig!==locSig){locSig=sig;renderFam();renderTrust();renderShield();renderHomeFam();renderTabs()}}
 function cAct(i,a){if(sb&&["req","acc","dec","cancel","stop"].includes(a)){locDb(S.fam[i],a);return}const f=S.fam[i],n=f.n.split(" ")[0];
  if((a==="acc"&&f.them&&!canShare(f))||(a==="demo"&&f.me&&!canShare(f))){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
@@ -854,8 +857,11 @@ function inviteWhatsApp(num){const msg=t("inviteMsg").replace("{u}",refLink());c
 function chatContact(key){const u=userByKey(key);if(!u)return;
  let i=S.fam.findIndex(f=>f.key===key);if(i<0){connectContact(key);i=S.fam.findIndex(f=>f.key===key)}
  if(i>=0)openChat(i)}
-function locAct(key){const u=userByKey(key);if(!u)return;const first=u.name.split(" ")[0];const f=S.fam.find(x=>x.key===key);
- toast(f&&f.lat!=null?first+": "+t("vlive"):first+": "+t("notSharing"))}
+function locAct(key){const u=userByKey(key);if(!u)return;const first=u.name.split(" ")[0];
+ const f=S.fam.find(x=>x.key===key);
+ if(!f){connectContact(key);return}
+ if(consentOf(f)==="active"){toast(first+": "+(sharing(f)?t("locLive"):t("locGranted")));return}
+ if(!f.me){cAct(S.fam.indexOf(f),"req")}else{toast(t("reqSent").replace("{n}",first))}}
 function contactRow(u,mode){
  if(u.raw)return `<div class="rounded-xl p-3 bg-slate-50 border border-slate-200 text-sm"><p>${esc(u.name)} ${t("notOnApp")}</p><button onclick="openInvite('${esc(u.phone||"")}','${esc(u.name)}')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteSug")}</button></div>`;
  const contact=u.phone||u.email||"";
@@ -864,7 +870,9 @@ function contactRow(u,mode){
   <div class="mt-1"><span class="text-[11px] px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">${t("lifeUser")}</span></div></div>
   <div class="flex flex-wrap justify-end gap-1.5 shrink-0"><button onclick="chatContact('${esc(u.id)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(u.id)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button></div></div>`}
 // Search by name, username, email or phone (both email and phone sign-ups are covered)
-function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
+let famFilter="";
+function applyFamFilter(){["chatList","famList"].forEach(id=>{const c=$(id);if(!c)return;[...c.children].forEach(ch=>{ch.style.display=!famFilter||ch.textContent.toLowerCase().includes(famFilter)?"":"none"})})}
+function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;famFilter=($("famQ").value||"").trim().toLowerCase();applyFamFilter();
  const raw=($("famQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
  scheduleRemote(raw);
  let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
@@ -927,25 +935,33 @@ function renderLocSetting(){const el=$("locSetting");if(!el)return;
   <div class="flex-1 min-w-0"><p class="font-semibold text-sm truncate">${t("locSettingT")}</p>
   <span class="inline-flex items-center gap-1.5 mt-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${on?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-slate-50 text-slate-600 border-slate-200"}">${t(on?"locBadgeOn":"locBadgeOff")}</span></div>
   <button role="switch" aria-checked="${on}" aria-label="${t("locSettingT")}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0" style="${on?"background:var(--pri)":"background:#CBD5E1"}"><span class="absolute top-0.5 ${on?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow"></span></button></div>`}
-function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).length;
+function onlineNow(f){return !!f.seen&&Date.now()-Date.parse(f.seen)<120000}
+function seenText(f){if(onlineNow(f))return "Online";if(!f.seen)return "Last seen: unknown";const m=Math.round((Date.now()-Date.parse(f.seen))/60000);if(m<60)return "Last seen "+m+" min ago";const h=Math.round(m/60);if(h<24)return "Last seen "+h+" h ago";return "Last seen "+new Date(f.seen).toLocaleDateString()}
+function lastMsgTxt(f){const idx=S.fam.indexOf(f);const L=S.chats[idx]||[];let ts="";for(const m of L){if(m.ts&&m.ts>ts)ts=m.ts}return ts?" · Last message "+new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):""}
+function presDot(f){return `<span class="absolute -bottom-0.5 -end-0.5 w-3.5 h-3.5 rounded-full border-2 border-white ${onlineNow(f)?"bg-emerald-500":"bg-slate-400"}" title="${onlineNow(f)?"Online":"Offline"}"></span>`}
+function renderFam(){requestAnimationFrame(applyFamFilter);renderChatList();const on=S.fam.filter(f=>sharing(f)).length;
  const sw=`<div class="card p-4 flex items-center gap-3"><span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${S.shareOn?"bg-emerald-50 text-emerald-600":"bg-slate-100 text-slate-500"}">${ic(S.shareOn?"pin":"lock",18)}</span>
  <div class="flex-1 min-w-0"><b class="block">${t(S.shareOn?"shareOn":"shareOff")}</b><span class="text-xs" style="color:var(--mut)">${t(S.shareOn?"shareOnD":"shareOffD")}</span></div>
  <button role="switch" aria-checked="${S.shareOn}" onclick="toggleShare()" class="btn relative w-12 h-7 rounded-full shrink-0 ${S.shareOn?"pri":""}" style="${S.shareOn?"":"background:#CBD5E1"}"><span class="absolute top-0.5 ${S.shareOn?"end-0.5":"start-0.5"} w-6 h-6 rounded-full bg-white shadow transition-all"></span></button></div>`;
  const grp=`<div class="rounded-2xl p-4 flex items-center gap-3" style="background:var(--pri2);border:1px solid #DDD6FE">${GROUP_AV()}
  <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")} <span class="text-[10px] px-1.5 py-0.5 rounded-full align-middle inline-flex items-center gap-0.5" style="background:#FEF3C7;color:#92400E">${ic("crown",10)}PRO</span>${S.plan==="free"?ic("lock",12):""}</b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
- const locFor=(f,i)=>{if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("notSharing")}</p>`;
+ const locFor=(f,i)=>{if(consentOf(f)!=="active")return "";if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("waitLive")}</p>`;
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
   if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)} · ${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${canCall(v)?t(v?"videoCall":"voiceCall"):t("premFeat")}">${callIc(v?"video":"phone",16,canCall(v))}</button>`;
 const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
-  body=locFor(f,i);
+  if(c==="active")body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
+  else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
+  else if(c==="in")body=`<p class="text-sm mt-3">${t("wantsLoc").replace("{n}",n)}</p><div class="grid grid-cols-2 gap-2 mt-2"><button onclick="cAct(${i},'acc')" class="btn pri py-2 rounded-xl text-sm">${t("accept")}</button><button onclick="cAct(${i},'dec')" class="btn out py-2 rounded-xl text-sm">${t("decline")}</button></div>`;
+  else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button>${sb?"":`<button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button>`}</div>`;
+  else body=`<button onclick="cAct(${i},'req')" class="btn pri rounded-xl px-4 py-2 text-sm mt-3 w-full">${ic("pin",16)}${t("reqLoc")}</button>`;
   return `<div class="card p-4"><div class="flex items-center gap-3">
- <div class="relative">${avHTML(f.n,48,f.img)}
+ <div class="relative"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div>
  <i class="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div>
- <div class="flex-1 min-w-0"><b class="block truncate">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span></div><div class="flex gap-1.5 shrink-0 self-start">${cbtn(i,false)}${cbtn(i,true)}</div></div>
+ <div class="flex-1 min-w-0"><b class="block truncate">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span><p class="text-xs mt-0.5" style="color:var(--mut)">${seenText(f)}${lastMsgTxt(f)}</p></div><div class="flex gap-1.5 shrink-0 self-start">${cbtn(i,false)}${cbtn(i,true)}</div></div>
  ${body}
  <div class="mt-3">
  <button onclick="openChat(${i})" class="btn pri w-full py-2 rounded-xl text-sm">${ic("chat",16)}${t("chat")}${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button></div></div>`};
@@ -1013,7 +1029,7 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
- $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(memberTrust(f),f.key)}`;
+ $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${consentOf(f)==="active"&&f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(memberTrust(f),f.key)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
@@ -1024,7 +1040,7 @@ function renderChatList(){const el=$("chatList");if(!el)return;
  const paid=S.plan!=="free";
  const rows=S.fam.map((f,i)=>{const last=(S.chats[i]||[]).slice(-1)[0];
   return `<div class="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-50">
-   <button onclick="openChat(${i})" class="flex-1 min-w-0 flex items-center gap-3 text-left">${avHTML(f.n,40,f.img)}
+   <button onclick="openChat(${i})" class="flex-1 min-w-0 flex items-center gap-3 text-left"><div class="relative shrink-0">${avHTML(f.n,40,f.img)}${presDot(f)}</div>
     <span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>
    <button onclick="chatCall(false,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",15)}</button>
    <button onclick="chatCall(true,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",15)}</button></div>`}).join("");
@@ -1453,7 +1469,7 @@ function authBoot(){
 
 /* ---------- Supabase data: profiles + messages (live) ---------- */
 async function loadProfiles(){if(!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score").limit(1000);
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score,last_seen").limit(1000);
  (data||[]).forEach(r=>{PROF.set(r.id,r);applyProfLoc(r)});
  try{famSearch();renderMemberSearch()}catch(e){}}
 async function loadMyProfile(){if(!sb||!S.user.uid)return;
@@ -1466,7 +1482,7 @@ function syncProfile(){if(!sb||!S.user.uid)return;
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
  S.fam.push({key:u.id,img:u.avatar||"",n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score").in("id",need);
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score,last_seen").in("id",need);
  (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r));applyProfLoc(r)})}
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
@@ -1524,8 +1540,9 @@ function flushOutbox(){const q=outbox.splice(0);q.forEach(it=>sendToRecipients(i
 function stopRealtime(){clearTimeout(rtT);clearInterval(pollT);pollT=null;const a=[rtMsg,rtProf];rtMsg=rtProf=null;rtJoined=false;
  a.forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}})}
 function scheduleRt(){clearTimeout(rtT);if(!S.authed)return;rtRetry=Math.min(rtRetry+1,6);rtT=setTimeout(startRealtime,Math.min(30000,1000*2**rtRetry))}
-let profTick=0;
-function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
+let profTick=0,presT=null;
+function updatePresence(){if(!sb||!S.user.uid)return;sb.from("profiles").update({last_seen:new Date().toISOString()}).eq("id",S.user.uid).then(()=>{},()=>{})}
+function startRealtime(){updatePresence();if(!presT)presT=setInterval(updatePresence,60000);stopRealtime();if(!sb||!S.user.uid)return;
  const ch=sb.channel("lo-msg-"+S.user.uid);rtMsg=ch;
  ch.on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe(st=>{
   if(ch!==rtMsg)return;                       // ignore events of channels we replaced on purpose
@@ -1587,14 +1604,19 @@ async function syncLocation(force){if(!sb||!S.user.uid)return;
   else await sb.from("live_locations").delete().eq("owner_id",S.user.uid);
   if(!syncLocation.cleaned){syncLocation.cleaned=true;await sb.from("profiles").update({latitude:null,longitude:null,formatted_address:null}).eq("id",S.user.uid)}
  }catch(e){}}
-function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";if(r.trust_score!=null)f.trust=r.trust_score;}
+function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";if(r.trust_score!=null)f.trust=r.trust_score;if(r.last_seen!==undefined)f.seen=r.last_seen;}
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
-function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=p.coords.accuracy;S.geo.st="ok";
+let geoHist=[],pubLL=null;
+function onPos(p){const acc=p.coords.accuracy||999;if(acc>60&&S.geo.st==="ok")return;
+ geoHist.push([p.coords.latitude,p.coords.longitude]);if(geoHist.length>3)geoHist.shift();
+ const la=geoHist.reduce((a,x)=>a+x[0],0)/geoHist.length,ln=geoHist.reduce((a,x)=>a+x[1],0)/geoHist.length;
+ const first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=acc;S.geo.st="ok";
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}
- if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:true});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);syncLocation()}
+ if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:true});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);
+ if(first||!pubLL||haversine(la,ln,pubLL[0],pubLL[1])>8){pubLL=[la,ln];syncLocation()}}
 function onErr(e){S.geo.st=e&&e.code===1?"denied":"na";refreshGeoUI()}
 function startGeo(manual){
- if(manual===true){S.user.locManual=false;lastLL=null}
+ if(manual===true){S.user.locManual=false;lastLL=null;geoHist=[];pubLL=null}
  if(!navigator.geolocation){S.geo.st="na";refreshGeoUI();return}
  S.geo.st="loading";refreshGeoUI();
  try{navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000,maximumAge:0});

@@ -498,7 +498,8 @@ $("lang").onchange=e=>{S.lang=e.target.value;applyLang()};
 function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=unreadCount();const badge={tasks:pend,family:un};
  $("tabs").innerHTML=["home","tasks","money","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
  <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
-function go(v){S.view=v;document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
+function savedTab(){try{const v=localStorage.getItem("lifeone.tab");return ["home","tasks","money","family","profile"].includes(v)?v:"home"}catch(e){return "home"}}
+function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -729,14 +730,14 @@ function locErrMsg(e){const m=String((e&&(e.message||e.code))||""),c=String((e&&
 function setOwnShare(on){if(S.shareOn===on)return;S.shareOn=on;saveUserData();if(on)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=new Date().toISOString();
  try{
-  if(a==="req"){const {error}=await sb.from("location_shares").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;
+  if(a==="req"){f.me=true;f.them=false;renderFam();const {error}=await sb.from("location_shares").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;
     setOwnShare(true);toast(t("reqSent").replace("{n}",n))}
   else if(a==="acc"){if(!canShare(f)){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
-    const {data,error}=await sb.from("location_shares").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me).select();if(error)throw error;
+    f.me=true;f.them=true;renderFam();const {data,error}=await sb.from("location_shares").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me).select();if(error)throw error;
     if(!data||!data.length){toast(t("locGone"));await loadLocReqs();return}
     setOwnShare(true);S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:true});renderNotifs()}
-  else if(a==="dec"){const {error}=await sb.from("location_shares").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
-  else{const {error}=await sb.from("location_shares").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
+  else if(a==="dec"){f.me=false;f.them=false;renderFam();const {error}=await sb.from("location_shares").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
+  else{f.me=false;f.them=false;renderFam();const {error}=await sb.from("location_shares").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
     if(a==="stop")toast(t("stopped").replace("{n}",n))}
  }catch(e){console.warn("location request:",e&&(e.code||e.message));toast(locErrMsg(e))}
  await loadLocReqs()}
@@ -1081,7 +1082,23 @@ function fileToAvatar(file,cb){const r=new FileReader();r.onload=()=>{const img=
  img.onload=()=>{const k=Math.min(1,256/Math.max(img.width,img.height));const c=document.createElement("canvas");
   c.width=Math.max(1,Math.round(img.width*k));c.height=Math.max(1,Math.round(img.height*k));c.getContext("2d").drawImage(img,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.85))};
  img.onerror=()=>cb(r.result);img.src=r.result};r.readAsDataURL(file)}
-$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;fileToAvatar(f,url=>{S.user.img=url;renderAv();refreshTrust();saveUserData();syncProfile()})};
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;fileToAvatar(f,url=>{S.user.img=url;renderAv();refreshTrust();saveUserData();uploadAvatar(url)})};
+async function uploadAvatar(dataUrl){
+ if(!sb||!S.user.uid){return}
+ try{
+  const blob=await (await fetch(dataUrl)).blob();
+  const path=S.user.uid+"/avatar.jpg";
+  const {error:ue}=await sb.storage.from("avatars").upload(path,blob,{upsert:true,contentType:"image/jpeg",cacheControl:"3600"});
+  if(ue){console.warn("avatar upload:",ue.message);syncProfile();return}
+  const url=sb.storage.from("avatars").getPublicUrl(path).data.publicUrl+"?v="+Date.now();
+  S.user.img=url;renderAv();saveUserData();
+  const {data,error}=await sb.from("profiles").update({avatar_url:url}).eq("id",S.user.uid).select();
+  if(error){console.warn("avatar save:",error.message);return}
+  if(!data||!data.length){syncProfile();return}
+  try{sb.auth.updateUser({data:{avatar_url:url}}).catch(()=>{})}catch(e){}
+  renderAll();
+ }catch(e){console.warn("avatar:",e&&e.message);syncProfile()}
+}
 $("saveP").onclick=()=>{S.user.name=$("pName").value.trim()||S.user.name;S.user.email=$("pEmail").value.trim();renderAv();refreshTrust();toast(t("saved"))};
 
 function renderPro(){$("proChip").classList.toggle("hidden",S.plan==="free");$("proChip").textContent=pl().name.toUpperCase();
@@ -1286,7 +1303,7 @@ function applySession(acc){document.body.classList.remove("unauth");
  S.user.verified=!!acc.verified;S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
  $("authScreen").classList.add("hidden");
  if(!geoStarted){geoStarted=true;startBattery()}
- applyLang();go("home");loadRemoteTx()}
+ applyLang();go(savedTab());loadRemoteTx()}
 
 // Enters the dashboard as soon as Supabase gives a session. The profile row is saved in the background.
 function enterFromSession(user){
@@ -1378,16 +1395,19 @@ async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&i
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
- return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
 let lastMsgTs=null;
-function markRead(other){if(!sb||!S.user.uid||!other)return;sb.from("messages").update({is_read:true}).eq("receiver_id",S.user.uid).eq("sender_id",other).eq("is_read",false).then(()=>{},()=>{})}
+function readMap(){return store.get("lifeone.read."+S.user.uid,{})}
+function lastTsOf(key){const idx=S.fam.findIndex(f=>f.key===key);const L=idx>=0?(S.chats[idx]||[]):[];let best="";for(const m of L){if(m.ts&&m.ts>best)best=m.ts}return best||new Date().toISOString()}
+function markRead(other){if(!other||!S.user.uid)return;const ts=lastTsOf(other),rm=readMap();if(!rm[other]||ts>rm[other]){rm[other]=ts;store.set("lifeone.read."+S.user.uid,rm)}
+ if(!sb)return;sb.from("messages").update({is_read:true}).eq("receiver_id",S.user.uid).eq("sender_id",other).eq("is_read",false).then(r=>{if(r&&r.error)console.warn("markRead:",r.error.message)},()=>{})}
 async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  const {data,error}=await fetchMsgs(me);
  if(error||!data)return;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
- S.chats={g:[]};const un={};
+ S.chats={g:[]};const un={};const lr=readMap();
  data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
-  if(r.sender_id!==me&&r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length))un[k]=(un[k]||0)+1});
+  if(r.sender_id!==me&&r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length)&&!(lr[S.fam[k].key]&&r.created_at<=lr[S.fam[k].key]))un[k]=(un[k]||0)+1});
  S.fam.forEach((f,i)=>{f.un=un[i]||0});
  lastMsgTs=data.length?data[data.length-1].created_at:new Date(Date.now()-60000).toISOString();
  renderAll();if($("mChat").classList.contains("on")){renderMsgs();if(chatK!=="g"&&S.fam[chatK]){S.fam[chatK].un=0;markRead(S.fam[chatK].key);renderTabs()}}}
@@ -1518,9 +1538,9 @@ const DB={
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
-function boot(){askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
+function boot(){askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go(savedTab());authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
-window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});
+window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go(savedTab())});
 
 </script>
 </body>

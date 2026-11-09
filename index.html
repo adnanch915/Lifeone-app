@@ -514,7 +514,7 @@ function toggle(id,el){const x=S.tasks.find(a=>a.id===id);x.d=!x.d;if(el){el.cla
 function plus1(){$("tTime").value=hhmm(new Date(Date.now()+60000))}
 function addTask(){const v=$("tTitle").value.trim();if(!v){$("tTitle").focus();return}const tm=$("tTime").value||null;
  S.tasks.unshift({id:Date.now(),t:v,c:$("tCat").value,u:$("tUrg").value||"Medium",d:false,time:tm,fired:null});audio();
- S.notifs.unshift({t:v+(tm?" · "+fmtT(tm):"")+" — "+t("added"),r:false});
+ S.notifs.unshift({t:v+(tm?" · "+fmtT(tm):"")+" — "+t("added"),r:true});
  $("tTitle").value="";$("tTime").value="";closeM("mTask");toast(t("added"));renderAll()}
 
 /* ---------- browser notifications + sound + haptics ---------- */
@@ -661,7 +661,7 @@ function comingSoon(){const e=$("toast");e.textContent=t("soonMsg");e.style.maxW
 function buyPlan(k){if(k!=="free"){comingSoon();return}}
 function enforceLimit(){const max=pl().max,act=S.fam.filter(f=>consentOf(f)==="active");
  if(act.length>max){act.slice(max).forEach(f=>{f.me=false;f.them=false});toast(t("downgr"))}}
-function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:false});renderNotifs();toast(t("helpDone"))}
+function helpTicket(){S.notifs.unshift({t:t("helpDone"),r:true});renderNotifs();toast(t("helpDone"))}
 
 /* AI copilot: privacy-aware rules; Home never shows financial figures */
 const greetKey=()=>{const h=new Date().getHours();return h<12?"gM":h<18?"gA":"gE"};
@@ -720,18 +720,25 @@ $("cpIn").addEventListener("keydown",e=>{if(e.key==="Enter")cpRun()});
 /* family */
 const GROUP_AV=()=>`<div class="flex -space-x-2 rtl:space-x-reverse">${S.fam.slice(0,4).map(f=>`<span class="rounded-full border-2 border-white inline-flex">${avHTML(f.n,36,f.img)}</span>`).join("")}</div>`;
 const consentOf=f=>f.me&&f.them?"active":f.them?"in":f.me?"out":"none";
-const sharing=f=>S.shareOn&&consentOf(f)==="active";
+const sharing=f=>consentOf(f)==="active";
 const canShare=f=>consentOf(f)==="active"||S.fam.filter(x=>x!==f&&consentOf(x)==="active").length<pl().max;
+function locErrMsg(e){const m=String((e&&(e.message||e.code))||""),c=String((e&&e.code)||"");
+ if(c==="42P01"||c==="PGRST205"||/does not exist|schema cache/i.test(m))return t("locSetup");
+ if(c==="42501"||/row-level security|permission denied/i.test(m))return t("locRls");
+ return t("errGeneric")}
+function setOwnShare(on){if(S.shareOn===on)return;S.shareOn=on;saveUserData();if(on)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 async function locDb(f,a){const me=S.user.uid,k=f.key,n=f.n.split(" ")[0],now=new Date().toISOString();
  try{
-  if(a==="req"){const {error}=await sb.from("location_requests").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;toast(t("reqSent").replace("{n}",n))}
+  if(a==="req"){const {error}=await sb.from("location_requests").upsert({requester_id:me,target_id:k,status:"pending",updated_at:now},{onConflict:"requester_id,target_id"});if(error)throw error;
+    setOwnShare(true);toast(t("reqSent").replace("{n}",n))}
   else if(a==="acc"){if(!canShare(f)){toast(t("limitHit").replace("{n}",pl().max));openPlans();return}
-    const {error}=await sb.from("location_requests").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me);if(error)throw error;
-    S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:false});renderNotifs()}
+    const {data,error}=await sb.from("location_requests").update({status:"accepted",updated_at:now}).eq("requester_id",k).eq("target_id",me).select();if(error)throw error;
+    if(!data||!data.length){toast(t("locGone"));await loadLocReqs();return}
+    setOwnShare(true);S.notifs.unshift({t:t("nowShare").replace("{n}",n),r:true});renderNotifs()}
   else if(a==="dec"){const {error}=await sb.from("location_requests").delete().eq("requester_id",k).eq("target_id",me);if(error)throw error;toast(t("declined"))}
   else{const {error}=await sb.from("location_requests").delete().or(`and(requester_id.eq.${me},target_id.eq.${k}),and(requester_id.eq.${k},target_id.eq.${me})`);if(error)throw error;
     if(a==="stop")toast(t("stopped").replace("{n}",n))}
- }catch(e){console.warn("location request:",e&&e.message);toast(t("errGeneric"))}
+ }catch(e){console.warn("location request:",e&&(e.code||e.message));toast(locErrMsg(e))}
  await loadLocReqs()}
 let locSig="";
 // Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
@@ -847,13 +854,13 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
  const grp=`<div class="rounded-2xl p-4 flex items-center gap-3" style="background:var(--pri2);border:1px solid #DDD6FE">${GROUP_AV()}
  <div class="flex-1 min-w-0"><b class="block truncate">${t("grp")}</b><span class="text-sm inline-flex items-center gap-1" style="color:var(--mut)">${ic("shield",14)}${on} / ${S.fam.length} ${t("vlive")}</span></div>
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
- const locFor=(f,i)=>{if(!S.shareOn||consentOf(f)!=="active")return "";
+ const locFor=(f,i)=>{if(consentOf(f)!=="active")return "";if(f.lat==null)return `<p class="text-xs mt-3" style="color:var(--mut)">${t("waitLive")}</p>`;
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
   if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
-  if(c==="active"&&S.shareOn)body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
+  if(c==="active")body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
   else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
   else if(c==="in")body=`<p class="text-sm mt-3">${t("wantsLoc").replace("{n}",n)}</p><div class="grid grid-cols-2 gap-2 mt-2"><button onclick="cAct(${i},'acc')" class="btn pri py-2 rounded-xl text-sm">${t("accept")}</button><button onclick="cAct(${i},'dec')" class="btn out py-2 rounded-xl text-sm">${t("decline")}</button></div>`;
   else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button>${sb?"":`<button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button>`}</div>`;
@@ -1033,10 +1040,20 @@ function voiceUse(){if(S.plan!=="free")return;store.set(voiceKey(),store.get(voi
 /* voice notes (real MediaRecorder when mic is allowed, simulated otherwise) */
 let rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
 function refreshVoiceBtn(){const b=$("voiceBtn");if(!b)return;const locked=voiceLeft()<=0;b.innerHTML=ic(locked?"lock":"mic",18);b.style.opacity=locked?".6":"";b.title=locked?t("voiceLimit"):"";b.setAttribute("aria-label",locked?t("voiceLimit"):"Voice note")}
-async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));return}voiceUse();refreshVoiceBtn();rec={on:true,mr:null,stream:null,chunks:[],sec:0,timer:null};
+function micErrMsg(e){const n=String((e&&e.name)||"");
+ if(n==="NotAllowedError"||n==="SecurityError")return t("micDenied");
+ if(n==="NotFoundError"||n==="OverconstrainedError")return t("micNone");
+ return t("micNo")}
+async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));refreshVoiceBtn();return}
+ if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){toast(t("micSecure"));return}
+ let stream;
+ try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast(micErrMsg(e));return}
+ voiceUse();refreshVoiceBtn();
+ rec={on:true,mr:null,stream:stream,chunks:[],sec:0,timer:null};
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);
- try{rec.stream=await navigator.mediaDevices.getUserMedia({audio:true});rec.mr=new MediaRecorder(rec.stream);rec.mr.ondataavailable=e=>rec.chunks.push(e.data);rec.mr.start()}catch(e){rec.mr=null}}
+ try{rec.mr=new MediaRecorder(stream);rec.mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};rec.mr.start()}
+ catch(e){rec.mr=null;toast(t("micNo"))}}
 function blobToDataURL(blob){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(blob)})}
 function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=Math.max(1,r.sec);rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("recBar").classList.add("hidden");$("recBar").classList.remove("flex");$("inBar").classList.remove("hidden");
@@ -1083,7 +1100,7 @@ let recovering=false;
 async function changePw(){const a=$("pw1").value,b=$("pw2").value;if((!a&&!recovering)||b.length<6){$("pwErr").textContent=t("pwShort");return}
  if(sb&&S.user.uid){const {error}=await sb.auth.updateUser({password:b});if(error){$("pwErr").textContent=t("errGeneric");return}}
  recovering=false;
- $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:false});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
+ $("pwErr").textContent="";$("pw1").value=$("pw2").value="";S.pwChanged=true;S.notifs.unshift({t:t("trustUp"),r:true});refreshTrust();renderNotifs();closeM("mPw");toast(t("pwOk"))}
 /* ---------- auth, local session, fresh start ---------- */
 // Set googleClientId to enable real Google sign-in (see notes). Empty = demo sign-in.
 const store={get(k,f){try{const v=localStorage.getItem(k);return v==null?f:JSON.parse(v)}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -1103,7 +1120,7 @@ function loadUserData(){const d=store.get(dataKey(),null);
  else{TX=[];S.tasks=[];S.chats={g:[]};S.fam=[]}
  S.shareOn=!!(d&&d.shareOn);dataReady=true}
 function freshState(name){dataReady=false;
- S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:false}];S.chats={g:[]};S.gun=0;S.streak=0;
+ S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:true}];S.chats={g:[]};S.gun=0;S.streak=0;
  S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];
  S.shareOn=false;S.plan="free";S.pro=false;S.busyPlan=null;S.cpDay={d:"",n:0};S.mask=false;S.filter="all";S.pwChanged=false;
  S.user.name=name||"";S.user.email="";S.user.img=null;
@@ -1318,7 +1335,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
-function loadRemoteTx(){askNotifPerm();loadUserData();S.fam.forEach(f=>{f.me=false;f.them=false;f.lat=null;f.lng=null});if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages).then(loadLocReqs);startRealtime()}
+function loadRemoteTx(){askNotifPerm();loadUserData();S.fam.forEach(f=>{f.me=false;f.them=false;f.lat=null;f.lng=null;f.un=0});if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages).then(loadLocReqs);startRealtime()}
 function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
 async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
@@ -1377,9 +1394,10 @@ function showMsgBanner(title,body,k){let b=$("msgBanner");
  b.innerHTML=`<span class="w-9 h-9 rounded-full grid place-items-center text-white shrink-0" style="background:var(--pri)">${ic("chat",18)}</span><span class="min-w-0 flex-1"><b class="block text-sm truncate">${esc(title)}</b><span class="block text-xs truncate" style="color:var(--mut)">${esc(body)}</span></span>`;
  b.onclick=()=>{b.style.display="none";openChat(k)};b.style.display="flex";clearTimeout(showMsgBanner.h);showMsgBanner.h=setTimeout(()=>{b.style.display="none"},5000)}
 function unreadCount(){return (S.gun?1:0)+S.fam.filter(f=>(f.un||0)>0).length}
-function updateBell(){const el=$("bellDot");if(!el)return;const n=unreadCount();
+function updateBell(){const el=$("bellDot");if(!el)return;const n=S.notifs.filter(x=>!x.r).length;
  el.textContent=n>99?"99+":String(n);el.style.display=n?"flex":"none"}
-async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.sender_id===me;
+const isIncomingMsg=r=>{const me=S.user.uid;if(!r||!me)return false;if(String(r.sender_id).toLowerCase()===String(me).toLowerCase())return false;return r.receiver_id===me||(r.audience||[]).includes(me)};
+async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=String(r.sender_id).toLowerCase()===String(me).toLowerCase();
  if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
  if(r.created_at&&(!lastMsgTs||r.created_at>lastMsgTs))lastMsgTs=r.created_at;
  if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
@@ -1387,11 +1405,11 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.se
  let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
  const open=chatK===k&&$("mChat").classList.contains("on"),quiet=open&&!document.hidden;
- if(!mine){const who=k==="g"?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
+ if(isIncomingMsg(r)){const who=k==="g"?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
   chime();if(!quiet){buzz();showMsgBanner(who||"LifeOne",prev,k)}
   if(!quiet||document.hidden)sysNotify(who||"LifeOne",prev,"msg-"+k)}
  if(open){renderMsgs();if(!mine&&k!=="g")markRead(S.fam[k].key)}
- else if(!mine){if(k==="g")S.gun=1;else if(r.receiver_id===me)S.fam[k].un++}
+ else if(isIncomingMsg(r)){if(k==="g")S.gun=1;else if(r.receiver_id===me)S.fam[k].un++}
  renderTabs();renderFam();saveUserData()}
 function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
  if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
@@ -1435,6 +1453,7 @@ Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! 
 
 Object.assign(T.en,{premFeat:"Premium Feature - Please purchase premium to unlock calls",voiceLimit:"Free plan allows 3 voice messages per day. Upgrade to Premium for unlimited voice messages."});
 Object.assign(T.en,{locHidden:"Location hidden until accepted"});
+Object.assign(T.en,{locSetup:"Location sharing is not set up on the server yet. Run the setup SQL in Supabase.",locRls:"The server blocked this request. Check the location sharing policies in Supabase.",locGone:"This request is no longer available.",waitLive:"Waiting for live location…",micDenied:"Microphone access is blocked. Allow the microphone for this site in your browser settings and try again.",micNone:"No microphone was found on this device.",micSecure:"Voice notes need a secure (HTTPS) connection and a supported browser."});
 function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting,refreshVoiceBtn].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
@@ -1468,7 +1487,7 @@ function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id)
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
 function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=p.coords.accuracy;S.geo.st="ok";
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}
- if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:false});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);syncLocation()}
+ if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:true});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);syncLocation()}
 function onErr(e){S.geo.st=e&&e.code===1?"denied":"na";refreshGeoUI()}
 function startGeo(manual){
  if(manual===true){S.user.locManual=false;lastLL=null}

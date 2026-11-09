@@ -479,9 +479,9 @@ function closeM(id){$(id).classList.remove("on")}
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target!==m)return;if(m.id==="mCall")endCall();else if(m.id==="mChat")closeChat();else if(m.id==="mAlarm")dismissAlarm();else if(m.id!=="mOut")closeM(m.id)}));
 
 /* avatars */
-const avHTML=(n,sz,img)=>img?`<img src="${img}" alt="" style="width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;object-fit:cover" class="rounded-full object-cover">`:`<div style="width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;font-size:${sz/2.6}px;background:var(--pri)" class="rounded-full text-white flex items-center justify-center font-semibold">${esc(ini(n))}</div>`;
-function renderClock(){const el=$("hdrClock");if(!el)return;const L=LOC[S.lang]||"en-US";const d=new Date();
- el.textContent=d.toLocaleDateString(L,{month:"short",day:"numeric",year:"numeric"})+" - "+d.toLocaleTimeString(L,{hour:"2-digit",minute:"2-digit"})}
+const avHTML=(n,sz,img)=>{const fb=`<div class="rounded-full text-white flex items-center justify-center font-semibold" style="position:absolute;inset:0;background:var(--pri);font-size:${sz/2.6}px">${esc(ini(n))}</div>`;
+ if(!img)return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}</div>`;
+ return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`};
 function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
  $("greet").textContent=S.user.name||""}
 
@@ -723,7 +723,7 @@ const consentOf=f=>f.me&&f.them?"active":f.them?"in":f.me?"out":"none";
 const sharing=f=>consentOf(f)==="active";
 const canShare=f=>consentOf(f)==="active"||S.fam.filter(x=>x!==f&&consentOf(x)==="active").length<pl().max;
 function locErrMsg(e){const m=String((e&&(e.message||e.code))||""),c=String((e&&e.code)||"");
- if(c==="42P01"||c==="PGRST205"||/does not exist|schema cache/i.test(m))return t("locSetup");
+ if(c==="42P01"||c==="PGRST205"||/does not exist|schema cache/i.test(m))return t("errGeneric");
  if(c==="42501"||/row-level security|permission denied/i.test(m))return t("locRls");
  return t("errGeneric")}
 function setOwnShare(on){if(S.shareOn===on)return;S.shareOn=on;saveUserData();if(on)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
@@ -744,7 +744,7 @@ let locSig="",locWarned=false;
 // Reads requests in both directions and derives consent. Location is loaded only for accepted pairs (enforced by RLS).
 async function loadLocReqs(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  const {data,error}=await sb.from("location_shares").select("requester_id,target_id,status,updated_at").or(`requester_id.eq.${me},target_id.eq.${me}`).order("updated_at",{ascending:false});
- if(error||!data){console.warn("location_shares:",error&&error.message);if(error&&!locWarned){locWarned=true;toast(locErrMsg(error))}return}
+ if(error||!data){console.warn("location_shares:",error&&error.message);if(error&&!locWarned){locWarned=true}return}
  const pair={};data.forEach(r=>{const o=r.requester_id===me?r.target_id:r.requester_id;if(!pair[o])pair[o]=r});
  await ensureContacts(Object.keys(pair));
  S.fam.forEach(f=>{const r=pair[f.key];f.me=false;f.them=false;if(!r)return;
@@ -1428,6 +1428,7 @@ function flushOutbox(){const q=outbox.splice(0);q.forEach(it=>sendToRecipients(i
 function stopRealtime(){clearTimeout(rtT);clearInterval(pollT);pollT=null;const a=[rtMsg,rtProf];rtMsg=rtProf=null;rtJoined=false;
  a.forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}})}
 function scheduleRt(){clearTimeout(rtT);if(!S.authed)return;rtRetry=Math.min(rtRetry+1,6);rtT=setTimeout(startRealtime,Math.min(30000,1000*2**rtRetry))}
+let profTick=0;
 function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
  const ch=sb.channel("lo-msg-"+S.user.uid);rtMsg=ch;
  ch.on("postgres_changes",{event:"INSERT",schema:"public",table:"messages"},p=>onMsgRow(p.new)).subscribe(st=>{
@@ -1436,7 +1437,7 @@ function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
   else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
  const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
  cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
- pollT=setInterval(()=>{pollMsgs();loadLocReqs()},4000)}
+ pollT=setInterval(()=>{pollMsgs();loadLocReqs();if(++profTick%8===0)loadProfiles()},4000)}
 window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 

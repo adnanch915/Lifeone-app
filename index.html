@@ -240,7 +240,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
    <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
   </div>
   
-  <div id="profTrust" style="display:none"></div>
+  <div id="profBlueRow" class="mb-2"></div><div id="profTrust" style="display:none"></div>
   <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF,#fff);border:1px solid #DDD6FE"></div>
   <div class="card p-5 space-y-3">
    <button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openInvite('')"><span data-ic="share" data-s="18"></span><span data-i18n="invite"></span></button>
@@ -294,12 +294,12 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 <div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0">
  <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
   <button class="p-2 -ms-2" style="color:var(--mut)" onclick="closeChat()" aria-label="Back" data-ic="left" data-s="20"></button>
-  <div class="flex items-center gap-3 min-w-0"><div id="chatAv"></div><h3 class="font-bold truncate" id="chatName"></h3><div id="chatLoc" class="hidden"></div></div>
+  <button type="button" id="chatHead" onclick="openPublicProfile()" class="flex items-center gap-3 min-w-0 text-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex items-center gap-1.5"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><div id="chatLoc" class="hidden"></div></button>
   <div class="flex items-center gap-1 shrink-0"><button type="button" onclick="openWall()" class="btn out w-9 h-9 rounded-full" aria-label="Chat wallpaper" title="Chat wallpaper"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></button><div id="chatCalls" class="flex items-center gap-1"></div></div>
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
  <div id="inBar" class="flex gap-2 pt-2"><input id="msgIn" class="inp" data-ph="msg" data-kbd="1" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send">
-  <button class="btn out w-11 rounded-xl shrink-0" id="voiceBtn" onclick="recStart()" aria-label="Voice note" data-ic="mic"></button>
+  <button class="btn out w-11 rounded-xl shrink-0" onclick="$('attachIn').click()" aria-label="Attach file" title="Attach file"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg></button><input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)"><button class="btn out w-11 rounded-xl shrink-0" id="voiceBtn" onclick="recStart()" aria-label="Voice note" data-ic="mic"></button>
   <button class="btn pri w-11 rounded-xl shrink-0" onclick="sendMsg()" aria-label="Send" data-ic="send"></button></div>
  <div id="recBar" class="hidden items-center gap-3 pt-2">
   <button class="btn out w-11 h-11 rounded-xl shrink-0" onclick="recStop(false)" aria-label="Cancel" data-ic="x"></button>
@@ -459,6 +459,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   </div>
 </div></div>
 <div id="mWall" class="modal" style="z-index:75"><div class="sheet space-y-3" style="max-width:380px"><div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg">Chat wallpaper</h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mWall')" aria-label="Close">&times;</button></div><div id="wallGrid" class="grid grid-cols-2 gap-3"></div></div></div>
+<div id="mPublic" class="modal" style="z-index:76"><div class="sheet space-y-4" style="max-width:420px"><div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg">Profile</h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mPublic')" aria-label="Close">&times;</button></div><div id="pubBody" class="space-y-4"></div></div></div>
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -541,7 +542,7 @@ function trustInner(){const s=myTrust(),C=2*Math.PI*30;
  ${locBlock({addr:geoPlace(),lbl:!geoOK(),b:S.user.b,acc:S.geo.acc,ts:s,on:geoOK()},"u")}${geoOK()?"":`<button onclick="startGeo(true)" class="btn pri rounded-xl px-4 py-2 text-sm mt-3">${ic("pin",16)}${t("detect")}</button>`}
  <p class="text-xs mt-3" style="color:var(--mut)">${S.fam.filter(f=>f.on).length} / ${S.fam.length} ${t("memLive")}</p>`}
 const coordsText=()=>S.user.lat==null?"":S.user.lat.toFixed(3)+", "+S.user.lng.toFixed(3);
-function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();
+function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();const pb=$("profBlueRow");if(pb)pb.innerHTML=myTrust()>=100?`<p class="font-semibold text-sm flex items-center gap-1.5">${esc(S.user.name||"")}${blueBadge(100)}</p>`:"";
  const el=$("homeVer");if(!el)return;const st=S.geo.st;let pill;
  if(!S.shareOn)pill=`<button onclick="toggleShare()" class="btn px-3 py-1.5 rounded-full text-sm bg-slate-50 text-slate-600 border border-slate-200 max-w-full">${ic("lock",16)}<span class="truncate">${t("locOff")}</span></button>`;
  else if(st==="ok")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 max-w-full"><span class="gp inline-flex rounded-full shrink-0">${ic("pin",16)}</span><span class="truncate">${t("vlive")} • ${esc(S.user.loc||coordsText())}</span></span>`;
@@ -1037,10 +1038,10 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
 let chatK=0;
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
 function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
- if(chatK==="g"){$("chatName").textContent=t("grp");$("chatAv").innerHTML=GROUP_AV();
+ if(chatK==="g"){$("chatName").textContent=t("grp");setBlueFor(null);$("chatAv").innerHTML=GROUP_AV();
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
- const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
+ const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;setBlueFor(f);$("chatAv").innerHTML=avHTML(f.n,38,f.img);
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${consentOf(f)==="active"&&f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(memberTrust(f),f.key)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
@@ -1114,7 +1115,7 @@ function tickHTML(m){if(m.read)return `<span class="inline-flex ms-1" style="col
 function syncReceipts(){if(!sb||!S.user.uid)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
  sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
 function renderMsgs(keep){const L=S.chats[chatK]||[];const el=$("msgs");const y=el.scrollTop;
- el.innerHTML=L.map((m,i)=>{const fresh=isNewVoice(m);const own=!!m.me;const body=m.v?voiceCard(m,i):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
+ el.innerHTML=L.map((m,i)=>{const fresh=isNewVoice(m);const own=!!m.me;const body=m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
   const style=own?"background:var(--pri);color:#fff;border-radius:18px 18px 6px 18px":fresh?"background:var(--pri2);border:1px solid var(--pri);color:var(--ink);border-radius:18px 18px 18px 6px":"background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:18px 18px 18px 6px";
   const badge=fresh?`<span class="inline-flex items-center gap-1 mb-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold text-white" style="background:var(--pri)">${ic("mic",10)}${t("newVoice")}</span>`:"";
   const name=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:var(--pri)">${esc(m.from)}</p>`:"";
@@ -1144,6 +1145,7 @@ async function insertRow(row){
   const res=await DB.sendMessage(r);const e=res&&res.error;
   if(!e)return res;
   const c=missingCol(e);
+  if(c&&c.startsWith("media_")&&c in r)return {error:{code:"MEDIA",message:e.message}};
   if(c&&OPTIONAL_COLS.includes(c)&&c in r){
    MISSING.add(c);
    if(c==="voice_url"||c==="voice_dur")return {error:{code:"VOICE",message:e.message}};
@@ -1156,6 +1158,7 @@ async function insertRow(row){
 async function sendToRecipients(it){const {msg,k,to,m}=it;
  const body={sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:(m.t||null)};
  if(m.v){body.voice_url=m.url;body.voice_dur=m.d}
+ if(m.file){body.media_url=m.url;body.media_type=m.ft;body.media_name=m.name}
  let res;
  if(k==="g"){
   res=await insertRow(Object.assign({},body,{audience:[S.user.uid,...to]}));
@@ -1169,7 +1172,7 @@ async function sendToRecipients(it){const {msg,k,to,m}=it;
  if(isNetErr(e)){msg.pending=true;if(!outbox.includes(it))outbox.push(it);renderMsgs();return}
  console.warn("message not sent:",e.message||e);
  dropMsg(it);
- toast(t(e.code==="VOICE"?"voiceNeedsCol":"msgFail"))}
+ toast(e.code==="MEDIA"?"Media sharing needs the messages media columns. Run the setup SQL.":t(e.code==="VOICE"?"voiceNeedsCol":"msgFail"))}
 function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  const to=k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
@@ -1563,7 +1566,7 @@ async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&i
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
- return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true},r.media_url?{file:1,ft:r.media_type||"",name:r.media_name||"File",url:r.media_url}:r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
 let lastMsgTs=null;
 function readMap(){return store.get("lifeone.read."+S.user.uid,{})}
 function lastTsOf(key){const idx=S.fam.findIndex(f=>f.key===key);const L=idx>=0?(S.chats[idx]||[]):[];let best="";for(const m of L){if(m.ts&&m.ts>best)best=m.ts}return best||new Date().toISOString()}
@@ -1726,6 +1729,65 @@ const DB={
 };
 
 Object.assign(T.en,{newVoice:"New voice",nameSaveFail:"Name could not be saved. Check your connection and try again."});
+
+/* ---------- verified badge, public profile, reviews, media ---------- */
+function blueBadge(s){return clampTrust(s)>=100?`<span class="inline-flex shrink-0" title="Verified" aria-label="Verified"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1D9BF0"/><path d="M7.2 12.3l3 3 6.6-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`:""}
+function setBlueFor(f){const el=$("chatBlue");if(el)el.innerHTML=f?blueBadge(memberTrust(f)):""}
+let PUB=null,pubRate=0;
+// Only public columns are selected here. Phone and email are never requested for another member.
+async function fetchPublic(key){if(!sb)return null;const cols="id,full_name,username,avatar_url,trust_score";
+ let r=await sb.from("profiles").select(cols+",bio").eq("id",key).maybeSingle();
+ if(r.error)r=await sb.from("profiles").select(cols).eq("id",key).maybeSingle();
+ return r.data||null}
+async function openPublicProfile(){if(chatK==="g")return;const f=S.fam[chatK];if(!f)return;
+ PUB={key:f.key,name:f.n,img:f.img||"",username:"",bio:"",score:memberTrust(f),comment:""};pubRate=0;renderPublic();openM("mPublic");
+ const d=await fetchPublic(f.key);
+ if(d&&PUB&&PUB.key===f.key){PUB.name=d.full_name||PUB.name;PUB.img=d.avatar_url||PUB.img;PUB.username=d.username||"";PUB.bio=d.bio||"";PUB.score=clampTrust(d.trust_score);renderPublic()}}
+function renderPublic(){if(!PUB)return;const s=clampTrust(PUB.score);
+ const col=s>=85?"#059669":s>=60?"#B45309":"#E11D48";
+ const warn=s<60?`<div class="rounded-xl p-3 text-sm" style="background:rgba(245,158,11,.12);border:1px solid #FCD34D"><b class="block mb-0.5">Mid-risk member</b><span>Trust Score is below 60%. Verify carefully and take extra caution before any deal, payment or location sharing.</span></div>`:"";
+ const stars=[1,2,3,4,5].map(n=>`<button type="button" onclick="setPubRate(${n})" aria-label="${n} star${n>1?"s":""}" class="text-2xl leading-none px-0.5" style="color:${n<=pubRate?"#F59E0B":"#CBD5E1"}">&#9733;</button>`).join("");
+ $("pubBody").innerHTML=`
+  <div class="flex flex-col items-center text-center gap-2">${avHTML(PUB.name,88,PUB.img)}
+   <div class="flex items-center justify-center gap-1.5"><b class="text-lg">${esc(PUB.name)}</b>${blueBadge(s)}</div>
+   ${PUB.username?`<p class="text-xs" style="color:var(--mut)">@${esc(PUB.username)}</p>`:""}</div>
+  <div class="rounded-xl p-3 text-sm" style="border:1px solid var(--line)"><p class="text-[11px] uppercase tracking-wider mb-1" style="color:var(--mut)">About</p><p class="whitespace-pre-wrap break-words">${PUB.bio?esc(PUB.bio):"No bio yet."}</p></div>
+  <div class="flex items-center justify-between rounded-xl p-3" style="border:1px solid var(--line)"><span class="text-sm">Trust Score</span><b class="text-lg" style="color:${col}">${s}%</b></div>
+  ${warn}
+  <div class="space-y-2"><p class="font-semibold text-sm">Leave feedback</p><div class="flex items-center">${stars}</div>
+   <textarea rows="2" maxlength="300" class="inp text-sm" placeholder="How was your experience?" oninput="PUB.comment=this.value">${esc(PUB.comment||"")}</textarea>
+   <button type="button" onclick="submitPubReview()" class="btn pri w-full py-2.5 rounded-xl text-sm">Submit review</button>
+   <p class="text-[11px]" style="color:var(--mut)">One review per member. Positive reviews (4 or 5 stars) add to their Trust Score automatically.</p></div>`}
+function setPubRate(n){pubRate=n;renderPublic()}
+async function submitPubReview(){if(!PUB)return;
+ if(!pubRate){toast("Choose a star rating first");return}
+ if(!sb||!S.user.uid){toast(t("sbOff"));return}
+ if(PUB.key===S.user.uid){toast("You can't review yourself");return}
+ const {error}=await sb.from("reviews").insert({reviewer_id:S.user.uid,reviewee_id:PUB.key,rating:pubRate,comment:(PUB.comment||"").trim()||null});
+ if(error){const dup=error.code==="23505"||/duplicate|unique/i.test(String(error.message||""));toast(dup?"You have already reviewed this member":"Review could not be saved. Try again.");return}
+ toast("Review submitted");PUB.comment="";pubRate=0;
+ const d=await fetchPublic(PUB.key);
+ if(d){applyProfLoc(d);if(PUB)PUB.score=clampTrust(d.trust_score)}
+ renderFam();renderPublic()}
+function fmtSize(b){if(!b)return"";return b>1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
+function fileCard(m){const img=/^image\//.test(m.ft||""),vid=/^video\//.test(m.ft||"");
+ if(img)return `<a href="${esc(m.url)}" target="_blank" rel="noopener"><img src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy" class="rounded-xl" style="max-width:100%;max-height:260px;display:block"></a>`;
+ if(vid)return `<video src="${esc(m.url)}" controls playsinline preload="metadata" class="rounded-xl" style="max-width:100%;max-height:260px;display:block"></video>`;
+ return `<a href="${esc(m.url)}" target="_blank" rel="noopener" class="flex items-center gap-2.5 py-0.5" style="color:inherit;text-decoration:none"><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(127,127,127,.18)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span><span class="min-w-0"><span class="block text-sm font-medium truncate" style="max-width:12rem">${esc(m.name)}</span><span class="block text-[11px] opacity-75">${fmtSize(m.size)||"Open file"}</span></span></a>`}
+async function attachPicked(input){const file=input.files&&input.files[0];input.value="";if(!file)return;
+ if(!sb||!S.user.uid){toast(t("sbOff"));return}
+ if(file.size>20*1024*1024){toast("File is larger than 20 MB");return}
+ const okType=/^(image|video)\//.test(file.type)||file.type==="application/pdf"||/\.(docx?|xlsx?|txt)$/i.test(file.name);
+ if(!okType){toast("This file type is not supported");return}
+ if(chatK==="g"){toast("Send files in a direct chat for now");return}
+ toast("Uploading…");
+ const safe=file.name.replace(/[^\w.\-]+/g,"_").slice(-80);
+ const path=S.user.uid+"/"+Date.now()+"_"+safe;
+ const {error}=await sb.storage.from("chat-media").upload(path,file,{contentType:file.type||"application/octet-stream",cacheControl:"3600"});
+ if(error){console.warn("media upload:",error.message);toast("Upload failed. Check the chat-media storage bucket.");return}
+ const url=sb.storage.from("chat-media").getPublicUrl(path).data.publicUrl;
+ push({file:1,ft:file.type||"",name:file.name,size:file.size,url});
+}
 
 /* ---------- chat wallpaper ---------- */
 const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(124,58,237,.14),rgba(34,211,238,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};

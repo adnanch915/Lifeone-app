@@ -105,6 +105,11 @@ html.dark .sheet,html.dark .card,html.dark #proCard{background:#1E293B!important
 html.dark #mChat{padding:0}
 html.dark .text-gray-200,html.dark .text-slate-200{color:#E5E7EB!important}
 html.dark .text-white{color:#fff!important}
+
+/* ---- Daily Harmony ring: readable on dark cards ---- */
+html.dark #ringTrack{stroke:#334155}
+html.dark #ringPct{fill:#F8FAFC}
+html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
 </style>
 </head>
 <body class="unauth">
@@ -162,7 +167,7 @@ html.dark .text-white{color:#fff!important}
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
    <div class="card p-5 flex items-center gap-4">
-    <svg width="96" height="96" viewBox="0 0 96 96" class="shrink-0" aria-hidden="true"><defs><linearGradient id="gHar" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#C4B5FD"/></linearGradient></defs><circle cx="48" cy="48" r="38" fill="none" stroke="#E2E8F0" stroke-width="9"/><circle id="ringArc" cx="48" cy="48" r="38" fill="none" stroke="url(#gHar)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset .6s ease"/><text id="ringPct" x="48" y="54" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">0%</text></svg>
+    <svg width="96" height="96" viewBox="0 0 96 96" class="shrink-0" aria-hidden="true"><defs><linearGradient id="gHar" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#C4B5FD"/></linearGradient></defs><circle id="ringTrack" cx="48" cy="48" r="38" fill="none" stroke="#E2E8F0" stroke-width="9"/><circle id="ringArc" cx="48" cy="48" r="38" fill="none" stroke="url(#gHar)" stroke-width="9" stroke-linecap="round" transform="rotate(-90 48 48)" style="transition:stroke-dashoffset .6s ease"/><text id="ringPct" x="48" y="54" text-anchor="middle" font-size="18" font-weight="700" fill="#0F172A">0%</text></svg>
     <div class="min-w-0"><p class="text-[11px] uppercase tracking-wider" style="color:var(--mut)" data-i18n="harmony"></p><p id="cnt" class="font-semibold mt-1 text-sm"></p><p id="ringSub" class="text-xs mt-1" style="color:var(--mut)"></p></div>
    </div>
    <div class="card p-5">
@@ -222,7 +227,7 @@ html.dark .text-white{color:#fff!important}
  <section id="tab-family" class="tab-content space-y-3">
   <div class="card p-4 space-y-3">
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
-    <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off"></div>
+    <input id="famQ" oninput="famSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="famQph" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-fam"></div>
    <div id="famRes" class="space-y-2"></div>
   </div>
   <div id="chatList" class="card p-2 space-y-1"></div>
@@ -441,7 +446,7 @@ html.dark .text-white{color:#fff!important}
 </div></div>
 <div id="mSearch" class="modal" style="z-index:70"><div class="sheet" style="max-width:440px;padding:0;display:flex;flex-direction:column;max-height:80vh">
  <div class="flex items-center justify-between px-5 pt-5 pb-3"><h3 class="font-bold text-lg" data-i18n="searchMember"></h3><button type="button" onclick="closeM('mSearch')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
- <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh" autocomplete="off" autocapitalize="none"></div></div>
+ <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-member" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh"></div></div>
  <div id="msRes" class="flex-1 overflow-y-auto px-5 pb-5" style="min-height:10rem"></div>
 </div></div>
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
@@ -908,7 +913,13 @@ function inviteWA(){const n=waNum($("invTo").value);window.open((n?`https://wa.m
 function inviteSMS(){const to=$("invTo").value.replace(/[^\d+]/g,"");location.href="sms:"+to+"?body="+encodeURIComponent($("invMsg").value)}
 async function inviteCopy(){try{await navigator.clipboard.writeText($("invMsg").value);toast(t("copied"))}catch(e){$("invMsg").select();toast(t("copyFail"))}}
 async function inviteShare(){if(navigator.share){try{await navigator.share({text:$("invMsg").value})}catch(e){}}else inviteCopy()}
-function toggleShare(){S.shareOn=!S.shareOn;saveUserData();if(S.shareOn)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
+function toggleShare(){S.shareOn=!S.shareOn;
+ try{saveUserData()}catch(e){}
+ try{renderLocSetting()}catch(e){}
+ try{if(S.shareOn)startGeo(true);else stopGeo()}catch(e){console.warn("geo:",e)}
+ try{syncLocation(true)}catch(e){console.warn("sync:",e)}
+ try{renderFam();renderShield();renderHomeFam();refreshTrust()}catch(e){console.warn("render:",e)}
+ try{renderLocSetting()}catch(e){}}
 function renderLocSetting(){const el=$("locSetting");if(!el)return;
  if(!S.authed){el.innerHTML="";return}
  const on=S.shareOn;

@@ -239,7 +239,7 @@ html[dir=rtl] .sheet,html[dir=rtl] .card{direction:rtl}
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
  <div id="inBar" class="flex gap-2 pt-2"><input id="msgIn" class="inp" data-ph="msg">
-  <button class="btn out w-11 rounded-xl shrink-0" onclick="recStart()" aria-label="Voice note" data-ic="mic"></button>
+  <button class="btn out w-11 rounded-xl shrink-0" id="voiceBtn" onclick="recStart()" aria-label="Voice note" data-ic="mic"></button>
   <button class="btn pri w-11 rounded-xl shrink-0" onclick="sendMsg()" aria-label="Send" data-ic="send"></button></div>
  <div id="recBar" class="hidden items-center gap-3 pt-2">
   <button class="btn out w-11 h-11 rounded-xl shrink-0" onclick="recStop(false)" aria-label="Cancel" data-ic="x"></button>
@@ -573,7 +573,7 @@ function renderHomeFam(){const el=$("homeFam");if(!el)return;if(!S.fam.length){e
   if(sh){const km=S.user.lat!=null&&f.lat!=null?haversine(S.user.lat,S.user.lng,f.lat,f.lng):null;st=km==null?t("live"):`${t("live")} · ${km<1?"<1":km.toFixed(km<10?1:0)} km`;cls="bg-emerald-50 text-emerald-700 border-emerald-200"}
   else if(c==="out"||c==="in"){st=t("waiting");cls="bg-amber-50 text-amber-700 border-amber-200"}
   else {st=t("priv");cls="bg-slate-50 text-slate-600 border-slate-200"}
-  return `<div class="flex items-center gap-3"><div class="relative shrink-0"><span class="w-9 h-9 rounded-full text-white text-xs font-semibold flex items-center justify-center" style="background:var(--pri)">${esc(ini(f.n))}</span><i class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(f.n)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(f.rel)}</p></div><span class="text-[11px] px-2 py-0.5 rounded-full border shrink-0 ${cls}">${st}</span></div>`}).join("")}
+  return `<div class="flex items-center gap-3"><div class="relative shrink-0">${avHTML(f.n,36,f.img)}<i class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div><div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(f.n)}</p><p class="text-[11px]" style="color:var(--mut)">${esc(f.rel)}</p></div><span class="text-[11px] px-2 py-0.5 rounded-full border shrink-0 ${cls}">${st}</span></div>`}).join("")}
 
 /* money */
 const FIN={inf:376500,cats:[["cHouse","home","#7C3AED",75000],["cGroc","cart","#10B981",32400],["cDine","utensils","#F59E0B",11800],["cHealth","heart","#F43F5E",7200],["cUtil","bolt","#3B82F6",5400]]};
@@ -751,7 +751,7 @@ function locAct(key){const u=userByKey(key);if(!u)return;const first=u.name.spli
 function contactRow(u,mode){
  if(u.raw)return `<div class="rounded-xl p-3 bg-slate-50 border border-slate-200 text-sm"><p>${esc(u.name)} ${t("notOnApp")}</p><button onclick="openInvite('${esc(u.phone||"")}','${esc(u.name)}')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteSug")}</button></div>`;
  const contact=u.phone||u.email||"";
- return `<div class="flex items-center gap-3 py-2.5"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(u.name))}</span>
+ return `<div class="flex items-center gap-3 py-2.5">${avHTML(u.name,40,u.avatar)}
   <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(u.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">@${esc(u.username||"")} · ${esc(contact)}</p>
   <div class="mt-1"><span class="text-[11px] px-2 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">${t("lifeUser")}</span></div></div>
   <div class="flex flex-wrap justify-end gap-1.5 shrink-0"><button onclick="chatContact('${esc(u.id)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(u.id)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button></div></div>`}
@@ -781,7 +781,7 @@ function renderMemberSearch(){const el=$("msRes");if(!el)return;
  const list=regUsers().filter(u=>u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
  if(!list.length){el.innerHTML=`<div class="rounded-xl p-4 bg-slate-50 border border-slate-200 text-sm"><p>${t("msNone")}</p><button onclick="closeM('mSearch');openInvite('','')" class="btn pri rounded-lg px-3 py-1.5 text-xs mt-2 inline-flex items-center gap-1">${ic("share",14)}${t("inviteBtn")}</button></div>`;return}
  el.innerHTML=list.map(u=>{const linked=S.fam.some(f=>f.key===u.id);
-  return `<div class="flex items-center gap-3 py-2.5"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(u.name))}</span>
+  return `<div class="flex items-center gap-3 py-2.5">${avHTML(u.name,40,u.avatar)}
    <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(u.name)}</p><p class="text-[11px] truncate" style="color:var(--mut)">@${esc(u.username||"")} · ${esc(u.phone||u.email||"")}</p></div>
    ${linked?`<span class="text-[11px] px-2 py-0.5 rounded-full border bg-slate-50 text-slate-600 border-slate-200 whitespace-nowrap">${t("alreadyConn")}</span>`:`<button onclick="connectContact('${esc(u.id)}');renderMemberSearch()" class="btn pri rounded-lg px-3 py-1.5 text-xs">${t("connectBtn")}</button>`}</div>`}).join("")}
 // Referral: opening the app with ?ref=<username> connects the referrer found in the profiles table
@@ -795,7 +795,7 @@ async function handleReferral(){let ref="";try{ref=new URLSearchParams(location.
  if(data&&data.id!==S.user.uid){PROF.set(data.id,data);connectContact(data.id);toast(t("refConnected").replace("{n}",(data.full_name||data.username||"").split(" ")[0]))}}
 function connectContact(key){const u=userByKey(key);if(!u)return;
  if(S.fam.some(f=>f.key===key)){toast(t("alreadyConn"));return}
- S.fam.push({key,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
+ S.fam.push({key,img:u.avatar||"",n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]});
  toast(t("connReq").replace("{n}",u.name.split(" ")[0]));renderAll();famSearch()}
 function refLink(){return APP_URL+"/?ref="+encodeURIComponent(S.user.username||S.user.uid||"")}
 function refreshInvMsg(){const n=($("invName").value||"").trim();const m=n?t("inviteMsgName").replace("{n}",n):t("inviteMsg");$("invMsg").value=m.replace("{u}",invLink)}
@@ -832,7 +832,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
   else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button><button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button></div>`;
   else body=`<button onclick="cAct(${i},'req')" class="btn pri rounded-xl px-4 py-2 text-sm mt-3 w-full">${ic("pin",16)}${t("reqLoc")}</button>`;
   return `<div class="card p-4"><div class="flex items-center gap-3">
- <div class="relative"><div class="w-12 h-12 rounded-full text-white flex items-center justify-center font-semibold" style="background:var(--pri)">${esc(ini(f.n))}</div>
+ <div class="relative">${avHTML(f.n,48,f.img)}
  <i class="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div>
  <div class="flex-1 min-w-0"><b class="block truncate">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span></div></div>
  ${body}
@@ -863,7 +863,7 @@ async function startCall(i,video){
  const f=S.fam[i];
  if(call.pc||call.stream)endCall(true);
  call={pc:null,stream:null,timer:null,sec:0,video,mute:false,facing:"user",peer:f,mediaErr:false};
- $("callName").textContent=f.n;$("callAv").innerHTML=$("callAv2").innerHTML=avHTML(f.n,84);
+ $("callName").textContent=f.n;$("callAv").innerHTML=$("callAv2").innerHTML=avHTML(f.n,84,f.img);
  $("callType").textContent=callKind(f);$("callState").textContent=t("calling");$("callTime").textContent="00:00";$("callNote").textContent="";
  $("icMute").innerHTML=ic("mic");$("bMute").classList.replace("pri","out");$("bSpk").classList.replace("pri","out");
  showVid();openM("mCall");
@@ -897,11 +897,11 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
 /* chat (personal + group) */
 let chatK=0;
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
-function openChatHead(){const cc=$("chatCalls");
+function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
  if(chatK==="g"){$("chatName").textContent=t("grp");$("chatAv").innerHTML=GROUP_AV();
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
   if(cc)cc.innerHTML="";return}
- const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38);
+ const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
@@ -913,7 +913,7 @@ function renderChatList(){const el=$("chatList");if(!el)return;
  const paid=S.plan!=="free";
  const rows=S.fam.map((f,i)=>{const last=(S.chats[i]||[]).slice(-1)[0];
   return `<div class="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-slate-50">
-   <button onclick="openChat(${i})" class="flex-1 min-w-0 flex items-center gap-3 text-left"><span class="w-10 h-10 rounded-full text-white text-xs font-semibold flex items-center justify-center shrink-0" style="background:var(--pri)">${esc(ini(f.n))}</span>
+   <button onclick="openChat(${i})" class="flex-1 min-w-0 flex items-center gap-3 text-left">${avHTML(f.n,40,f.img)}
     <span class="flex-1 min-w-0"><span class="block text-sm font-medium truncate">${esc(f.n)}</span><span class="block text-[11px] truncate" style="color:var(--mut)">${last?(last.v?t("voiceMsg"):esc(last.t)):t("noMsgs")}</span></span>${f.un?`<b class="px-1.5 rounded-full bg-rose-500 text-white text-[11px]">${f.un}</b>`:""}</button>
    <button onclick="chatCall(false,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",15)}</button>
    <button onclick="chatCall(true,${i})" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",15)}</button></div>`}).join("");
@@ -1005,7 +1005,8 @@ function voiceLeft(){if(S.plan!=="free")return Infinity;return Math.max(0,VOICE_
 function voiceUse(){if(S.plan!=="free")return;store.set(voiceKey(),store.get(voiceKey(),0)+1)}
 /* voice notes (real MediaRecorder when mic is allowed, simulated otherwise) */
 let rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
-async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));return}voiceUse();rec={on:true,mr:null,stream:null,chunks:[],sec:0,timer:null};
+function refreshVoiceBtn(){const b=$("voiceBtn");if(!b)return;const locked=voiceLeft()<=0;b.innerHTML=ic(locked?"lock":"mic",18);b.style.opacity=locked?".6":"";b.title=locked?t("voiceLimit"):"";b.setAttribute("aria-label",locked?t("voiceLimit"):"Voice note")}
+async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));return}voiceUse();refreshVoiceBtn();rec={on:true,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);
  try{rec.stream=await navigator.mediaDevices.getUserMedia({audio:true});rec.mr=new MediaRecorder(rec.stream);rec.mr.ondataavailable=e=>rec.chunks.push(e.data);rec.mr.start()}catch(e){rec.mr=null}}
@@ -1321,7 +1322,7 @@ function syncProfile(){if(!sb||!S.user.uid)return;
  DB.upsertUser({id:S.user.uid,full_name:S.user.name,email:S.user.email||null,phone:S.user.phone||null,username:S.user.username||null,avatar_url:S.user.img||null,provider:S.user.provider||"email"})
   .then(r=>{if(r&&r.error){console.warn("profile sync:",r.error.message);if(isNetErr(r.error))window.addEventListener("online",()=>syncProfile(),{once:true})}})}
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
- S.fam.push({key:u.id,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
+ S.fam.push({key:u.id,img:u.avatar||"",n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
  const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address").in("id",need);
  (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r));applyProfLoc(r)})}
@@ -1337,7 +1338,7 @@ async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
  S.chats={g:[]};const un={};
  data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
-  if(r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length))un[k]=(un[k]||0)+1});
+  if(r.sender_id!==me&&r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length))un[k]=(un[k]||0)+1});
  S.fam.forEach((f,i)=>{f.un=un[i]||0});
  lastMsgTs=data.length?data[data.length-1].created_at:new Date(Date.now()-60000).toISOString();
  renderAll();if($("mChat").classList.contains("on")){renderMsgs();if(chatK!=="g"&&S.fam[chatK]){S.fam[chatK].un=0;markRead(S.fam[chatK].key);renderTabs()}}}
@@ -1360,15 +1361,15 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.se
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
  const open=chatK===k&&$("mChat").classList.contains("on"),quiet=open&&!document.hidden;
  if(!mine){const who=k==="g"?(r.sender_name||"").split(" ")[0]:S.fam[k].n,prev=r.voice_url?t("voiceMsg"):(r.content||"");
-  if(!quiet){chime();buzz();showMsgBanner(who||"LifeOne",prev,k)}
+  chime();if(!quiet){buzz();showMsgBanner(who||"LifeOne",prev,k)}
   if(!quiet||document.hidden)sysNotify(who||"LifeOne",prev,"msg-"+k)}
  if(open){renderMsgs();if(!mine&&k!=="g")markRead(S.fam[k].key)}
- else if(!mine){if(k==="g")S.gun=1;else S.fam[k].un++}
+ else if(!mine){if(k==="g")S.gun=1;else if(r.receiver_id===me)S.fam[k].un++}
  renderTabs();renderFam();saveUserData()}
 function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
  if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
  S.fam.forEach(f=>{if(f.key===r.id&&r.full_name)f.n=r.full_name});
- try{renderFam();famSearch();renderMemberSearch()}catch(e){}}
+ try{renderFam();famSearch();renderMemberSearch()}catch(e){}if($("mChat").classList.contains("on")&&chatK!=="g")openChatHead()}
 let rtMsg=null,rtProf=null,rtJoined=false,rtRetry=0,rtT=null,pollT=null;
 const outbox=[];
 const isNetErr=e=>!navigator.onLine||/fetch|network|timeout|offline|abort|load failed/i.test(String((e&&e.message)||e||""));
@@ -1406,7 +1407,7 @@ Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
 Object.assign(T.en,{premFeat:"Premium Feature - Please purchase premium to unlock calls",voiceLimit:"Free plan allows 3 voice messages per day. Upgrade to Premium for unlimited voice messages."});
-function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
+function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting,refreshVoiceBtn].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
@@ -1432,7 +1433,7 @@ async function syncLocation(force){if(!sb||!S.user.uid)return;
  lastSyncT=now;lastSyncLL=on?[S.user.lat,S.user.lng]:null;
  const row=on?{latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null}:{latitude:null,longitude:null,formatted_address:null};
  try{const {error}=await sb.from("profiles").update(row).eq("id",S.user.uid);if(error)console.warn("location sync:",error.message)}catch(e){}}
-function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;
+function applyProfLoc(r){if(!r||!r.id)return;const f=S.fam.find(x=>x.key===r.id);if(!f)return;if(r.avatar_url!==undefined)f.img=r.avatar_url||"";
  if(r.latitude!=null&&r.longitude!=null){f.lat=r.latitude;f.lng=r.longitude;if(r.formatted_address){f.addr=r.formatted_address;f.city=r.formatted_address}f.ts=Date.now()}}
 function refreshGeoUI(){renderTrust();renderTabs();fillCoords();const p=$("pLoc");if(p&&document.activeElement!==p)p.value=S.user.loc}
 function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=p.coords.accuracy;S.geo.st="ok";

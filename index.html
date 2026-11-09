@@ -193,7 +193,8 @@ html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
  <section id="tab-tasks" class="tab-content space-y-4">
   <div class="flex items-center justify-between"><h2 class="text-xl font-bold" data-i18n="tasks"></h2>
    <button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openM('mTask')"><span data-ic="plus" data-s="16"></span><span data-i18n="newTask"></span></button></div>
-  <div id="filters" class="flex gap-2 overflow-x-auto pb-1"></div>
+  <p class="text-sm" style="color:var(--mut)">Plan what matters today. Filter by status or category, then tick off tasks as you finish them.</p>
+  <details class="card p-3"><summary class="cursor-pointer text-sm font-medium flex items-center justify-between">Filter tasks</summary><div id="filters" class="flex flex-wrap gap-2 mt-3"></div></details>
   <ul id="taskList" class="space-y-2"></ul>
  </section>
 
@@ -242,7 +243,7 @@ html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
    <div class="flex items-center gap-4"><div class="av big cursor-pointer" role="button" tabindex="0" title="Change photo" onclick="$('file').click()"></div>
     <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1"></label>
+   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
    <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
    <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
   </div>
@@ -716,7 +717,7 @@ function renderTx(){saveUserData();const q=(($("txSearch")||{}).value||"").trim(
 function payHook(k){toast(t("notLinked"))}
 
 /* plans + entitlements */
-const PLAN={free:{name:"Free",price:0,max:3,cp:3,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:50,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
+const PLAN={free:{name:"Free",price:0,max:3,cp:50,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:150,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
 const pl=()=>PLAN[S.plan];
 const canCall=v=>v?pl().video:pl().voice;
 const isTopK=k=>typeof k==="number"&&k<3;
@@ -873,14 +874,9 @@ function contactRow(u,mode){
 // Search by name, username, email or phone (both email and phone sign-ups are covered)
 let famFilter="";
 function applyFamFilter(){["chatList","famList"].forEach(id=>{const c=$(id);if(!c)return;[...c.children].forEach(ch=>{ch.style.display=!famFilter||ch.textContent.toLowerCase().includes(famFilter)?"":"none"})})}
-function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;famFilter=($("famQ").value||"").trim().toLowerCase();applyFamFilter();
- const raw=($("famQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
- scheduleRemote(raw);
- let list=regUsers().filter(u=>!q||u.name.toLowerCase().includes(q)||(u.username||"").toLowerCase().includes(q)||(u.email||"").toLowerCase().includes(q)||(qd.length>=3&&contactDigits(u.phone||"").includes(qd)));
- if(!list.length){
-  if(!q){el.innerHTML="";return}
-  const isNum=qd.length>=7;el.innerHTML=contactRow({raw:true,name:isNum?qd:raw,phone:isNum?qd:""});return}
- el.innerHTML=list.map(u=>contactRow(u,q?"search":"list")).join("")}
+function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
+ famFilter=($("famQ").value||"").trim().replace(/^@/,"").toLowerCase();
+ applyFamFilter();el.innerHTML="";}
 let lastRemoteQ="",rsT=null;
 // supabase.from("profiles").select("*").ilike("username", `%${term}%`).neq("id", currentUserId)
 async function remoteSearch(term){if(!sb||!term)return;

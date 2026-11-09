@@ -111,6 +111,8 @@ html.dark #ringTrack{stroke:#334155}
 html.dark #ringPct{fill:#F8FAFC}
 html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
 html.dark .font-mono{color:#E2E8F0}
+html.dark [style*="#F0FDF4"]{background:rgba(16,185,129,.12)!important;border-color:#14532D!important}
+html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 </style>
 </head>
 <body class="unauth">
@@ -720,7 +722,7 @@ function renderTx(){saveUserData();const q=(($("txSearch")||{}).value||"").trim(
 function payHook(k){toast(t("notLinked"))}
 
 /* plans + entitlements */
-const PLAN={free:{name:"Free",price:0,max:3,cp:50,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:150,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
+const PLAN={free:{name:"Free",price:0,max:3,cp:30,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:150,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
 const pl=()=>PLAN[S.plan];
 const canCall=v=>v?pl().video:pl().voice;
 const isTopK=k=>typeof k==="number"&&k<3;
@@ -775,7 +777,6 @@ function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.v
   S.tasks.unshift({id:Date.now(),t:title,c:cat,u:"Medium",d:false,time:tm,fired:null});audio();renderAll();
   cpCard({icon:"check",title:t("cpAdded").replace("{n}",title),body:tm?fmtT(tm):""});return}
  if(/schedule|optimi[sz]e|optimise/.test(l)){
-  if(S.plan!=="plus"){cpCard({icon:"lock",title:t("cpOptLock"),body:t("lAI"),act:"plus",label:t("planT")});return}
   const rank={High:0,Medium:1,Low:2},todo=S.tasks.filter(x=>!x.d).sort((x,y)=>(rank[x.u||"Medium"]-rank[y.u||"Medium"])||((x.time||"99:99")<(y.time||"99:99")?-1:1));
   cpCard({icon:"sparkle",title:t("cpOpt"),body:todo.length?t("cpOptD"):t("allDone"),items:todo.slice(0,4).map((x,i)=>`${i+1}. ${x.t}${x.time?" · "+fmtT(x.time):""} (${t(UK[x.u||"Medium"])})`)});return}
  if(/budget|sanity|spend/.test(l)){const F=finCalc();const r=F.inf?F.out/F.inf:0;cpCard({icon:"wallet",title:t("cpBudT"),body:r<.8?t("cpBudOk"):t("cpBudWatch"),act:"money",label:t("open")+" · "+t("money")});return}
@@ -784,15 +785,12 @@ function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.v
   cpCard({icon:"sparkle",title:t("cpSumm"),body:`${t("cpDone").replace("{d}",d).replace("{n}",n)} ${nx?t("cpNext").replace("{t}",nx.t).replace("{h}",fmtT(nx.time)):t("cpNoNext")} ${t("cpStreak").replace("{n}",S.habits[0].d)}`});return}
  if(/where|location|gps/.test(l)){cpCard({icon:"pin",title:t("cpWhereT"),body:geoOK()?t("cpLoc").replace("{p}",S.user.loc):geoPlace()});return}
  if(/missing|overdue|pending|unfinished|left to do/.test(l)){
-  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
   const todo=S.tasks.filter(x=>!x.d);
   cpCard({icon:"check",title:t("aiMissingT"),body:todo.length?t("aiMissingN").replace("{n}",todo.length):t("allDone"),items:todo.slice(0,5).map(x=>x.t+(x.time?" · "+fmtT(x.time):""))});return}
  if(/payment|payments|paid|transactions?/.test(l)){
-  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
   const n=TX.filter(x=>!x.in).length;
   cpCard({icon:"wallet",title:t("aiPayT"),body:t("aiPayN").replace("{n}",n),act:"money",label:t("open")+" · "+t("money")});return}
  if(/support|helpline|issue|problem|complaint/.test(l)){
-  if(S.plan==="free"){cpCard({icon:"lock",title:t("aiLockT"),body:t("aiLockD"),act:"plans",label:t("planT")});return}
   cpCard({icon:"shield",title:t("aiSupT"),body:S.plan==="plus"?t("aiSupPlus"):t("aiSupPro")});return}
  cpCard({icon:"sparkle",title:t("cpHelpT"),body:t("cpHelp")})}
 function cpVoice(){if(S.plan!=="plus"){cpCard({icon:"lock",title:t("cpVoiceNo"),body:t("lAI"),act:"plus",label:t("planT")});return}
@@ -954,19 +952,24 @@ function renderFam(){requestAnimationFrame(applyFamFilter);renderChatList();cons
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${canCall(v)?t(v?"videoCall":"voiceCall"):t("premFeat")}">${callIc(v?"video":"phone",16,canCall(v))}</button>`;
+function batBar(f){if(f.bat==null)return "";const c=f.bat>=50?"#10B981":f.bat>=20?"#F59E0B":"#F43F5E";return `<span class="inline-flex items-center gap-1.5"><span class="inline-block w-5 h-2.5 rounded-sm border" style="border-color:#94A3B8"></span><span class="font-semibold">${f.bat}%</span><span class="inline-block w-14 h-2 rounded-full overflow-hidden" style="background:#E2E8F0"><span style="display:block;height:100%;width:${f.bat}%;background:${c}"></span></span></span>`}
+function geoFmt(f){const la=f.lat,ln=f.lng;return `${Math.abs(la).toFixed(4)}° ${la>=0?"N":"S"}, ${Math.abs(ln).toFixed(4)}° ${ln>=0?"E":"W"}`}
+function activeBox(f,i){const live=f.lat!=null;
+ const box=live?`<div class="mt-3 rounded-2xl border p-3" style="background:#F0FDF4;border-color:#BBF7D0"><p class="font-semibold text-emerald-700 text-sm inline-flex items-center gap-1.5">${ic("pin",16)}${t("vlive")}: ${esc(f.city||f.addr||"")}</p><div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2 text-sm" style="color:#334155"><span class="font-mono">${geoFmt(f)}</span>${batBar(f)}</div><div class="mt-2">${trustBadge(memberTrust(f),f.key)}</div></div>`:`<p class="text-sm mt-3" style="color:var(--mut)">${t("notSharing")}</p>`;
+ return box+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-sm mt-2">${t("stop")}</button>`}
 const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
-  if(c==="active")body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
+  if(c==="active")body=activeBox(f,i);
   else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
   else if(c==="in")body=`<p class="text-sm mt-3">${t("wantsLoc").replace("{n}",n)}</p><div class="grid grid-cols-2 gap-2 mt-2"><button onclick="cAct(${i},'acc')" class="btn pri py-2 rounded-xl text-sm">${t("accept")}</button><button onclick="cAct(${i},'dec')" class="btn out py-2 rounded-xl text-sm">${t("decline")}</button></div>`;
   else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button>${sb?"":`<button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button>`}</div>`;
   else body=`<button onclick="cAct(${i},'req')" class="btn pri rounded-xl px-4 py-2 text-sm mt-3 w-full">${ic("pin",16)}${t("reqLoc")}</button>`;
-  return `<div class="card p-4"><div class="flex items-center gap-3">
- <div class="relative"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div>
- <i class="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full border-2 border-white ${f.on?"bg-emerald-500":"bg-slate-400"}"></i></div>
- <div class="flex-1 min-w-0"><b class="block truncate">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span><p class="text-xs mt-0.5" style="color:var(--mut)">${seenText(f)}${lastMsgTxt(f)}${coordTxt(f)}${batTxt(f)}</p></div><div class="flex gap-1.5 shrink-0 self-start">${cbtn(i,false)}${cbtn(i,true)}</div></div>
+  return `<div class="card p-4"><div class="flex items-center gap-3"><div class="relative shrink-0">${avHTML(f.n,60,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><b class="block truncate text-base">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span><p class="text-xs mt-0.5" style="color:var(--mut)">${seenText(f)}${lastMsgTxt(f)}</p></div></div>
  ${body}
- <div class="mt-3">
- <button onclick="openChat(${i})" class="btn pri w-full py-2 rounded-xl text-sm">${ic("chat",16)}${t("chat")}${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button></div></div>`};
+ <div class="grid grid-cols-3 gap-2 mt-3">
+  <button onclick="chatCall(false,${i})" class="btn out rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${callIc("phone",16,canCall(false))}<span>Call</span></button>
+  <button onclick="chatCall(true,${i})" class="btn out rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${callIc("video",16,canCall(true))}<span>Video</span></button>
+  <button onclick="openChat(${i})" class="btn pri rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${ic("chat",16)}<span>Chat</span>${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button>
+ </div></div>`};
  $("famList").innerHTML=`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
 }
 
@@ -1651,7 +1654,9 @@ const SUN_IC='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke
 const MOON_IC='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 function applyTheme(){let d=false;try{d=localStorage.getItem("lifeone.theme")==="dark"}catch(e){}document.documentElement.classList.toggle("dark",d);const b=$("themeBtn");if(b)b.innerHTML=d?SUN_IC:MOON_IC}
 function toggleTheme(){const d=!document.documentElement.classList.contains("dark");try{localStorage.setItem("lifeone.theme",d?"dark":"light")}catch(e){}applyTheme()}
-function boot(){applyTheme();askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go(savedTab());authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
+const NOAUTO={autocomplete:"off",autocorrect:"off",autocapitalize:"off",spellcheck:"false"};
+function noAuto(el){if(!el||!el.setAttribute)return;for(const k in NOAUTO)el.setAttribute(k,NOAUTO[k])}
+function boot(){applyTheme();document.querySelectorAll("input,textarea").forEach(noAuto);document.addEventListener("focusin",e=>{if(e.target&&e.target.matches&&e.target.matches("input,textarea"))noAuto(e.target)});askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go(savedTab());authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go(savedTab())});
 

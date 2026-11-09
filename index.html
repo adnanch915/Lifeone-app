@@ -234,7 +234,7 @@ html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
   <div id="famList" class="space-y-3"></div>
  </section>
 
-<button onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
+<button id="fabAdd" onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
 
  <section id="tab-profile" class="tab-content space-y-4">
   <h2 class="text-lg font-bold" data-i18n="profile"></h2>
@@ -578,7 +578,7 @@ function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=
  $("tabs").innerHTML=["home","tasks","money","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
  <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");return ["home","tasks","money","family","profile"].includes(v)?v:"home"}catch(e){return "home"}}
-function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
+function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};{const fb=$("fabAdd");if(fb)fb.style.display=v==="family"?"":"none"};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -719,6 +719,7 @@ function payHook(k){toast(t("notLinked"))}
 const PLAN={free:{name:"Free",price:0,max:3,cp:3,voice:false,video:false,precise:false},pro:{name:"Pro",price:9.99,max:20,cp:50,voice:true,video:false,precise:false},plus:{name:"Pro Plus",price:24.99,max:50,cp:Infinity,voice:true,video:true,precise:true}};
 const pl=()=>PLAN[S.plan];
 const canCall=v=>v?pl().video:pl().voice;
+const isTopK=k=>typeof k==="number"&&k<3;
 function planLines(k){const p=PLAN[k];
  const loc=k==="free"?t("lLive"):k==="pro"?t("lLive"):t("lPrecise");
  const L=[t("lContacts").replace("{n}",p.max),p.video?t("lVideo"):p.voice?t("lVoice"):t("lText"),p.cp===Infinity?t("lCpUnl"):t("lCp").replace("{n}",p.cp),loc];
@@ -884,7 +885,7 @@ let lastRemoteQ="",rsT=null;
 // supabase.from("profiles").select("*").ilike("username", `%${term}%`).neq("id", currentUserId)
 async function remoteSearch(term){if(!sb||!term)return;
  const esc2=term.replace(/[\\%_]/g,m=>"\\"+m);
- const {data,error}=await sb.from("profiles").select("*").ilike("username",`%${esc2}%`).neq("id",S.user.uid||"00000000-0000-0000-0000-000000000000");
+ const {data,error}=await sb.from("profiles").select("*").or(`username.ilike.%${esc2}%,full_name.ilike.%${esc2}%`).neq("id",S.user.uid||"00000000-0000-0000-0000-000000000000");
  if(error||!data)return;data.forEach(r=>PROF.set(r.id,r));
  try{famSearch();renderMemberSearch()}catch(e){}}
 function scheduleRemote(raw){if(!raw||raw===lastRemoteQ)return;lastRemoteQ=raw;clearTimeout(rsT);rsT=setTimeout(()=>remoteSearch(raw),250)}
@@ -951,7 +952,7 @@ function renderFam(){requestAnimationFrame(applyFamFilter);renderChatList();cons
   if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)} · ${f.lat.toFixed(5)}, ${f.lng.toFixed(5)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
- const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${canCall(v)?t(v?"videoCall":"voiceCall"):t("premFeat")}">${callIc(v?"video":"phone",16,canCall(v))}</button>`;
+ const cbtn=(i,v)=>`<button onclick="chatCall(${v},${i})" class="btn out w-9 h-9 rounded-full" aria-label="${t(v?"videoCall":"voiceCall")}" title="${canCall(v)?t(v?"videoCall":"voiceCall"):t("premFeat")}">${callIc(v?"video":"phone",16,canCall(v)||isTopK(i))}</button>`;
 const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
   if(c==="active")body=locFor(f,i)+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${t("stop")}</button>`;
   else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
@@ -965,7 +966,7 @@ const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
  ${body}
  <div class="mt-3">
  <button onclick="openChat(${i})" class="btn pri w-full py-2 rounded-xl text-sm">${ic("chat",16)}${t("chat")}${f.un?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${f.un}</b>`:""}</button></div></div>`};
- $("famList").innerHTML=grp+`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
+ $("famList").innerHTML=`<p class="text-xs px-1" style="color:var(--mut)">${t("consentNote")}</p>`+(S.fam.length?S.fam.map(card).join(""):emptyBox(t("emptyFam")));
 }
 
 /* ---------- calls: WebRTC media engine + Agora SDK stub ---------- */
@@ -1030,9 +1031,9 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
   if(cc)cc.innerHTML="";return}
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38,f.img);
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${consentOf(f)==="active"&&f.lat!=null?t("vlive")+": "+esc(f.city||f.addr):t("notSharing")}</span>${trustBadge(memberTrust(f),f.key)}`;
- if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
+ if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false)||isTopK(chatK))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true)||isTopK(chatK))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
-function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
+function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)&&!isTopK(k)){openPlans(t("premFeat"));return}startCall(k,video)}
 function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
@@ -1061,9 +1062,16 @@ function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!m.url)
  audioPlayer.onpause=()=>renderMsgs();
  audioPlayer.onended=()=>{audioIdx=null;renderMsgs()};
  audioPlayer.play().catch(()=>toast(t("audioErr")));renderMsgs()}
+const TK1='<svg width="13" height="9" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/></svg>';
+const TK2='<svg width="17" height="9" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/><path d="M6 8.5l2 0 6-7"/></svg>';
+function msgTime(ts){if(!ts)return "";return new Date(ts).toLocaleTimeString(LOC[S.lang]||undefined,{hour:"numeric",minute:"2-digit"})}
+function tickHTML(m){if(m.read)return `<span class="inline-flex ms-1" style="color:#7DD3FC">${TK2}</span>`;if(m.id)return `<span class="inline-flex ms-1" style="color:rgba(255,255,255,.8)">${TK2}</span>`;return `<span class="inline-flex ms-1" style="color:rgba(255,255,255,.8)">${TK1}</span>`}
+// Pulls "is_read" for our own sent messages so the blue double tick appears when the other person has seen them
+function syncReceipts(){if(!sb||!S.user.uid)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
+ sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
 function renderMsgs(){const L=S.chats[chatK]||[];
  $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?voiceCard(m,i):esc(m.t);
-  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");
+  return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}<span class="flex items-center justify-end gap-0.5 mt-0.5 text-[10px] leading-none" style="opacity:.8">${msgTime(m.ts)}${m.me?tickHTML(m):""}</span></span></div></div>`}).join("");
  $("msgs").scrollTop=1e5;saveUserData()}
 // Optional columns: removed from an insert automatically if the messages table does not have them.
 const OPTIONAL_COLS=["audience","sender_name","is_read","voice_url","voice_dur"];
@@ -1119,7 +1127,7 @@ function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  const to=k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
  if(!to.length){toast(t("noContactsChat"));return}
- const msg=Object.assign({me:true,from:S.user.name,pending:true},m);
+ const msg=Object.assign({me:true,from:S.user.name,pending:true,ts:new Date().toISOString()},m);
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
  sendToRecipients({msg,k,to,m})}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";push({t:v})}
@@ -1132,12 +1140,12 @@ function voiceLeft(){if(S.plan!=="free")return Infinity;return Math.max(0,VOICE_
 function voiceUse(){if(S.plan!=="free")return;store.set(voiceKey(),store.get(voiceKey(),0)+1)}
 /* voice notes (real MediaRecorder when mic is allowed, simulated otherwise) */
 let rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
-function refreshVoiceBtn(){const b=$("voiceBtn");if(!b)return;const locked=voiceLeft()<=0;b.innerHTML=ic(locked?"lock":"mic",18);b.style.opacity=locked?".6":"";b.title=locked?t("voiceLimit"):"";b.setAttribute("aria-label",locked?t("voiceLimit"):"Voice note")}
+function refreshVoiceBtn(){const b=$("voiceBtn");if(!b)return;const locked=voiceLeft()<=0&&!isTopK(chatK);b.innerHTML=ic(locked?"lock":"mic",18);b.style.opacity=locked?".6":"";b.title=locked?t("voiceLimit"):"";b.setAttribute("aria-label",locked?t("voiceLimit"):"Voice note")}
 function micErrMsg(e){const n=String((e&&e.name)||"");
  if(n==="NotAllowedError"||n==="SecurityError")return t("micDenied");
  if(n==="NotFoundError"||n==="OverconstrainedError")return t("micNone");
  return t("micNo")}
-async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));refreshVoiceBtn();return}
+async function recStart(){if(rec.on)return;if(voiceLeft()<=0&&!isTopK(chatK)){openPlans(t("voiceLimit"));refreshVoiceBtn();return}
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){toast(t("micSecure"));return}
  let stream;
  try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){toast(micErrMsg(e));return}
@@ -1149,7 +1157,7 @@ async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voice
  const cur={on:true,mr:mr,stream:stream,chunks:[],sec:0,timer:null};
  mr.ondataavailable=e=>{if(e.data&&e.data.size)cur.chunks.push(e.data)};
  try{mr.start(250)}catch(e){stream.getTracks().forEach(x=>x.stop());toast(t("micUnsupported"));return}
- rec=cur;voiceUse();refreshVoiceBtn();
+ rec=cur;if(!isTopK(chatK))voiceUse();refreshVoiceBtn();
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000)}
 function blobToDataURL(blob){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(blob)})}
@@ -1487,7 +1495,7 @@ async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&i
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
- return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true},r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
 let lastMsgTs=null;
 function readMap(){return store.get("lifeone.read."+S.user.uid,{})}
 function lastTsOf(key){const idx=S.fam.findIndex(f=>f.key===key);const L=idx>=0?(S.chats[idx]||[]):[];let best="";for(const m of L){if(m.ts&&m.ts>best)best=m.ts}return best||new Date().toISOString()}
@@ -1550,7 +1558,7 @@ function startRealtime(){updatePresence();if(!presT)presT=setInterval(updatePres
   else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
  const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
  cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
- pollT=setInterval(()=>{pollMsgs();loadLocReqs();if(++profTick%8===0)loadProfiles()},4000)}
+ pollT=setInterval(()=>{pollMsgs();loadLocReqs();syncReceipts();if(++profTick%8===0)loadProfiles()},4000)}
 window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 

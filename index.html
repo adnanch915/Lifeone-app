@@ -20,7 +20,7 @@ body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-u
 .tab-content{display:none}.tab-content.active{display:block;animation:in .25s ease}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .modal{display:none;position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.45);align-items:flex-end;justify-content:center;padding:1rem}
-.modal.on{display:flex}@media(min-width:640px){.modal{align-items:center}}
+.modal.on{display:flex;animation:fadeIn .2s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@media(min-width:640px){.modal{align-items:center}}
 .sheet{background:#fff;border:1px solid var(--line);border-radius:22px;width:100%;max-width:440px;max-height:88vh;overflow:auto;padding:1.25rem;box-shadow:0 24px 60px rgba(15,23,42,.18)}
 .tab{color:var(--mut)}.tab.on{color:var(--pri)}.tab.on .bar{opacity:1}.bar{opacity:0;height:3px;width:28px;border-radius:3px;background:var(--pri);transition:opacity .2s}
 .ping{animation:p 1.6s infinite}@keyframes p{0%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}100%{box-shadow:0 0 0 8px rgba(244,63,94,0)}}
@@ -113,6 +113,7 @@ html.dark #cnt,html.dark #ringSub{color:#E5E7EB!important}
 html.dark .font-mono{color:#E2E8F0}
 html.dark [style*="#F0FDF4"]{background:rgba(16,185,129,.12)!important;border-color:#14532D!important}
 html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
+#aiFab{transition:transform .2s}#aiFab:active{transform:scale(.92)}
 </style>
 </head>
 <body class="unauth">
@@ -144,7 +145,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   <div class="rounded-2xl p-5" style="background:linear-gradient(135deg,#F5F3FF 0%,#FFFFFF 70%);border:1px solid #DDD6FE">
    <div class="flex items-start justify-between gap-3">
     <div class="flex items-center gap-3 min-w-0"><div class="av"></div>
-     <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1></div></div>
+     <div class="min-w-0"><p class="text-xs" style="color:var(--mut)" id="today"></p><h1 class="text-lg font-bold leading-snug" id="greet"></h1><p id="greetUser" class="text-xs font-semibold" style="color:var(--pri)"></p></div></div>
     <span class="px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 shrink-0"><span data-ic="flame" data-s="13"></span><b id="streak">0</b><span data-i18n="streak"></span></span>
    </div>
    <p class="text-sm mt-1.5" style="color:var(--mut)" data-i18n="tag"></p>
@@ -154,19 +155,6 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   </div>
 
   <div id="locSetting" class="card p-4"></div>
-  <div class="rounded-2xl p-4 bg-white" style="border:1px solid #DDD6FE;box-shadow:0 12px 32px -14px rgba(124,58,237,.28)">
-   <div class="flex items-center justify-between gap-2 mb-2">
-    <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg pri flex items-center justify-center" data-ic="sparkle" data-s="15"></span><b class="text-sm" data-i18n="cpTitle"></b></div>
-    <span id="cpUsage" class="text-[11px]" style="color:var(--mut)"></span>
-   </div>
-   <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)">
-    <input id="cpIn" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="cpPh">
-    <button id="cpMic" onclick="cpVoice()" class="btn out w-8 h-8 rounded-lg shrink-0" aria-label="Voice input"></button>
-    <button onclick="cpRun()" class="btn pri w-8 h-8 rounded-lg shrink-0" aria-label="Ask" data-ic="send" data-s="15"></button>
-   </div>
-   <div id="cpChips" class="flex flex-wrap gap-1.5 mt-2.5"></div>
-   <div id="cpOut" class="hidden mt-3"></div>
-  </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
    <div class="card p-5 flex items-center gap-4">
@@ -246,6 +234,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
    <div class="flex items-center gap-4"><div class="av big cursor-pointer" role="button" tabindex="0" title="Change photo" onclick="$('file').click()"></div>
     <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
+   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
    <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
    <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
@@ -261,6 +250,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  </section>
 </main>
 
+<button id="aiFab" onclick="openAI()" class="fixed end-4 bottom-24 z-40 w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white" style="background:linear-gradient(135deg,#7C3AED,#22D3EE)" aria-label="AI Copilot" title="AI Copilot"><span data-ic="sparkle" data-s="24"></span></button>
 <nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)">
  <div class="max-w-3xl mx-auto grid grid-cols-5" id="tabs"></div>
 </nav>
@@ -453,6 +443,22 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-member" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh"></div></div>
  <div id="msRes" class="flex-1 overflow-y-auto px-5 pb-5" style="min-height:10rem"></div>
 </div></div>
+<div id="mAI" class="modal" style="z-index:70"><div class="sheet" style="max-width:520px;padding:.75rem">
+<div class="flex justify-end mb-1"><button type="button" onclick="closeM('mAI')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
+  <div class="rounded-2xl p-4 bg-white" style="border:1px solid #DDD6FE;box-shadow:0 12px 32px -14px rgba(124,58,237,.28)">
+   <div class="flex items-center justify-between gap-2 mb-2">
+    <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg pri flex items-center justify-center" data-ic="sparkle" data-s="15"></span><b class="text-sm" data-i18n="cpTitle"></b></div>
+    <span id="cpUsage" class="text-[11px]" style="color:var(--mut)"></span>
+   </div>
+   <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)">
+    <input id="cpIn" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="cpPh">
+    <button id="cpMic" onclick="cpVoice()" class="btn out w-8 h-8 rounded-lg shrink-0" aria-label="Voice input"></button>
+    <button onclick="cpRun()" class="btn pri w-8 h-8 rounded-lg shrink-0" aria-label="Ask" data-ic="send" data-s="15"></button>
+   </div>
+   <div id="cpChips" class="flex flex-wrap gap-1.5 mt-2.5"></div>
+   <div id="cpOut" class="hidden mt-3"></div>
+  </div>
+</div></div>
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -520,20 +526,18 @@ const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:"
 const memberTrust=f=>f.trust!=null?f.trust:0;
 const TB_CLS={rose:"bg-rose-50 text-rose-700 border-rose-200",amber:"bg-amber-50 text-amber-700 border-amber-200",emerald:"bg-emerald-50 text-emerald-700 border-emerald-200"};
 const trustBandC=s=>s>=85?"emerald":s>=60?"amber":"rose";
-const trustBadge=(s,key)=>`<button type="button" onclick="openTrust('${key||"me"}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border cursor-pointer ${TB_CLS[trustBandC(s)]}">${ic("shield",14)}${s}%</button>`;
+const trustBadge=(s,key)=>`<button type="button" onclick="openTrust('${key||"me"}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border cursor-pointer ${s>0?TB_CLS[trustBandC(s)]:"bg-slate-50 text-slate-600 border-slate-200"}">${ic("shield",14)}Trust Score: ${s}%</button>`;
 const geoOK=()=>S.geo.st==="ok";
-const myTrust=()=>Math.min(100,70+(/^\S+@\S+\.\S+$/.test(S.user.email)?8:0)+(geoOK()?12:0)+(S.user.img?4:0)+(S.pwChanged?3:0)+(S.pro?3:0)+((S.streak||0)>=3?2:0)+store.get("lifeone.bonus."+(S.user.uid||""),0));
+const myTrust=()=>Math.max(0,Math.min(100,Number(S.user.points)||0));
 const cs=(a,b)=>`${Math.abs(a).toFixed(4)}° ${a>=0?"N":"S"}, ${Math.abs(b).toFixed(4)}° ${b>=0?"E":"W"}`;
 function fillCoords(){document.querySelectorAll("[data-coord]").forEach(e=>{const k=e.dataset.coord,o=k==="u"?S.user:S.fam[k];if(o)e.textContent=o.lat==null?"—":cs(o.lat,o.lng)})}
 const locBlock=(o,key)=>{const on=o.on!==false;return `<div class="rounded-xl p-3 mt-3 border ${on?"bg-emerald-50 border-emerald-200":"bg-slate-50 border-slate-200"}">
 <div class="flex items-center gap-2 font-semibold text-sm ${on?"text-emerald-700":"text-slate-600"}"><span class="${on?"gp":""} inline-flex rounded-full shrink-0">${ic("pin",18)}</span><span class="truncate">${o.lbl?"":t(on?"vlive":"lastSeen")+": "}${esc(o.addr)}</span></div>
 <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2 text-xs" style="color:var(--mut)"><span class="font-mono" data-coord="${key}"></span>${o.acc!=null?`<span>±${Math.round(o.acc)} m</span>`:""}${o.b==null?"":`<span class="inline-flex items-center gap-1">${ic("battery",14)}${o.b}%<i class="inline-block w-8 h-1.5 rounded bg-slate-200 overflow-hidden"><i class="block h-full ${o.b<40?"bg-rose-500":"bg-emerald-500"}" style="width:${o.b}%"></i></i></span>`}${trustBadge(o.ts)}</div></div>`};
-function trustInner(){const s=myTrust(),C=2*Math.PI*30,ok=s>=90,em=/^\S+@\S+\.\S+$/.test(S.user.email);
- const ch=[["cGps",1],["cEmail",em],["cLoc",geoOK()],["cPhoto",!!S.user.img],["cPw",S.pwChanged],["cPro",S.pro]];
- return `<div class="flex items-center gap-4"><svg width="76" height="76" viewBox="0 0 76 76" class="shrink-0"><circle cx="38" cy="38" r="30" fill="none" stroke="#E2E8F0" stroke-width="7"/><circle cx="38" cy="38" r="30" fill="none" stroke="${ok?"#10B981":"#F59E0B"}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*s/100} ${C}" transform="rotate(-90 38 38)"/><text x="38" y="44" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">${s}</text></svg>
- <div class="min-w-0"><h2 class="font-semibold">${t("tc")}</h2><p class="text-sm" style="color:var(--mut)">${t("trustTip")}</p></div></div>
+function trustInner(){const s=myTrust(),C=2*Math.PI*30;
+ return `<div class="flex items-center gap-4"><svg width="76" height="76" viewBox="0 0 76 76" class="shrink-0"><circle cx="38" cy="38" r="30" fill="none" stroke="#E2E8F0" stroke-width="7"/><circle cx="38" cy="38" r="30" fill="none" stroke="${s>=85?"#10B981":"#F59E0B"}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*s/100} ${C}" transform="rotate(-90 38 38)"/><text x="38" y="44" text-anchor="middle" font-size="20" font-weight="700" fill="#0F172A">${s}%</text></svg>
+ <div class="min-w-0"><h2 class="font-semibold">Trust Score: ${s}%</h2><p class="text-sm" style="color:var(--mut)">${t("trustTip")}</p></div></div>
  ${locBlock({addr:geoPlace(),lbl:!geoOK(),b:S.user.b,acc:S.geo.acc,ts:s,on:geoOK()},"u")}${geoOK()?"":`<button onclick="startGeo(true)" class="btn pri rounded-xl px-4 py-2 text-sm mt-3">${ic("pin",16)}${t("detect")}</button>`}
- <ul class="grid sm:grid-cols-2 gap-2 mt-3 text-sm">${ch.map(([k,v])=>`<li ${v?"":`onclick="go('profile')"`} class="flex items-center gap-2 ${v?"":"cursor-pointer"}"><span class="${v?"text-emerald-600":"text-slate-400"}">${ic(v?"check":"x",16)}</span><span class="${v?"":"text-slate-500"}">${t(k)}</span></li>`).join("")}</ul>
  <p class="text-xs mt-3" style="color:var(--mut)">${S.fam.filter(f=>f.on).length} / ${S.fam.length} ${t("memLive")}</p>`}
 const coordsText=()=>S.user.lat==null?"":S.user.lat.toFixed(3)+", "+S.user.lng.toFixed(3);
 function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();
@@ -543,20 +547,19 @@ function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();
  else if(st==="loading")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-slate-50 text-slate-600 border border-slate-200 inline-flex items-center gap-2"><span class="spin inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600"></span>${t("locating")}</span>`;
  else pill=`<button onclick="startGeo(true)" class="btn px-3 py-1.5 rounded-full text-sm bg-amber-50 text-amber-700 border border-amber-200">${ic("pin",16)}${st==="denied"?t("locDenied"):st==="na"?t("locNA"):t("locAsk")}</button>`;
  saveTrust(myTrust());el.innerHTML=pill+trustBadge(myTrust(),"me")}
-let lastTrust=null;
-function saveTrust(s){if(!sb||!S.user.uid||s===lastTrust)return;lastTrust=s;sb.from("profiles").update({trust_score:s}).eq("id",S.user.uid).then(r=>{if(r&&r.error)console.warn("trust save:",r.error.message)},()=>{})}
-function trustParts(){return [["Base account",70,true],["Verified email",8,/^\S+@\S+\.\S+$/.test(S.user.email)],["Location confirmed",12,geoOK()],["Profile photo",4,!!S.user.img],["Password strengthened",3,!!S.pwChanged],["Executive Pro",3,!!S.pro],["Daily streak (3+ days)",2,(S.streak||0)>=3]]}
+// Trust Score is points (0-100). Points are written only by server functions (award_daily_trust, sync_my_plan), never by the browser.
+function saveTrust(){}
+function trustParts(){return [["3+ hours online with live sharing on (once per day)",2,!!onlineDay.sent],["Pro plan",20,S.plan==="pro"||S.plan==="plus"],["Pro Plus plan",50,S.plan==="plus"]]}
 function openTrust(key){const isMe=key==="me";const f=isMe?null:S.fam.find(x=>x.key===key);
- const score=isMe?myTrust():(f?memberTrust(f):70);
- $("trustTitle").textContent=(isMe?"Your trust score":(f?f.n:"Trust score"))+": "+score;
+ const score=isMe?myTrust():(f?memberTrust(f):0);
+ $("trustTitle").textContent="Trust Score: "+score+"%";
  let body;
  if(isMe){body=trustParts().map(([l,p,ok])=>`<div class="flex items-center justify-between gap-3 py-1.5 border-b" style="border-color:var(--line)"><span>${l}</span><span class="font-semibold ${ok?"text-emerald-600":"text-slate-400"}">${ok?"+"+p:"0"}</span></div>`).join("")
-  +`<p class="text-xs pt-2" style="color:var(--mut)">Score is capped at 100. It updates automatically from your activity and is saved to your profile.</p>`}
- else{body=`<p style="color:var(--mut)">Trust is calculated from this member's verified profile, live location sharing and daily activity. Their breakdown stays private.</p>`}
+  +`<p class="text-xs pt-2" style="color:var(--mut)">Trust Score is points-based and capped at 100%. Points come only from the daily 3-hour rule and paid plans.</p>`}
+ else{body=`<p style="color:var(--mut)">Trust Score: ${score}%. Based on this member's daily live-sharing activity and plan. Their breakdown stays private.</p>`}
  $("trustBody").innerHTML=body;openM("mTrust")}
 function renderStrip(){if(!$("strip"))return;$("strip").innerHTML=`<div class="max-w-3xl mx-auto px-4 py-1.5 flex items-center gap-2 text-xs"><span class="gp w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-emerald-700 font-semibold shrink-0">${t("vlive")}</span><span class="truncate" style="color:var(--mut)">${esc(S.user.loc)} · <span class="font-mono" data-coord="u"></span></span><span class="ms-auto shrink-0">${trustBadge(myTrust())}</span></div>`}
 function refreshTrust(){renderTrust();renderStrip();fillCoords()}
-setInterval(()=>{S.fam.filter(f=>f.on&&consentOf(f)==="active").forEach(o=>{o.lat+=(Math.random()-.5)*.0004;o.lng+=(Math.random()-.5)*.0004});fillCoords()},4000);
 function hydrateIcons(){document.querySelectorAll("[data-ic]").forEach(e=>{e.innerHTML=ic(e.dataset.ic,+e.dataset.s||20)})}
 function toast(m){const e=$("toast");e.textContent=m;e.classList.remove("hidden");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.add("hidden"),2200)}
 function openM(id){$(id).classList.add("on");if(id==="mTask")setTimeout(()=>$("tTitle").focus(),50);if(id==="mOut"){$("outT").dataset.i18n="logoutQ";$("outT").textContent=t("logoutQ");$("outBtns").classList.remove("hidden");$("inBtn").classList.add("hidden")}}
@@ -568,7 +571,7 @@ const avHTML=(n,sz,img)=>{const fb=`<div class="rounded-full text-white flex ite
  if(!img)return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}</div>`;
  return `<div style="position:relative;width:${sz}px;height:${sz}px;aspect-ratio:1/1;border-radius:50%;flex-shrink:0;overflow:hidden">${fb}<img src="${esc(img)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"></div>`};
 function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHTML(S.user.name,e.classList.contains("big")?72:52,S.user.img));
- $("greet").textContent=S.user.name||""}
+ $("greet").textContent=S.user.name||"";if($("greetUser"))$("greetUser").textContent=S.user.username?"@"+S.user.username:""}
 
 /* language */
 function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
@@ -584,7 +587,7 @@ function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=
  $("tabs").innerHTML=["home","tasks","money","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
  <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");return ["home","tasks","money","family","profile"].includes(v)?v:"home"}catch(e){return "home"}}
-function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};{const fb=$("fabAdd");if(fb)fb.style.display=v==="family"?"":"none"};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
+function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};{const fb=$("fabAdd");if(fb)fb.style.display=v==="family"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="home"?"":"none"};document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -758,8 +761,8 @@ const CPQ=[["chip1","Optimize my schedule"],["chip2","Budget sanity check"],["ch
 function cpDayRead(){const d=new Date().toDateString();let v=store.get("lifeone.cpday",null);if(!v||v.d!==d)v={d,n:0};S.cpDay=v;return v}
 function cpLeft(){const v=cpDayRead();const lim=pl().cp;return lim===Infinity?Infinity:Math.max(0,lim-v.n)}
 function renderCpUsage(){const l=cpLeft();$("cpUsage").textContent=l===Infinity?t("cpUnl"):t("cpLeft").replace("{n}",l);
- const m=$("cpMic");if(m){m.innerHTML=ic(S.plan==="plus"?"mic":"lock",15);m.setAttribute("aria-label",t("cpListen"))}}
-function cpChips(){const extra=S.plan!=="free"?[["aiMissing","missing tasks"],["aiPay","payment count"],["aiSupport","quick support"]]:[];
+ const m=$("cpMic");if(m){m.innerHTML=ic("mic",15);m.setAttribute("aria-label",t("cpListen"))}}
+function cpChips(){const extra=(S.plan!=="free"||true)?[["aiMissing","missing tasks"],["aiPay","payment count"],["aiSupport","quick support"]]:[];
  $("cpChips").innerHTML=CPQ.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("")
   +extra.map(([k,c])=>`<button class="btn out rounded-full px-2.5 py-1 text-[11px]" onclick="cpRun('${c}')">${t(k)}</button>`).join("");renderCpUsage()}
 function cpCard(c){const o=$("cpOut");
@@ -794,7 +797,9 @@ function cpRun(q){const inp=$("cpIn");q=(q||inp.value).trim();if(!q)return;inp.v
  if(/support|helpline|issue|problem|complaint/.test(l)){
   cpCard({icon:"shield",title:t("aiSupT"),body:S.plan==="plus"?t("aiSupPlus"):t("aiSupPro")});return}
  cpCard({icon:"sparkle",title:t("cpHelpT"),body:t("cpHelp")})}
-function cpVoice(){if(S.plan!=="plus"){cpCard({icon:"lock",title:t("cpVoiceNo"),body:t("lAI"),act:"plus",label:t("planT")});return}
+function openAI(){openM("mAI");renderCpUsage();setTimeout(()=>{const i=$("cpIn");if(i)i.focus()},80)}
+// AI Copilot voice input is free for everyone. Free users are limited only by the 30 daily text queries.
+function cpVoice(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast(t("cpVoiceNo"));return}
  const r=new SR();r.lang=LOC[S.lang]||"en-US";r.interimResults=false;r.maxAlternatives=1;
  r.onresult=e=>{const tx=e.results[0][0].transcript;$("cpIn").value=tx;cpRun(tx)};r.onerror=()=>toast(t("cpVoiceNo"));
@@ -883,7 +888,7 @@ let lastRemoteQ="",rsT=null;
 // supabase.from("profiles").select("*").ilike("username", `%${term}%`).neq("id", currentUserId)
 async function remoteSearch(term){if(!sb||!term)return;
  const esc2=term.replace(/[\\%_]/g,m=>"\\"+m);
- const {data,error}=await sb.from("profiles").select("*").or(`username.ilike.%${esc2}%,full_name.ilike.%${esc2}%`).neq("id",S.user.uid||"00000000-0000-0000-0000-000000000000");
+ const {data,error}=await sb.from("profiles").select(PROF_COLS).or(`username.ilike.%${esc2}%,full_name.ilike.%${esc2}%`).neq("id",S.user.uid||"00000000-0000-0000-0000-000000000000");
  if(error||!data)return;data.forEach(r=>PROF.set(r.id,r));
  try{famSearch();renderMemberSearch()}catch(e){}}
 function scheduleRemote(raw){if(!raw||raw===lastRemoteQ)return;lastRemoteQ=raw;clearTimeout(rsT);rsT=setTimeout(()=>remoteSearch(raw),250)}
@@ -957,14 +962,14 @@ function batBar(f){if(f.bat==null)return "";const c=f.bat>=50?"#10B981":f.bat>=2
 function geoFmt(f){const la=f.lat,ln=f.lng;return `${Math.abs(la).toFixed(4)}° ${la>=0?"N":"S"}, ${Math.abs(ln).toFixed(4)}° ${ln>=0?"E":"W"}`}
 function activeBox(f,i){const live=f.lat!=null;
  const box=live?`<div class="mt-3 rounded-2xl border p-3" style="background:#F0FDF4;border-color:#BBF7D0"><p class="font-semibold text-emerald-700 text-sm inline-flex items-center gap-1.5">${ic("pin",16)}${t("vlive")}: ${esc(f.city||f.addr||"")}</p><div class="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2 text-sm" style="color:#334155"><span class="font-mono">${geoFmt(f)}</span>${batBar(f)}</div></div>`:`<p class="text-sm mt-3" style="color:var(--mut)">${t("notSharing")}</p>`;
- return box+`<div class="mt-2">${trustBadge(memberTrust(f),f.key)}</div><button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-sm mt-2">${t("stop")}</button>`}
+ return box+`<button onclick="cAct(${i},'stop')" class="btn out rounded-xl px-3 py-1.5 text-sm mt-2">${t("stop")}</button>`}
 const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
   if(c==="active")body=activeBox(f,i);
   else if(c==="active")body=`<p class="text-xs mt-3 inline-flex items-center gap-1" style="color:var(--mut)">${ic("lock",14)}${t("pausedBy")}</p>`;
   else if(c==="in")body=`<p class="text-sm mt-3">${t("wantsLoc").replace("{n}",n)}</p><div class="grid grid-cols-2 gap-2 mt-2"><button onclick="cAct(${i},'acc')" class="btn pri py-2 rounded-xl text-sm">${t("accept")}</button><button onclick="cAct(${i},'dec')" class="btn out py-2 rounded-xl text-sm">${t("decline")}</button></div>`;
   else if(c==="out")body=`<p class="text-sm mt-3" style="color:var(--mut)">${t("waitThem").replace("{n}",n)}</p><div class="flex flex-wrap gap-2 mt-2"><button onclick="cAct(${i},'cancel')" class="btn out rounded-xl px-3 py-1.5 text-xs">${t("cancel")}</button>${sb?"":`<button onclick="cAct(${i},'demo')" class="btn rounded-xl px-3 py-1.5 text-xs" style="background:#FEF3C7;color:#92400E">${t("demoAcc")}</button>`}</div>`;
   else body=`<button onclick="cAct(${i},'req')" class="btn pri rounded-xl px-4 py-2 text-sm mt-3 w-full">${ic("pin",16)}${t("reqLoc")}</button>`;
-  return `<div class="card p-4"><div class="flex items-center gap-3"><div class="relative shrink-0">${avHTML(f.n,60,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><b class="block truncate text-base">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span></div></div>
+  return `<div class="card p-4"><div class="flex items-center gap-3"><div class="relative shrink-0">${avHTML(f.n,60,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><b class="block truncate text-base">${esc(f.n)}</b><span class="text-sm" style="color:var(--mut)">${esc(f.rel)}</span><div class="mt-1">${trustBadge(memberTrust(f),f.key)}</div></div></div>
  ${body}
  <div class="grid grid-cols-3 gap-2 mt-3">
   <button onclick="chatCall(false,${i})" class="btn out rounded-xl py-2.5 text-sm inline-flex items-center justify-center gap-1.5">${callIc("phone",16,canCall(false))}<span>Call</span></button>
@@ -1197,7 +1202,7 @@ async function uploadAvatar(dataUrl){
   if(ue){console.warn("avatar upload:",ue.message);syncProfile();return}
   const url=sb.storage.from("Profiles").getPublicUrl(path).data.publicUrl+"?v="+Date.now();
   S.user.img=url;renderAv();saveUserData();
-  const {data,error}=await sb.from("profiles").update({avatar_url:url}).eq("id",S.user.uid).select();
+  const {data,error}=await sb.from("profiles").update({avatar_url:url}).eq("id",S.user.uid).select("id");
   if(error){console.warn("avatar save:",error.message);return}
   if(!data||!data.length){syncProfile();return}
   try{sb.auth.updateUser({data:{avatar_url:url}}).catch(()=>{})}catch(e){}
@@ -1250,7 +1255,7 @@ function freshState(name){dataReady=false;
  S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:true}];S.chats={g:[]};S.gun=0;S.streak=0;
  S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];
  S.shareOn=false;S.plan="free";S.pro=false;S.busyPlan=null;S.cpDay={d:"",n:0};S.mask=false;S.filter="all";S.pwChanged=false;
- S.user.name=name||"";S.user.email="";S.user.img=null;
+ S.user.points=0;S.user.name=name||"";S.user.email="";S.user.img=null;
  FIN.inf=0;FIN.cats=[];TX=[];
 }
 function loadDemo(){const d=clone(DEMO);S.tasks=d.tasks;S.fam=d.fam.map(f=>Object.assign({},f,{un:0}));S.notifs=d.notifs.map(n=>Object.assign({},n,{r:true}));S.chats={g:[]};S.habits=d.habits;S.gun=0;S.streak=8;FIN.inf=d.inf;FIN.cats=d.cats;TX=d.tx;TX.forEach((x,i)=>{if(!x.ts)x.ts=Date.now()-(i+1)*864e5});renderAll();toast(t("demoOn"))}
@@ -1263,6 +1268,7 @@ let authMode="signup",geoStarted=false,enteringId=null,featIdx=0,featTimer=null;
 
 /* ---------- Supabase: client, sign-up / log-in, profile sync ---------- */
 // The publishable key is designed for browsers. Security comes from Row Level Security on every table.
+const PROF_COLS="id,full_name,username,email,phone,avatar_url,provider,trust_score,last_seen,battery";
 const SUPABASE={url:"https://spwrqlmtggdgzstarbuf.supabase.co",anonKey:"sb_publishable_puED1MTfUQ6DP7E9fklOHw_Vpnjb7EP"};
 let sb=null;
 try{if(window.supabase&&window.supabase.createClient)sb=window.supabase.createClient(SUPABASE.url,SUPABASE.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})}catch(e){sb=null}
@@ -1462,7 +1468,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
-function loadRemoteTx(){askNotifPerm();loadUserData();S.fam.forEach(f=>{f.me=false;f.them=false;f.lat=null;f.lng=null;f.un=0});if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages).then(loadLocReqs);startRealtime()}
+function loadRemoteTx(){askNotifPerm();loadUserData();S.fam.forEach(f=>{f.me=false;f.them=false;f.lat=null;f.lng=null;f.un=0});if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();syncPlanAndPoints();loadProfiles().then(loadMessages).then(loadLocReqs);startRealtime()}
 function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
 async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
@@ -1482,9 +1488,15 @@ function authBoot(){
 
 /* ---------- Supabase data: profiles + messages (live) ---------- */
 async function loadProfiles(){if(!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score,last_seen,battery").limit(1000);
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,provider,trust_score,last_seen,battery").limit(1000);
  (data||[]).forEach(r=>{PROF.set(r.id,r);applyProfLoc(r)});
  try{famSearch();renderMemberSearch()}catch(e){}}
+// Reads plan and points from the server (points are only ever granted by database functions)
+async function syncPlanAndPoints(){if(!sb||!S.user.uid)return;
+ try{const {data,error}=await sb.rpc("sync_my_plan");
+  if(error||!data){console.warn("plan sync:",error&&error.message);return}
+  S.plan=["pro","plus"].includes(data.plan)?data.plan:"free";S.pro=S.plan!=="free";
+  S.user.points=Number(data.points)||0;renderAll()}catch(e){}}
 async function loadMyProfile(){if(!sb||!S.user.uid)return;
  const {data}=await DB.getProfile(S.user.uid);if(!data)return;
  if(data.full_name)S.user.name=data.full_name;if(data.username)S.user.username=data.username;if(data.phone)S.user.phone=data.phone;
@@ -1495,7 +1507,7 @@ function syncProfile(){if(!sb||!S.user.uid)return;
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
  S.fam.push({key:u.id,img:u.avatar||"",n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
- const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,latitude,longitude,formatted_address,trust_score,last_seen,battery").in("id",need);
+ const {data}=await sb.from("profiles").select("id,full_name,username,email,phone,avatar_url,provider,trust_score,last_seen,battery").in("id",need);
  (data||[]).forEach(r=>{PROF.set(r.id,r);addContact(profUser(r));applyProfLoc(r)})}
 function chatKeyOf(r){if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
@@ -1542,7 +1554,7 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=Stri
  else if(isIncomingMsg(r)){if(k==="g")S.gun=1;else if(r.receiver_id===me)S.fam[k].un++}
  renderTabs();renderFam();saveUserData()}
 function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
- if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
+ if(r.id===S.user.uid&&r.trust_score!=null)S.user.points=r.trust_score;if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
  S.fam.forEach(f=>{if(f.key===r.id&&r.full_name)f.n=r.full_name});
  try{renderFam();famSearch();renderMemberSearch()}catch(e){}if($("mChat").classList.contains("on")&&chatK!=="g")openChatHead()}
 let rtMsg=null,rtProf=null,rtJoined=false,rtRetry=0,rtT=null,pollT=null;
@@ -1554,10 +1566,19 @@ function stopRealtime(){clearTimeout(rtT);clearInterval(pollT);pollT=null;const 
  a.forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}})}
 function scheduleRt(){clearTimeout(rtT);if(!S.authed)return;rtRetry=Math.min(rtRetry+1,6);rtT=setTimeout(startRealtime,Math.min(30000,1000*2**rtRetry))}
 let profTick=0,presT=null,onT=null;
-function tickOnline(){if(!S.user.uid||!S.shareOn||S.geo.st!=="ok")return;
- const day=new Date().toDateString(),k="lifeone.online."+S.user.uid+"."+day,aw=k+".awarded";
- const sec=store.get(k,0)+60;store.set(k,sec);
- if(sec>=10800&&!store.get(aw,false)){store.set(aw,true);store.set("lifeone.bonus."+S.user.uid,store.get("lifeone.bonus."+S.user.uid,0)+5);saveTrust(myTrust());renderTrust()}}
+let onlineDay={d:"",s:0,last:0,sent:false};
+function tickOnline(){
+ const live=!!S.user.uid&&S.shareOn&&S.geo.st==="ok"&&!document.hidden;
+ const now=Date.now(),d=new Date().toLocaleDateString("en-CA");
+ if(!live){onlineDay.s=0;onlineDay.last=0;return}
+ if(onlineDay.d!==d)onlineDay={d:d,s:0,last:0,sent:false};
+ if(onlineDay.last&&now-onlineDay.last>90000)onlineDay.s=0;   // a missed tick breaks the continuous run
+ onlineDay.last=now;onlineDay.s+=60;
+ syncLocation(true);
+ if(!onlineDay.sent&&onlineDay.s>=10800&&sb){onlineDay.sent=true;
+  sb.rpc("award_daily_trust",{p_day:d,p_seconds:onlineDay.s}).then(({data,error})=>{
+   if(error){onlineDay.sent=false;console.warn("daily trust:",error.message);return}
+   if(data!=null){S.user.points=Number(data)||0;renderTrust()}})}}
 function watchBattery(){if(!navigator.getBattery||S.bwatch)return;S.bwatch=true;navigator.getBattery().then(b=>{const u=()=>{S.user.bat=Math.round(b.level*100)};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 function updatePresence(){if(!sb||!S.user.uid)return;const up={last_seen:new Date().toISOString()};if(S.user.bat!=null)up.battery=S.user.bat;sb.from("profiles").update(up).eq("id",S.user.uid).then(()=>{},()=>{})}
 function startRealtime(){watchBattery();updatePresence();if(!presT)presT=setInterval(updatePresence,60000);if(!onT)onT=setInterval(tickOnline,60000);stopRealtime();if(!sb||!S.user.uid)return;
@@ -1594,7 +1615,7 @@ Object.assign(T.en,{locSetup:"Location sharing is not set up on the server yet. 
 Object.assign(T.en,{micUnsupported:"Voice recording is not supported in this browser. Try Chrome, Edge, Safari or Firefox.",micEmpty:"Nothing was recorded. Hold the mic button and try again."});
 Object.assign(T.en,{notSharing:"Not sharing live location"});
 function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting,refreshVoiceBtn].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
- $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
+ $("pName").value=S.user.name;if($("pUser"))$("pUser").value=S.user.username?"@"+S.user.username:"";$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 
 /* ---------- real GPS (navigator.geolocation) ---------- */
 const CITIES="Kahror Pakka|PK|29.6243|71.9171;Lodhran|PK|29.5393|71.6324;Multan|PK|30.1575|71.5249;Bahawalpur|PK|29.3956|71.6836;Vehari|PK|30.0453|72.3489;Lahore|PK|31.5497|74.3436;Karachi|PK|24.8607|67.0011;Islamabad|PK|33.6844|73.0479;Rawalpindi|PK|33.5651|73.0169;Faisalabad|PK|31.4504|73.1350;Peshawar|PK|34.0151|71.5249;Quetta|PK|30.1798|66.9750;Hyderabad|PK|25.3960|68.3578;Sialkot|PK|32.4945|74.5229;Gujranwala|PK|32.1877|74.1945;Sukkur|PK|27.7052|68.8574;Jhang|PK|31.2681|72.3181;Sargodha|PK|32.0740|72.6861;Mardan|PK|34.1989|72.0231;Abbottabad|PK|34.1688|73.2215;Dubai|AE|25.2048|55.2708;Abu Dhabi|AE|24.4539|54.3773;Riyadh|SA|24.7136|46.6753;Jeddah|SA|21.4858|39.1925;Doha|QA|25.2854|51.5310;Kuwait City|KW|29.3759|47.9774;Muscat|OM|23.5880|58.3829;Istanbul|TR|41.0082|28.9784;Cairo|EG|30.0444|31.2357;London|GB|51.5074|-0.1278;Manchester|GB|53.4808|-2.2426;Paris|FR|48.8566|2.3522;Berlin|DE|52.5200|13.4050;Madrid|ES|40.4168|-3.7038;Rome|IT|41.9028|12.4964;Amsterdam|NL|52.3676|4.9041;New York|US|40.7128|-74.0060;Los Angeles|US|34.0522|-118.2437;Chicago|US|41.8781|-87.6298;Houston|US|29.7604|-95.3698;San Francisco|US|37.7749|-122.4194;Toronto|CA|43.6532|-79.3832;Vancouver|CA|49.2827|-123.1207;Mexico City|MX|19.4326|-99.1332;Sao Paulo|BR|-23.5505|-46.6333;Delhi|IN|28.6139|77.2090;Mumbai|IN|19.0760|72.8777;Bengaluru|IN|12.9716|77.5946;Kolkata|IN|22.5726|88.3639;Dhaka|BD|23.8103|90.4125;Kabul|AF|34.5553|69.2075;Tehran|IR|35.6892|51.3890;Beijing|CN|39.9042|116.4074;Shanghai|CN|31.2304|121.4737;Shenzhen|CN|22.5431|114.0579;Hong Kong|HK|22.3193|114.1694;Tokyo|JP|35.6762|139.6503;Seoul|KR|37.5665|126.9780;Singapore|SG|1.3521|103.8198;Kuala Lumpur|MY|3.1390|101.6869;Bangkok|TH|13.7563|100.5018;Jakarta|ID|-6.2088|106.8456;Sydney|AU|-33.8688|151.2093;Melbourne|AU|-37.8136|144.9631;Johannesburg|ZA|-26.2041|28.0473;Lagos|NG|6.5244|3.3792;Nairobi|KE|-1.2921|36.8219;Moscow|RU|55.7558|37.6173".split(";").map(s=>{const p=s.split("|");return{n:p[0],c:p[1],la:+p[2],ln:+p[3]}});
@@ -1615,7 +1636,7 @@ async function reverse(la,ln){ /* OpenStreetMap Nominatim: street / mohallah / l
 // Saves latitude / longitude / formatted_address to profiles (cleared when sharing is off)
 async function syncLocation(force){if(!sb||!S.user.uid)return;
  const on=!!S.shareOn&&S.geo.st==="ok"&&S.user.lat!=null,now=Date.now();
- if(!force&&on&&lastSyncLL&&haversine(S.user.lat,S.user.lng,lastSyncLL[0],lastSyncLL[1])<0.02&&now-lastSyncT<60000)return;
+ if(!force&&on&&lastSyncLL&&haversine(S.user.lat,S.user.lng,lastSyncLL[0],lastSyncLL[1])<0.01&&now-lastSyncT<5000)return;
  lastSyncT=now;lastSyncLL=on?[S.user.lat,S.user.lng]:null;
  try{
   if(on){const {error:ue}=await sb.from("live_locations").upsert({owner_id:S.user.uid,latitude:S.user.lat,longitude:S.user.lng,formatted_address:S.user.addr||S.user.loc||null,updated_at:new Date().toISOString()},{onConflict:"owner_id"});if(ue)console.warn("live_locations upsert:",ue.message)}
@@ -1631,7 +1652,7 @@ function onPos(p){const acc=p.coords.accuracy||999;if(acc>60&&S.geo.st==="ok")re
  const first=S.geo.st!=="ok";S.user.lat=la;S.user.lng=ln;S.user.cc=nearestCC(la,ln);S.geo.acc=acc;S.geo.st="ok";
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}
  if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:true});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);
- if(first||!pubLL||haversine(la,ln,pubLL[0],pubLL[1])>8){pubLL=[la,ln];syncLocation()}}
+ if(first||!pubLL||haversine(la,ln,pubLL[0],pubLL[1])>0.01){pubLL=[la,ln];syncLocation()}}
 function onErr(e){S.geo.st=e&&e.code===1?"denied":"na";refreshGeoUI()}
 function startGeo(manual){
  if(manual===true){S.user.locManual=false;lastLL=null;geoHist=[];pubLL=null}
@@ -1647,7 +1668,7 @@ function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{
 /* ---------- data API: Supabase tables ---------- */
 const DB={
  upsertUser(row,opt){if(!sb)return Promise.resolve({error:{message:"offline"}});return sb.from("profiles").upsert(row,Object.assign({onConflict:"id"},opt||{}))},
- getProfile(id){if(!sb)return Promise.resolve({data:null});return sb.from("profiles").select("*").eq("id",id).maybeSingle()},
+ getProfile(id){if(!sb)return Promise.resolve({data:null});return sb.from("profiles").select(PROF_COLS).eq("id",id).maybeSingle()},
  async sendMessage(row){if(!sb)return {error:{message:"offline"}};try{return await sb.from("messages").insert(row)}catch(e){return {error:{message:String(e&&e.message||e)}}}},
  insertTx(row){return Promise.resolve({error:null})},
  loadTx(){return Promise.resolve({data:[],error:null})}

@@ -461,11 +461,14 @@ function trustInner(){const s=myTrust(),C=2*Math.PI*30,ok=s>=90,em=/^\S+@\S+\.\S
  ${locBlock({addr:geoPlace(),lbl:!geoOK(),b:S.user.b,acc:S.geo.acc,ts:s,on:geoOK()},"u")}${geoOK()?"":`<button onclick="startGeo(true)" class="btn pri rounded-xl px-4 py-2 text-sm mt-3">${ic("pin",16)}${t("detect")}</button>`}
  <ul class="grid sm:grid-cols-2 gap-2 mt-3 text-sm">${ch.map(([k,v])=>`<li ${v?"":`onclick="go('profile')"`} class="flex items-center gap-2 ${v?"":"cursor-pointer"}"><span class="${v?"text-emerald-600":"text-slate-400"}">${ic(v?"check":"x",16)}</span><span class="${v?"":"text-slate-500"}">${t(k)}</span></li>`).join("")}</ul>
  <p class="text-xs mt-3" style="color:var(--mut)">${S.fam.filter(f=>f.on).length} / ${S.fam.length} ${t("memLive")}</p>`}
-function renderTrust(){$("profTrust").innerHTML=trustInner();const st=S.geo.st;let pill;
- if(st==="ok")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 max-w-full"><span class="gp inline-flex rounded-full shrink-0">${ic("pin",16)}</span><span class="truncate">${t("vlive")} • ${esc(S.user.loc)}</span></span>`;
+const coordsText=()=>S.user.lat==null?"":S.user.lat.toFixed(3)+", "+S.user.lng.toFixed(3);
+function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();
+ const el=$("homeVer");if(!el)return;const st=S.geo.st;let pill;
+ if(!S.shareOn)pill=`<button onclick="toggleShare()" class="btn px-3 py-1.5 rounded-full text-sm bg-slate-50 text-slate-600 border border-slate-200 max-w-full">${ic("lock",16)}<span class="truncate">${t("locOff")}</span></button>`;
+ else if(st==="ok")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-2 max-w-full"><span class="gp inline-flex rounded-full shrink-0">${ic("pin",16)}</span><span class="truncate">${t("vlive")} • ${esc(S.user.loc||coordsText())}</span></span>`;
  else if(st==="loading")pill=`<span class="px-3 py-1.5 rounded-full text-sm bg-slate-50 text-slate-600 border border-slate-200 inline-flex items-center gap-2"><span class="spin inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600"></span>${t("locating")}</span>`;
  else pill=`<button onclick="startGeo(true)" class="btn px-3 py-1.5 rounded-full text-sm bg-amber-50 text-amber-700 border border-amber-200">${ic("pin",16)}${st==="denied"?t("locDenied"):st==="na"?t("locNA"):t("locAsk")}</button>`;
- $("homeVer").innerHTML=pill+trustBadge(myTrust())}
+ el.innerHTML=pill+trustBadge(myTrust())}
 function renderStrip(){if(!$("strip"))return;$("strip").innerHTML=`<div class="max-w-3xl mx-auto px-4 py-1.5 flex items-center gap-2 text-xs"><span class="gp w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-emerald-700 font-semibold shrink-0">${t("vlive")}</span><span class="truncate" style="color:var(--mut)">${esc(S.user.loc)} · <span class="font-mono" data-coord="u"></span></span><span class="ms-auto shrink-0">${trustBadge(myTrust())}</span></div>`}
 function refreshTrust(){renderTrust();renderStrip();fillCoords()}
 setInterval(()=>{S.fam.filter(f=>f.on&&consentOf(f)==="active").forEach(o=>{o.lat+=(Math.random()-.5)*.0004;o.lng+=(Math.random()-.5)*.0004});fillCoords()},4000);
@@ -802,7 +805,7 @@ function inviteWA(){const n=waNum($("invTo").value);window.open((n?`https://wa.m
 function inviteSMS(){const to=$("invTo").value.replace(/[^\d+]/g,"");location.href="sms:"+to+"?body="+encodeURIComponent($("invMsg").value)}
 async function inviteCopy(){try{await navigator.clipboard.writeText($("invMsg").value);toast(t("copied"))}catch(e){$("invMsg").select();toast(t("copyFail"))}}
 async function inviteShare(){if(navigator.share){try{await navigator.share({text:$("invMsg").value})}catch(e){}}else inviteCopy()}
-function toggleShare(){S.shareOn=!S.shareOn;syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
+function toggleShare(){S.shareOn=!S.shareOn;if(S.shareOn)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 function renderLocSetting(){const el=$("locSetting");if(!el)return;
  if(!S.authed){el.innerHTML="";return}
  const on=S.shareOn;
@@ -934,17 +937,63 @@ function renderMsgs(){const L=S.chats[chatK]||[];
  $("msgs").innerHTML=L.map((m,i)=>{const body=m.v?voiceCard(m,i):esc(m.t);
   return `<div class="flex ${m.me?"justify-end":""}"><div class="max-w-[80%]">${!m.me&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1" style="color:var(--mut)">${esc(m.from)}</p>`:""}<span class="block px-3 py-2 rounded-2xl text-sm ${m.me?"pri":"bg-slate-100"}">${body}</span></div></div>`}).join("");
  $("msgs").scrollTop=1e5;saveUserData()}
+// Optional columns: removed from an insert automatically if the messages table does not have them.
+const OPTIONAL_COLS=["audience","sender_name","is_read","voice_url","voice_dur"];
+const MISSING=new Set();
+// Reads the column name from a PostgREST / Postgres "column does not exist" message
+function missingCol(e){const msg=String((e&&e.message)||"");
+ const m=msg.match(/['"]([a-z_]+)['"]\s*column/i)||msg.match(/column\s+(?:[a-z_]+\.)?['"]?([a-z_]+)['"]?/i);
+ return m?m[1].toLowerCase():null}
+const msgFilter=me=>`sender_id.eq.${me},receiver_id.eq.${me}`+(MISSING.has("audience")?"":`,audience.cs.{${me}}`);
+// Reads the message history; if a column is missing it is recorded and the query is retried without it
+async function fetchMsgs(me,after){
+ const run=()=>{let q=sb.from("messages").select("*").or(msgFilter(me));if(after)q=q.gt("created_at",after);
+  return q.order("created_at",{ascending:true}).limit(after?100:500)};
+ let r=await run();
+ const c=r.error&&missingCol(r.error);
+ if(c&&OPTIONAL_COLS.includes(c)&&!MISSING.has(c)){MISSING.add(c);r=await run()}
+ return r}
+// Inserts one message row; drops optional columns the table does not have
+async function insertRow(row){
+ if(row.voice_url!==undefined&&MISSING.has("voice_url"))return {error:{code:"VOICE",message:"voice columns missing"}};
+ let r=Object.assign({},row);
+ for(let n=0;n<OPTIONAL_COLS.length+2;n++){
+  const res=await DB.sendMessage(r);const e=res&&res.error;
+  if(!e)return res;
+  const c=missingCol(e);
+  if(c&&OPTIONAL_COLS.includes(c)&&c in r){
+   MISSING.add(c);
+   if(c==="voice_url"||c==="voice_dur")return {error:{code:"VOICE",message:e.message}};
+   delete r[c];
+   if(c==="audience"&&!r.receiver_id)return {error:{code:"NO_AUDIENCE",message:e.message}};
+   continue}
+  return res}
+ return {error:{message:"insert failed"}}}
+// Sends one outgoing message (direct, or a group message to every member)
+async function sendToRecipients(it){const {msg,k,to,m}=it;
+ const body={sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:(m.t||null)};
+ if(m.v){body.voice_url=m.url;body.voice_dur=m.d}
+ let res;
+ if(k==="g"){
+  res=await insertRow(Object.assign({},body,{audience:[S.user.uid,...to]}));
+  if(res.error&&res.error.code==="NO_AUDIENCE"){
+   res=null;
+   for(const rid of to){const r=await insertRow(Object.assign({},body,{receiver_id:rid}));res=r;if(r.error)break}
+  }
+ }else res=await insertRow(Object.assign({},body,{receiver_id:to[0]}));
+ const e=res&&res.error;
+ if(!e){msg.pending=false;renderMsgs();return}
+ if(isNetErr(e)){msg.pending=true;if(!outbox.includes(it))outbox.push(it);renderMsgs();return}
+ console.warn("message not sent:",e.message||e);
+ dropMsg(it);
+ toast(t(e.code==="VOICE"?"voiceNeedsCol":"msgFail"))}
 function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  const to=k==="g"?S.fam.map(x=>x.key).filter(Boolean):(f&&f.key?[f.key]:[]);
- if(!sb||!S.user.uid||!to.length){toast(t(sb?"noContactsChat":"sbOff"));return}
- const id=randomId(),msg=Object.assign({me:true,from:S.user.name,id},m);
+ if(!sb||!S.user.uid){toast(t("sbOff"));return}
+ if(!to.length){toast(t("noContactsChat"));return}
+ const msg=Object.assign({me:true,from:S.user.name,pending:true},m);
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
- const row={id,sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:m.t,is_read:false,voice_url:m.v?m.url:null,voice_dur:m.v?m.d:null};
- if(k==="g")row.audience=[S.user.uid,...to];else row.receiver_id=to[0];
- const it={row,msg,k};
- DB.sendMessage(row).then(r=>{const e=r&&r.error;if(!e)return;
-  if(isNetErr(e)){msg.pending=true;outbox.push(it);renderMsgs()}      // offline / dropped connection: keep it and retry silently
-  else{console.warn("message insert:",e.message);dropMsg(it);toast(t("msgFail"))}})}
+ sendToRecipients({msg,k,to,m})}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";push({t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
 $("tTitle").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
@@ -1181,7 +1230,7 @@ function applySession(acc){document.body.classList.remove("unauth");
  S.user.uid=acc.uid||"";S.user.email=acc.contact||"";S.user.username=acc.username||"";S.user.phone=acc.phone||"";
  S.user.verified=!!acc.verified;S.user.img=acc.picture||null;S.user.provider=acc.provider||"";S.authed=true;
  $("authScreen").classList.add("hidden");
- if(!geoStarted){geoStarted=true;startGeo();startBattery()}
+ if(!geoStarted){geoStarted=true;startBattery()}
  applyLang();go("home");loadRemoteTx()}
 
 // Enters the dashboard as soon as Supabase gives a session. The profile row is saved in the background.
@@ -1271,7 +1320,7 @@ function rowToMsg(r){const mine=r.sender_id===S.user.uid;
 let lastMsgTs=null;
 function markRead(other){if(!sb||!S.user.uid||!other)return;sb.from("messages").update({is_read:true}).eq("receiver_id",S.user.uid).eq("sender_id",other).eq("is_read",false).then(()=>{},()=>{})}
 async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
- const {data,error}=await sb.from("messages").select("*").or(`sender_id.eq.${me},receiver_id.eq.${me},audience.cs.{${me}}`).order("created_at",{ascending:true}).limit(500);
+ const {data,error}=await fetchMsgs(me);
  if(error||!data)return;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
  S.chats={g:[]};const un={};
@@ -1281,7 +1330,7 @@ async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;
  lastMsgTs=data.length?data[data.length-1].created_at:new Date(Date.now()-60000).toISOString();
  renderAll();if($("mChat").classList.contains("on")){renderMsgs();if(chatK!=="g"&&S.fam[chatK]){S.fam[chatK].un=0;markRead(S.fam[chatK].key);renderTabs()}}}
 async function pollMsgs(){if(!sb||!S.user.uid||!lastMsgTs)return;const me=S.user.uid;
- try{const {data,error}=await sb.from("messages").select("*").or(`sender_id.eq.${me},receiver_id.eq.${me},audience.cs.{${me}}`).gt("created_at",lastMsgTs).order("created_at",{ascending:true}).limit(100);
+ try{const {data,error}=await fetchMsgs(me,lastMsgTs);
   if(!error&&data)for(const r of data)await onMsgRow(r)}catch(e){}}
 function showMsgBanner(title,body,k){let b=$("msgBanner");
  if(!b){b=document.createElement("div");b.id="msgBanner";b.className="fixed left-1/2 -translate-x-1/2 top-3 z-[96] w-[92%] max-w-md card p-3 flex items-center gap-3 cursor-pointer shadow-lg";document.body.appendChild(b)}
@@ -1293,6 +1342,7 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.se
  if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
  if(r.created_at&&(!lastMsgTs||r.created_at>lastMsgTs))lastMsgTs=r.created_at;
  if(Object.values(S.chats).some(L=>L.some(m=>m.id===r.id)))return;
+ if(mine){for(const L of Object.values(S.chats)){const p=L.find(m=>m.me&&!m.id&&(r.voice_url?(m.v&&m.url===r.voice_url):(!m.v&&m.t===r.content)));if(p){p.id=r.id;p.pending=false;return}}}
  let k=chatKeyOf(r);if(k===null){await ensureContacts([mine?r.receiver_id:r.sender_id]);k=chatKeyOf(r);if(k===null)return}
  (S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
  const open=chatK===k&&$("mChat").classList.contains("on"),quiet=open&&!document.hidden;
@@ -1310,8 +1360,7 @@ let rtMsg=null,rtProf=null,rtJoined=false,rtRetry=0,rtT=null,pollT=null;
 const outbox=[];
 const isNetErr=e=>!navigator.onLine||/fetch|network|timeout|offline|abort|load failed/i.test(String((e&&e.message)||e||""));
 function dropMsg(it){const L=S.chats[it.k]||[],i=L.indexOf(it.msg);if(i>-1)L.splice(i,1);if($("mChat").classList.contains("on"))renderMsgs()}
-function flushOutbox(){const q=outbox.splice(0);q.forEach(async it=>{const r=await DB.sendMessage(it.row),e=r&&r.error;
- if(!e){it.msg.pending=false;if($("mChat").classList.contains("on"))renderMsgs()}else if(isNetErr(e))outbox.push(it);else{dropMsg(it);toast(t("msgFail"))}})}
+function flushOutbox(){const q=outbox.splice(0);q.forEach(it=>sendToRecipients(it))}
 function stopRealtime(){clearTimeout(rtT);clearInterval(pollT);pollT=null;const a=[rtMsg,rtProf];rtMsg=rtProf=null;rtJoined=false;
  a.forEach(c=>{if(c&&sb){try{sb.removeChannel(c)}catch(e){}}})}
 function scheduleRt(){clearTimeout(rtT);if(!S.authed)return;rtRetry=Math.min(rtRetry+1,6);rtT=setTimeout(startRealtime,Math.min(30000,1000*2**rtRetry))}
@@ -1334,6 +1383,7 @@ Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",lo
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
 Object.assign(T.en,{ccTitle:"Select country",ccSearch:"Search country or dial code",ccNone:"No country matches your search."});
 Object.assign(T.en,{sbOff:"Server connection is not available. Check your internet and try again.",errGeneric:"Something went wrong. Please try again.",errRate:"Too many attempts. Please wait a few minutes and try again.",dbErr:"Your account could not be saved. Please try again."});
+Object.assign(T.en,{locOff:"Location sharing is off",voiceNeedsCol:"Voice notes need the voice_url and voice_dur columns on the messages table."});
 Object.assign(T.en,{msgFail:"Message could not be sent. Please try again."});
 Object.assign(T.en,{fpTitle:"Reset your password",fpSub:"Enter your account email and we will send you a reset link.",fpSend:"Send reset link"});
 Object.assign(T.en,{addTx:"Add Transaction",income:"Income",expense:"Expense",amount:"Amount",category:"Category",note:"Note (optional)",manual:"Manual entry",txSaved:"Transaction added",txBad:"Enter an amount greater than zero.",emptyAlloc:"No expenses yet. Add a transaction to see your breakdown.",cOther:"Other",famQph:"Search by name or phone",invPh:"Mobile number (optional)",locLive:"Live",locGranted:"Granted",locNone:"Not shared",contact:"Contact",connectBtn:"Connect",alreadyConn:"Already connected",connReq:"Request sent to {n}",notOnApp:"is not on LifeOne yet.",inviteBtn:"Invite to LifeOne",inviteTitle:"Invite to LifeOne",inviteMsg:"Join me on LifeOne: {u}",copy:"Copy link",copied:"Link copied",copyFail:"Copy not available. The text is selected for you.",waBtn:"WhatsApp",smsBtn:"SMS",shareBtn:"Share",invite:"Invite Friends / Family",gNotCfg:"Google sign-in is not configured yet. The owner must add a Google Client ID.",gLoading:"Loading Google sign-in…",noMatchQ:"No LifeOne user found for"});
@@ -1375,11 +1425,15 @@ function onPos(p){const la=p.coords.latitude,ln=p.coords.longitude,first=S.geo.s
  if(!S.user.locManual&&(first||!lastLL||haversine(la,ln,lastLL[0],lastLL[1])>5)){S.user.loc=offlinePlace(la,ln);lastLL=[la,ln]}
  if(first){S.notifs.unshift({t:t("vlive")+": "+S.user.loc,r:false});renderNotifs();refreshGeoUI()}else fillCoords();reverse(la,ln);syncLocation()}
 function onErr(e){S.geo.st=e&&e.code===1?"denied":"na";refreshGeoUI()}
-function startGeo(manual){if(!navigator.geolocation){S.geo.st="na";refreshGeoUI();return}
+function startGeo(manual){
  if(manual===true){S.user.locManual=false;lastLL=null}
+ if(!navigator.geolocation){S.geo.st="na";refreshGeoUI();return}
  S.geo.st="loading";refreshGeoUI();
- navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
- if(geoWatch===null)geoWatch=navigator.geolocation.watchPosition(onPos,()=>{},{enableHighAccuracy:true,maximumAge:0})}
+ try{navigator.geolocation.getCurrentPosition(onPos,onErr,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  if(geoWatch===null)geoWatch=navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:0})}
+ catch(e){S.geo.st="na";refreshGeoUI()}}
+function stopGeo(){try{if(geoWatch!==null&&navigator.geolocation)navigator.geolocation.clearWatch(geoWatch)}catch(e){}
+ geoWatch=null;S.user.lat=null;S.user.lng=null;S.geo.st=S.geo.st==="ok"?"idle":S.geo.st;refreshGeoUI()}
 function startBattery(){if(navigator.getBattery)navigator.getBattery().then(b=>{const u=()=>{S.user.b=Math.round(b.level*100);renderTrust()};u();b.addEventListener("levelchange",u)}).catch(()=>{})}
 
 /* ---------- data API: Supabase tables ---------- */
@@ -1392,7 +1446,7 @@ const DB={
 };
 
 /* ---------- boot ---------- */
-document.addEventListener("visibilitychange",()=>{if(geoStarted&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
+document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
 function boot(){askNotifPerm();try{hydrateIcons()}catch(e){console.error(e)}go("home");authBoot();applyLang();renderClock();setInterval(renderClock,1000)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go("home")});

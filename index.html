@@ -121,7 +121,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  <div class="max-w-3xl mx-auto flex items-center justify-between px-4 py-3 gap-2">
   <div class="flex items-center gap-2 min-w-0">
    <b class="text-lg tracking-tight whitespace-nowrap">LifeOne</b>
-   <span id="proChip" class="hidden text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:var(--pri2);color:var(--acc)">PRO</span>
+   
   </div>
   <div class="flex items-center gap-1.5">
    <span id="hdrClock" class="text-[11px] font-medium whitespace-nowrap hidden sm:inline" style="color:var(--mut)" aria-live="off"></span>
@@ -212,16 +212,31 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 
 <button id="fabAdd" onclick="openSearchModal()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Add member" title="Add member"><span data-ic="plus" data-s="24"></span></button>
 
- <section id="tab-profile" class="tab-content space-y-3">
- <div id="moreTop" class="flex items-center gap-3"><button onclick="go('chats')" class="btn out w-10 h-10 rounded-full shrink-0" aria-label="Back"><span data-ic="left" data-s="18"></span></button><h1 class="text-xl font-bold" data-lbl="navMore"></h1></div>
- <div id="moreRoot" class="space-y-3">
+ 
+</main>
+
+
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)">
+ <div class="max-w-3xl mx-auto grid grid-cols-3" id="tabs"></div>
+</nav>
+
+<!-- Full-screen profile & settings -->
+<div id="profScreen" class="hidden fixed inset-0 overflow-y-auto" style="z-index:55;background:var(--bg)">
+ <div class="sticky top-0 z-10 bg-white" style="border-bottom:1px solid var(--line)">
+  <div class="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+   <button id="profBack" type="button" onclick="profBack()" class="btn out w-10 h-10 rounded-full shrink-0" aria-label="Back"><span data-ic="left" data-s="18"></span></button>
+   <h1 id="profTitle" class="text-lg font-bold truncate" data-lbl="navMore"></h1>
+  </div>
+ </div>
+ <div id="profBody" class="max-w-3xl mx-auto px-4 pt-4 pb-10 space-y-3">
+  <div id="moreRoot" class="space-y-3">
   <button onclick="openMore('personal')" class="card w-full p-3 flex items-center gap-3 text-start btn"><div id="moreAv" class="shrink-0"></div><div class="flex-1 min-w-0"><b id="moreName" class="block truncate"></b><span class="text-xs" style="color:var(--mut)" data-lbl="moPersonal"></span></div></button>
   <div class="card p-2 space-y-1">
    <button onclick="openMore('personal')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moPersonal"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
    <button onclick="openMore('money')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moMoney"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
    <button onclick="openMore('tasks')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moTasks"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
    <button onclick="openMore('lang')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moLang"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
-   <button onclick="go('family')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moFamily"></span><span data-ic="left" data-s="16" class="rotate-180" style="color:var(--mut)"></span></button>
+   
    <button onclick="openInvite('')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn hover:bg-slate-50"><span class="text-sm font-medium" data-lbl="moInvite"></span><span data-ic="share" data-s="16" style="color:var(--mut)"></span></button>
   </div>
   <button onclick="openM('mOut')" class="btn w-full py-3 rounded-xl text-sm font-semibold text-white" style="background:#E11D48"><span data-ic="logout" data-s="18"></span><span data-lbl="moLogout"></span></button>
@@ -238,8 +253,33 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 
 
 
+<div id="mp_personal" class="mp space-y-4" hidden>
+ <div class="flex justify-center pt-2"><div class="relative" style="width:72px;height:72px">
+  <div class="av big" style="width:72px;height:72px"></div>
+  <label for="file" class="absolute bottom-0 end-0 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow-md" style="background:var(--pri);color:#fff" aria-label="Change photo" title="Change photo"><span data-ic="camera" data-s="15"></span></label>
+  <input id="file" type="file" accept="image/*" class="hidden">
+ </div></div>
+ <div class="card p-5 space-y-4">
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1" autocomplete="name"></label>
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
+  <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></div>
+  <div class="text-sm"><span style="color:var(--mut)" data-lbl="moPhone"></span>
+   <div class="flex gap-2 mt-1"><input type="hidden" id="pCC" value="+92"><button type="button" id="pCCBtn" onclick="openCC('p')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="pPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div>
+   <p class="text-[11px] mt-1.5" style="color:var(--mut)" data-lbl="phoneHint"></p></div>
+  <button id="saveP" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
+ </div>
+ <div class="card p-5 space-y-3">
+  <label class="block text-sm"><span style="color:var(--mut)" data-lbl="moAbout"></span>
+   <textarea id="pAbout" maxlength="160" rows="3" class="inp mt-1 resize-none" data-ph="aboutPh"></textarea></label>
+  <p class="text-[11px]" style="color:var(--mut)" data-lbl="aboutHint"></p>
+  <button id="saveAbout" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" onclick="saveAbout()" data-lbl="saveAbout"></button>
+ </div>
+ <div class="card p-5"><button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openM('mPw')"><span data-ic="key" data-s="18"></span><span data-lbl="moPw"></span></button></div>
+ <div id="profBlueRow" class="mb-2"></div><div id="profTrust" style="display:none"></div>
+</div>
 <div id="mp_money" class="mp space-y-4" hidden>
- <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ 
 
   <div class="flex items-start justify-between gap-3">
    <div class="min-w-0"><h2 class="text-lg font-bold" data-i18n="trk"></h2></div>
@@ -267,7 +307,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   <p id="rate" class="text-[11px] text-center" style="color:var(--mut)"></p>
  </div>
 <div id="mp_tasks" class="mp space-y-4" hidden>
- <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ 
 
   <div class="flex items-center justify-between gap-3"><h2 class="text-2xl font-extrabold tracking-tight" data-lbl="moTasks"></h2>
    <button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openM('mTask')"><span data-ic="plus" data-s="16"></span><span data-i18n="newTask"></span></button></div>
@@ -275,46 +315,26 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
   <div id="filters" class="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4" style="scrollbar-width:none"></div>
   <ul id="taskList" class="space-y-2"></ul>
  </div>
-<div id="mp_personal" class="mp space-y-3" hidden>
- <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
- <h2 class="text-lg font-bold" data-lbl="moPersonal"></h2>
-  <div class="card p-5 space-y-4">
-   <div class="flex items-center gap-4"><div class="av big cursor-pointer" role="button" tabindex="0" title="Change photo" onclick="$('file').click()"></div>
-    <label class="btn out px-4 py-2 rounded-xl text-sm cursor-pointer"><span data-ic="upload" data-s="16"></span><span data-i18n="photo"></span><input id="file" type="file" accept="image/*" class="hidden"></label></div>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1"></label>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-   <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-   <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"><p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)"><span data-ic="lock" data-s="12"></span><span data-i18n="locLock"></span></p></div>
-   <button id="saveP" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
-  </div>
-  
 
-
-<div class="card p-5 space-y-3">
- <label class="block text-sm"><span style="color:var(--mut)" data-lbl="moAbout"></span>
-  <textarea id="pAbout" maxlength="160" rows="3" class="inp mt-1 resize-none" data-ph="aboutPh"></textarea></label>
- <p class="text-[11px]" style="color:var(--mut)" data-lbl="aboutHint"></p>
- <button id="saveAbout" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" onclick="saveAbout()" data-lbl="saveAbout"></button>
-</div>
-<div class="card p-5 space-y-3"><button class="btn out w-full py-2.5 rounded-xl text-sm" onclick="openM('mPw')"><span data-ic="key" data-s="18"></span><span data-lbl="moPw"></span></button></div>
-<div id="profBlueRow" class="mb-2"></div><div id="profTrust" style="display:none"></div>
-  <div id="proCard" class="rounded-2xl p-5" style="background:linear-gradient(135deg,#ECFDF5,#fff);border:1px solid #A7F3D0"></div>
-
-  </div>
 <div id="mp_lang" class="mp space-y-3" hidden>
- <button onclick="openMore(null)" class="btn out rounded-full px-3 py-1.5 text-xs w-fit"><span data-ic="left" data-s="14"></span><span data-lbl="back"></span></button>
+ 
  <h2 class="text-lg font-bold" data-lbl="moLang"></h2>
  <div id="langList" class="card p-2 space-y-1"></div>
 </div>
-</section>
-</main>
-
-
-<nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)">
- <div class="max-w-3xl mx-auto grid grid-cols-3" id="tabs"></div>
-</nav>
-
+</div>
+</div>
 <!-- Modals -->
+<div id="mInv" class="modal"><div class="sheet space-y-4">
+ <div class="flex items-center justify-between"><h3 class="font-bold text-lg" data-i18n="inviteTitle"></h3><button onclick="closeM('mInv')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
+ <p class="text-sm" style="color:var(--mut)" data-lbl="invHint"></p>
+ <input id="invName" type="hidden"><input id="invTo" type="hidden">
+ <textarea id="invMsg" readonly rows="4" class="inp text-sm resize-none"></textarea>
+ <div class="grid grid-cols-2 gap-2">
+  <button onclick="inviteCopy()" class="btn out py-2.5 rounded-xl text-sm" data-i18n="copy"></button>
+  <button onclick="inviteShare()" class="btn pri py-2.5 rounded-xl text-sm" data-i18n="shareBtn"></button>
+ </div>
+</div></div>
+
 <div id="mChatSearch" class="modal" style="z-index:70"><div class="sheet" style="max-width:520px;padding:0;display:flex;flex-direction:column;max-height:86vh">
  <div class="flex items-center gap-2 p-3" style="border-bottom:1px solid var(--line)">
   <div class="flex-1 min-w-0 flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span>
@@ -402,15 +422,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  <button class="btn pri flex-1 py-2.5 rounded-xl" onclick="changePw()" data-i18n="save"></button></div>
 </div></div>
 
-<div id="mPay" class="modal"><div class="sheet" style="max-width:560px">
- <div class="flex items-center justify-between mb-3">
-  <div class="flex items-center gap-2" style="color:var(--acc)"><span data-ic="crown" data-s="20"></span><h3 class="font-bold text-lg" style="color:var(--ink)" data-i18n="planT"></h3></div>
-  <button onclick="closeM('mPay')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button>
- </div>
- <p id="planHint" class="text-sm mb-3 rounded-xl px-3 py-2 hidden" style="background:var(--pri2);color:#5B21B6"></p>
- <div id="planGrid" class="grid gap-3"></div>
- <p class="text-[11px] mt-3 text-center" style="color:var(--mut)" data-i18n="demoPay"></p>
-</div></div>
+
 
 <div id="mOut" class="modal"><div class="sheet text-center space-y-3">
  <span class="mx-auto w-12 h-12 rounded-full flex items-center justify-center" style="background:var(--pri2);color:var(--acc)" data-ic="logout" data-s="24"></span>
@@ -430,53 +442,47 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
 <div id="authScreen" class="hidden fixed inset-0 z-[85] overflow-y-auto" style="background:#FFFFFF">
  <div class="min-h-full flex items-center justify-center p-5">
   <div class="w-full max-w-sm space-y-5">
-   <div class="flex justify-end">
-    <select id="langAuth" onchange="setLangFromAuth(this.value)" class="inp text-xs" style="width:auto;padding:.3rem .5rem" aria-label="Interface language">
-     <option value="en">English</option><option value="ur">اردو</option><option value="ar">العربية</option><option value="zh">中文</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="de">Deutsch</option>
-    </select></div>
-   <div class="flex flex-col items-center text-center">
+   <div class="flex flex-col items-center text-center pt-4">
     <span class="w-14 h-14 rounded-2xl pri flex items-center justify-center mb-3" data-ic="shield" data-s="26"></span>
-    <h1 class="text-xl font-bold" data-i18n="authTitle"></h1>
-    <p class="text-sm mt-1" style="color:var(--mut)" data-i18n="authSub"></p>
-   </div>
-
-   <div class="card overflow-hidden">
-    <div id="featSlides" class="flex overflow-x-auto snap-x snap-mandatory scroll-smooth" style="scrollbar-width:none" aria-label="Feature highlights">
-     <div class="min-w-full snap-center p-5"><div class="flex items-start gap-3"><span class="w-10 h-10 rounded-xl pri flex items-center justify-center shrink-0" data-ic="wallet" data-s="18"></span><div><p class="font-semibold" data-i18n="feat1t"></p><p class="text-sm mt-1" style="color:var(--mut)" data-i18n="feat1d"></p></div></div></div>
-     <div class="min-w-full snap-center p-5"><div class="flex items-start gap-3"><span class="w-10 h-10 rounded-xl pri flex items-center justify-center shrink-0" data-ic="target" data-s="18"></span><div><p class="font-semibold" data-i18n="feat2t"></p><p class="text-sm mt-1" style="color:var(--mut)" data-i18n="feat2d"></p></div></div></div>
-     <div class="min-w-full snap-center p-5"><div class="flex items-start gap-3"><span class="w-10 h-10 rounded-xl pri flex items-center justify-center shrink-0" data-ic="chat" data-s="18"></span><div><p class="font-semibold" data-i18n="feat3t"></p><p class="text-sm mt-1" style="color:var(--mut)" data-i18n="feat3d"></p></div></div></div>
-     <div class="min-w-full snap-center p-5"><div class="flex items-start gap-3"><span class="w-10 h-10 rounded-xl pri flex items-center justify-center shrink-0" data-ic="lock" data-s="18"></span><div><p class="font-semibold" data-i18n="feat4t"></p><p class="text-sm mt-1" style="color:var(--mut)" data-i18n="feat4d"></p></div></div></div>
-    </div>
-    <div class="flex items-center justify-between px-4 pb-4">
-     <button type="button" onclick="featStep(-1)" class="btn out w-8 h-8 rounded-full" aria-label="Previous" data-ic="left" data-s="16"></button>
-     <div id="featDots" class="flex items-center gap-1.5"></div>
-     <button type="button" onclick="featStep(1)" class="btn out w-8 h-8 rounded-full" aria-label="Next" data-ic="right" data-s="16"></button>
+    <h1 class="text-2xl font-bold tracking-tight" data-i18n="welcomeTitle"></h1>
+    <p class="mt-2 text-sm leading-relaxed max-w-xs" style="color:var(--mut)" data-i18n="welcomeSub"></p>
+    <div class="mt-4 flex flex-wrap justify-center gap-1.5">
+     <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background:var(--pri2);color:var(--acc)" data-i18n="chipSecure"></span>
+     <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background:var(--pri2);color:var(--acc)" data-i18n="chipMoney"></span>
+     <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background:var(--pri2);color:var(--acc)" data-i18n="chipTasks"></span>
+     <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold" style="background:var(--pri2);color:var(--acc)" data-i18n="chipAdv"></span>
     </div>
    </div>
-
    <div class="grid grid-cols-2 gap-1 p-1 rounded-xl" style="background:#F1F5F9">
-    <button id="tabUp" onclick="setAuthMode('signup')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabUp"></button>
-    <button id="tabIn" onclick="setAuthMode('signin')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabIn"></button>
+    <button id="tabUp" type="button" onclick="setAuthMode('signup')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabUp"></button>
+    <button id="tabIn" type="button" onclick="setAuthMode('signin')" class="btn py-2 rounded-lg text-sm font-medium" data-i18n="tabIn"></button>
    </div>
-
-   <form id="formSignup" class="card p-5 space-y-3" method="post" action="#" onsubmit="event.preventDefault();signUp();return false" style="display:none">
+   <form id="formSignup" class="card p-5 space-y-3" method="post" action="#" novalidate onsubmit="event.preventDefault();signUp();return false" style="display:none">
     <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="suName" name="name" class="inp mt-1" autocomplete="name" required></label>
     <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="suUser" name="username" class="inp mt-1" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="suEmail" name="email" type="email" class="inp mt-1" autocomplete="email" required></label>
-    <div class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
-     <div class="flex gap-2 mt-1"><input type="hidden" id="suCC" value="+92"><button type="button" id="suCCBtn" onclick="openCC()" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="suPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)" required></div></div>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="suPass" name="new-password" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input id="suPass2" name="confirm-password" type="password" class="inp mt-1" autocomplete="new-password" minlength="8" required></label>
+    <div class="grid grid-cols-2 gap-1 p-1 rounded-lg" style="background:#F1F5F9">
+     <button type="button" id="suTabEmail" onclick="setChannel('su','email')" class="btn py-1.5 rounded-md text-xs font-medium" data-i18n="viaEmail"></button>
+     <button type="button" id="suTabPhone" onclick="setChannel('su','phone')" class="btn py-1.5 rounded-md text-xs font-medium" data-i18n="viaPhone"></button>
+    </div>
+    <label id="suEmailBox" class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="suEmail" name="email" type="email" class="inp mt-1" autocomplete="email" inputmode="email"></label>
+    <div id="suPhoneBox" class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
+     <div class="flex gap-2 mt-1"><input type="hidden" id="suCC" value="+92"><button type="button" id="suCCBtn" onclick="openCC('su')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="suPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="suPass" name="new-password" type="password" class="inp mt-1" autocomplete="new-password"></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input id="suPass2" name="confirm-password" type="password" class="inp mt-1" autocomplete="new-password"></label>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="createAcc"></button>
    </form>
-
-   <form id="formLogin" class="card p-5 space-y-3" method="post" action="#" onsubmit="event.preventDefault();logIn();return false" style="display:none">
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblId"></span><input id="auth-username" name="username" type="text" class="inp mt-1" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
+   <form id="formLogin" class="card p-5 space-y-3" method="post" action="#" novalidate onsubmit="event.preventDefault();logIn();return false" style="display:none">
+    <div class="grid grid-cols-2 gap-1 p-1 rounded-lg" style="background:#F1F5F9">
+     <button type="button" id="liTabEmail" onclick="setChannel('li','email')" class="btn py-1.5 rounded-md text-xs font-medium" data-i18n="viaEmail"></button>
+     <button type="button" id="liTabPhone" onclick="setChannel('li','phone')" class="btn py-1.5 rounded-md text-xs font-medium" data-i18n="viaPhone"></button>
+    </div>
+    <label id="liEmailBox" class="block text-sm"><span style="color:var(--mut)" data-i18n="idLbl"></span><input id="auth-username" name="username" type="text" class="inp mt-1" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
+    <div id="liPhoneBox" class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
+     <div class="flex gap-2 mt-1"><input type="hidden" id="liCC" value="+92"><button type="button" id="liCCBtn" onclick="openCC('li')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="liPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
     <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="auth-password" name="password" type="password" class="inp mt-1" autocomplete="current-password" required></label>
     <div class="flex justify-end"><button type="button" onclick="openForgot()" class="text-xs" style="color:var(--acc)" data-i18n="forgot"></button></div>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="logInBtn"></button>
    </form>
-
    <p id="authErr" class="text-sm text-rose-600 text-center hidden"></p>
    <p id="authOk" class="text-sm text-emerald-700 text-center hidden"></p>
   </div>
@@ -498,19 +504,7 @@ html.dark [style*="#F0FDF4"] .text-emerald-700{color:#6EE7B7!important}
  <div class="flex gap-2"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="closeM('mTx')" data-i18n="cancel"></button><button class="btn pri flex-1 py-2.5 rounded-xl" onclick="saveTx()" data-i18n="save"></button></div>
 </div></div>
 
-<div id="mInv" class="modal"><div class="sheet space-y-3">
- <div class="flex items-center justify-between"><h3 class="font-bold text-lg" data-i18n="inviteTitle"></h3><button onclick="closeM('mInv')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
- <input id="invName" class="inp text-sm" data-ph="invNamePh" autocomplete="off" oninput="refreshInvMsg()">
- <input id="invTo" type="tel" inputmode="tel" class="inp text-sm" data-ph="invPh" oninput="refreshInvMsg()" autocomplete="off">
- <textarea id="invMsg" readonly rows="3" class="inp text-sm"></textarea>
- 
- <div class="grid grid-cols-2 gap-2">
-  <button onclick="inviteWA()" class="btn pri py-2.5 rounded-xl text-sm" data-i18n="waBtn"></button>
-  <button onclick="inviteSMS()" class="btn out py-2.5 rounded-xl text-sm" data-i18n="smsBtn"></button>
-  <button onclick="inviteCopy()" class="btn out py-2.5 rounded-xl text-sm" data-i18n="copy"></button>
-  <button onclick="inviteShare()" class="btn out py-2.5 rounded-xl text-sm" data-i18n="shareBtn"></button>
- </div>
-</div></div>
+
 
 <div id="mForgot" class="modal" style="z-index:90"><div class="sheet space-y-3" style="max-width:420px">
  <h3 class="font-bold text-lg" data-i18n="fpTitle"></h3><p class="text-sm" style="color:var(--mut)" data-i18n="fpSub"></p>
@@ -556,7 +550,7 @@ ur:{home:"ہوم",tasks:"کام",money:"رقم",family:"خاندان",profile:"�
 zh:{home:"首页",tasks:"任务",money:"资金",family:"家人",profile:"我的",welcome:"欢迎回来，",streak:"天连续打卡",gps:"实时定位共享中",focus:"今日专注与节奏",newTask:"新任务",title:"任务标题",add:"添加任务",cancel:"取消",all:"全部",Health:"健康",Work:"工作",Finance:"财务",Personal:"个人",bal:"可用余额",inf:"每月收入",outf:"每月支出",hide:"收起",show:"展开",fam:"家人联系圈",online:"在线",offline:"离线",call:"通话",video:"视频",chat:"聊天",save:"保存更改",name:"姓名",email:"电子邮箱",loc:"所在地",pw:"修改密码",logout:"退出登录",notif:"提醒中心",readAll:"全部已读",close:"关闭",send:"发送",msg:"输入消息…",secure:"安全点对点 WebRTC",enc:"端到端加密",mute:"静音",speaker:"扬声器",end:"挂断",photo:"上传头像",done:"已完成",none:"这里还没有任务。",saved:"资料已保存",oldPw:"当前密码",newPw:"新密码（至少6位）",pwShort:"请至少使用6个字符。",pwOk:"密码已更新",logoutQ:"确定退出 LifeOne 吗？",loggedOut:"您已退出登录",signIn:"重新登录",rate:"汇率",calling:"呼叫中…",connected:"已接通",added:"任务已添加",grp:"家庭群聊",you:"我",members:"位成员",rec:"正在录制语音消息",open:"打开",proT:"升级至 Executive Pro",proD:"解锁高级洞察、优先同步与群组视频。",f1:"高级财务洞察",f2:"优先实时定位同步",f3:"无限群组通话",pay:"立即升级",proOn:"Executive Pro 已启用",sim:"模拟结账，不会产生任何扣款。",insight:"高管洞察",net:"每月净储蓄",sr:"储蓄率",unlock:"升级 Pro 解锁",upgraded:"Executive Pro 已解锁",voiceAlert:"语音消息已发送"},
 hi:{home:"होम",tasks:"कार्य",money:"धन",family:"परिवार",profile:"प्रोफ़ाइल",welcome:"वापसी पर स्वागत,",streak:"दिन की स्ट्रीक",gps:"लाइव जीपीएस प्रसारण",focus:"आज का फ़ोकस और लय",newTask:"नया कार्य",title:"कार्य का शीर्षक",add:"कार्य जोड़ें",cancel:"रद्द करें",all:"सभी",Health:"स्वास्थ्य",Work:"काम",Finance:"वित्त",Personal:"निजी",bal:"उपलब्ध बैलेंस",inf:"मासिक आय",outf:"मासिक खर्च",hide:"छोटा करें",show:"फैलाएँ",fam:"फ़ैमिली कनेक्ट सर्कल",online:"ऑनलाइन",offline:"ऑफ़लाइन",call:"कॉल",video:"वीडियो",chat:"चैट",save:"बदलाव सहेजें",name:"पूरा नाम",email:"ईमेल पता",loc:"स्थान",pw:"पासवर्ड बदलें",logout:"लॉग आउट",notif:"अलर्ट केंद्र",readAll:"सब पढ़ा हुआ",close:"बंद करें",send:"भेजें",msg:"संदेश लिखें…",secure:"सुरक्षित पीयर-टू-पीयर WebRTC",enc:"एंड-टू-एंड एन्क्रिप्टेड",mute:"म्यूट",speaker:"स्पीकर",end:"समाप्त",photo:"फ़ोटो अपलोड करें",done:"पूर्ण",none:"यहाँ अभी कोई कार्य नहीं।",saved:"प्रोफ़ाइल सहेजी गई",oldPw:"वर्तमान पासवर्ड",newPw:"नया पासवर्ड (कम से कम 6)",pwShort:"कम से कम 6 अक्षर उपयोग करें।",pwOk:"पासवर्ड बदल गया",logoutQ:"क्या आप LifeOne से लॉग आउट करना चाहते हैं?",loggedOut:"आप लॉग आउट हो गए",signIn:"फिर से साइन इन करें",rate:"दर",calling:"कॉल हो रही है…",connected:"जुड़ गया",added:"कार्य जोड़ा गया",grp:"फ़ैमिली ग्रुप चैट",you:"आप",members:"सदस्य",rec:"वॉइस नोट रिकॉर्ड हो रहा है",open:"खोलें",proT:"Executive Pro में अपग्रेड करें",proD:"प्रीमियम इनसाइट, प्राथमिकता सिंक और ग्रुप वीडियो अनलॉक करें।",f1:"उन्नत वित्तीय इनसाइट",f2:"प्राथमिकता लाइव लोकेशन सिंक",f3:"असीमित ग्रुप कॉल",pay:"अभी अपग्रेड करें",proOn:"Executive Pro सक्रिय है",sim:"नकली चेकआउट। कोई भुगतान नहीं लिया जाएगा।",insight:"एग्ज़ीक्यूटिव इनसाइट",net:"मासिक शुद्ध बचत",sr:"बचत दर",unlock:"Pro से अनलॉक करें",upgraded:"Executive Pro अनलॉक हुआ",voiceAlert:"वॉइस नोट भेजा गया"},
 ar:{home:"الرئيسية",tasks:"المهام",money:"المال",family:"العائلة",profile:"الملف",welcome:"مرحبًا بعودتك،",streak:"أيام متتالية",gps:"بث الموقع المباشر",focus:"تركيز اليوم وإيقاعه",newTask:"مهمة جديدة",title:"عنوان المهمة",add:"إضافة مهمة",cancel:"إلغاء",all:"الكل",Health:"الصحة",Work:"العمل",Finance:"المالية",Personal:"شخصي",bal:"الرصيد المتاح",inf:"الإيرادات الشهرية",outf:"المصروفات الشهرية",hide:"تصغير",show:"توسيع",fam:"دائرة العائلة",online:"متصل",offline:"غير متصل",call:"اتصال",video:"فيديو",chat:"دردشة",save:"حفظ التغييرات",name:"الاسم الكامل",email:"البريد الإلكتروني",loc:"الموقع",pw:"تغيير كلمة المرور",logout:"تسجيل الخروج",notif:"مركز التنبيهات",readAll:"تعليم الكل كمقروء",close:"إغلاق",send:"إرسال",msg:"اكتب رسالة…",secure:"WebRTC آمن من نظير إلى نظير",enc:"تشفير من طرف إلى طرف",mute:"كتم",speaker:"مكبر",end:"إنهاء",photo:"رفع صورة",done:"مكتمل",none:"لا توجد مهام بعد.",saved:"تم حفظ الملف",oldPw:"كلمة المرور الحالية",newPw:"كلمة مرور جديدة (6 على الأقل)",pwShort:"استخدم 6 أحرف على الأقل.",pwOk:"تم تحديث كلمة المرور",logoutQ:"هل تريد تسجيل الخروج من LifeOne؟",loggedOut:"تم تسجيل خروجك",signIn:"تسجيل الدخول مجددًا",rate:"السعر",calling:"جارٍ الاتصال…",connected:"متصل",added:"تمت إضافة المهمة",grp:"دردشة العائلة الجماعية",you:"أنت",members:"أعضاء",rec:"جارٍ تسجيل رسالة صوتية",open:"فتح",proT:"الترقية إلى Executive Pro",proD:"افتح تحليلات متقدمة ومزامنة ذات أولوية وفيديو جماعي.",f1:"تحليلات مالية متقدمة",f2:"مزامنة موقع مباشر ذات أولوية",f3:"مكالمات جماعية غير محدودة",pay:"ترقية الآن",proOn:"Executive Pro مفعّل",sim:"دفع تجريبي. لن يتم خصم أي مبلغ.",insight:"رؤى تنفيذية",net:"صافي الادخار الشهري",sr:"معدل الادخار",unlock:"افتح بـ Pro",upgraded:"تم فتح Executive Pro",voiceAlert:"تم إرسال الرسالة الصوتية"}};
-const LOC={pt:"pt-BR",ru:"ru-RU",ja:"ja-JP",tr:"tr-TR",it:"it-IT",bn:"bn-BD",en:"en-US",ur:"ur-PK",zh:"zh-CN",hi:"hi-IN",ar:"ar-SA",es:"es-ES",fr:"fr-FR",de:"de-DE"};T.es={};T.fr={};T.de={};
+const LOC={ko:"ko-KR",id:"id-ID",vi:"vi-VN",th:"th-TH",fa:"fa-IR",pl:"pl-PL",nl:"nl-NL",sw:"sw-KE",pt:"pt-BR",ru:"ru-RU",ja:"ja-JP",tr:"tr-TR",it:"it-IT",bn:"bn-BD",en:"en-US",ur:"ur-PK",zh:"zh-CN",hi:"hi-IN",ar:"ar-SA",es:"es-ES",fr:"fr-FR",de:"de-DE"};T.es={};T.fr={};T.de={};
 const T2={
 en:{vlive:"Verified Live",lastSeen:"Last seen",highT:"High Trust",goodT:"Good Trust",tc:"Trust & Transparency Center",trustTip:"Every location is verified live and visible to your circle, so you can deal with confidence.",cGps:"Live GPS sharing active",cEmail:"Email verified",cLoc:"Location confirmed",cPhoto:"Profile photo added",cPw:"Password strengthened",cPro:"Executive Pro verified",memLive:"members live-verified now",trustUp:"Trust score updated"},
 ur:{vlive:"براہِ راست تصدیق شدہ",lastSeen:"آخری بار دیکھا گیا",highT:"اعلیٰ اعتماد",goodT:"اچھا اعتماد",tc:"اعتماد اور شفافیت کا مرکز",trustTip:"ہر مقام لائیو تصدیق شدہ ہے اور آپ کے حلقے کو نظر آتا ہے، تاکہ آپ اعتماد سے معاملہ کر سکیں۔",cGps:"لائیو جی پی ایس شیئرنگ فعال",cEmail:"ای میل تصدیق شدہ",cLoc:"مقام کی تصدیق ہو گئی",cPhoto:"پروفائل تصویر شامل",cPw:"پاس ورڈ مضبوط کیا گیا",cPro:"ایگزیکٹو پرو تصدیق شدہ",memLive:"ارکان ابھی لائیو تصدیق شدہ",trustUp:"اعتماد اسکور اپ ڈیٹ ہو گیا"},
@@ -605,6 +599,7 @@ const t=k=>(T[S.lang][k]??T.en[k]??k);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=(v,c)=>CUR[c].s+Math.round(v).toLocaleString("en-US");
 const ini=n=>n.trim().split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase()||"?";
+const PHONE_EMAIL_DOMAIN="phone.lifeone.app"; // phone-only accounts use <digits>@this domain as their internal login email
 const PREMIUM_UNLOCKED=true; // Pro and Pro Plus features are unlocked for everyone. Set to false to restore plan gating.
 const S={lang:"en",view:"home",filter:"all",cur:"PKR",grid:true,pro:false,plan:PREMIUM_UNLOCKED?"plus":"free",mask:false,authed:true,cpDay:{d:"",n:0},busyPlan:null,habits:[{k:"hab1",d:8,g:21},{k:"hab2",d:5,g:14},{k:"hab3",d:12,g:30}],shareOn:false,pwChanged:false,geo:{st:"idle",acc:null},gun:2,groups:[],
  user:{name:"",email:"",loc:"",img:null,lat:null,lng:null,b:null,locManual:false},
@@ -639,13 +634,13 @@ function renderTrust(){const pr=$("profTrust");if(pr)pr.innerHTML=trustInner();c
  saveTrust(myTrust());el.innerHTML=pill+trustBadge(myTrust(),"me")}
 // Trust Score is points (0-100). Points are written only by server functions (award_daily_trust, sync_my_plan), never by the browser.
 function saveTrust(){}
-function trustParts(){return [["3+ hours online with live sharing on (once per day)",2,!!onlineDay.sent],["Pro plan",20,S.serverPlan==="pro"||S.serverPlan==="plus"],["Pro Plus plan",50,S.serverPlan==="plus"]]}
+function trustParts(){return [["3+ hours online with live sharing on (once per day)",2,!!onlineDay.sent]]}
 function openTrust(key){const isMe=key==="me";const f=isMe?null:S.fam.find(x=>x.key===key);
  const score=isMe?myTrust():(f?memberTrust(f):0);
  $("trustTitle").textContent="Trust Score: "+score+"%";
  let body;
  if(isMe){body=trustParts().map(([l,p,ok])=>`<div class="flex items-center justify-between gap-3 py-1.5 border-b" style="border-color:var(--line)"><span>${l}</span><span class="font-semibold ${ok?"text-emerald-600":"text-slate-400"}">${ok?"+"+p:"0"}</span></div>`).join("")
-  +`<p class="text-xs pt-2" style="color:var(--mut)">Trust Score is points-based and capped at 100%. Points come only from the daily 3-hour rule and paid plans.</p>`}
+  +`<p class="text-xs pt-2" style="color:var(--mut)">Trust Score is points-based and capped at 100%. Points come only from the daily 3-hour rule.</p>`}
  else{body=`<p style="color:var(--mut)">Trust Score: ${score}%. Based on this member's daily live-sharing activity and plan. Their breakdown stays private.</p>`}
  $("trustBody").innerHTML=body;openM("mTrust")}
 function renderStrip(){if(!$("strip"))return;$("strip").innerHTML=`<div class="max-w-3xl mx-auto px-4 py-1.5 flex items-center gap-2 text-xs"><span class="gp w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span><span class="text-emerald-700 font-semibold shrink-0">${t("vlive")}</span><span class="truncate" style="color:var(--mut)">${esc(S.user.loc)} · <span class="font-mono" data-coord="u"></span></span><span class="ms-auto shrink-0">${trustBadge(myTrust())}</span></div>`}
@@ -665,14 +660,14 @@ function renderAv(){document.querySelectorAll(".av").forEach(e=>e.innerHTML=avHT
  $("greet").textContent=S.user.name||"";renderHeaderAvatar()}
 
 /* language */
-function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar")?"rtl":"ltr";
+function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("flag");if(fl)fl.innerHTML=FLAG[l]||FLAG.en;document.documentElement.dir=(l==="ur"||l==="ar"||l==="fa")?"rtl":"ltr";
  document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t(e.dataset.i18n));
  document.querySelectorAll("[data-ph]").forEach(e=>e.placeholder=t(e.dataset.ph));
  $("tCat").innerHTML=CATS.map(c=>`<option value="${c}">${t(c)}</option>`).join("");$("tUrg").innerHTML=["High","Medium","Low"].map(u=>`<option value="${u}">${t({High:"uHigh",Medium:"uMed",Low:"uLow"}[u])}</option>`).join("");$("tUrg").value="Medium";
  $("today").textContent=new Date().toLocaleDateString(LOC[l],{weekday:"long",year:"numeric",month:"long",day:"numeric"});
  renderAll();if($("mChat").classList.contains("on"))openChatHead()}
-const LANGS=[{c:"en",n:"English",f:"🇬🇧"},{c:"ur",n:"اردو",f:"🇵🇰"},{c:"ar",n:"العربية",f:"🇸🇦"},{c:"zh",n:"中文",f:"🇨🇳"},{c:"hi",n:"हिन्दी",f:"🇮🇳"},{c:"es",n:"Español",f:"🇪🇸"},{c:"fr",n:"Français",f:"🇫🇷"},{c:"de",n:"Deutsch",f:"🇩🇪"},{c:"pt",n:"Português",f:"🇧🇷"},{c:"ru",n:"Русский",f:"🇷🇺"},{c:"ja",n:"日本語",f:"🇯🇵"},{c:"tr",n:"Türkçe",f:"🇹🇷"},{c:"it",n:"Italiano",f:"🇮🇹"},{c:"bn",n:"বাংলা",f:"🇧🇩"}];
-["pt","ru","ja","tr","it","bn"].forEach(k=>{T[k]=T[k]||{}});
+const LANGS=[{c:"en",n:"English",f:"🇬🇧"},{c:"ur",n:"اردو",f:"🇵🇰"},{c:"ar",n:"العربية",f:"🇸🇦"},{c:"zh",n:"中文",f:"🇨🇳"},{c:"hi",n:"हिन्दी",f:"🇮🇳"},{c:"bn",n:"বাংলা",f:"🇧🇩"},{c:"es",n:"Español",f:"🇪🇸"},{c:"fr",n:"Français",f:"🇫🇷"},{c:"de",n:"Deutsch",f:"🇩🇪"},{c:"it",n:"Italiano",f:"🇮🇹"},{c:"pt",n:"Português",f:"🇧🇷"},{c:"ru",n:"Русский",f:"🇷🇺"},{c:"pl",n:"Polski",f:"🇵🇱"},{c:"nl",n:"Nederlands",f:"🇳🇱"},{c:"tr",n:"Türkçe",f:"🇹🇷"},{c:"fa",n:"فارسی",f:"🇮🇷"},{c:"ja",n:"日本語",f:"🇯🇵"},{c:"ko",n:"한국어",f:"🇰🇷"},{c:"id",n:"Bahasa Indonesia",f:"🇮🇩"},{c:"vi",n:"Tiếng Việt",f:"🇻🇳"},{c:"th",n:"ไทย",f:"🇹🇭"},{c:"sw",n:"Kiswahili",f:"🇰🇪"}];
+["pt","ru","ja","tr","it","bn","ko","id","vi","th","fa","pl","nl","sw"].forEach(k=>{T[k]=T[k]||{}});
 function setLang(v){if(!T[v])return;S.lang=v;try{localStorage.setItem("lifeone.lang",v)}catch(e){}
  applyLang();setTimeout(()=>{setLabels();renderTabs();renderHomePanels();renderLangList()},0)}
 function initLang(){try{const v=localStorage.getItem("lifeone.lang");if(v&&T[v])S.lang=v}catch(e){}}
@@ -684,8 +679,8 @@ function renderLangList(){const el=$("langList");if(!el)return;
 const NAV=[["chats","navChats","chat"],["groups","navGroups","family"],["calls","navCalls","phone"]];
 function renderTabs(){updateBell();const cur=(S.view==="family"||S.view==="profile")?"":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn};
  $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${cur===k?"on":""}"><span class="relative">${ic(ik,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(lk)}<i class="bar"></i></button>`).join("");setLabels()}
-function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","calls","profile","family"].includes(v)?v:"chats"}catch(e){return "chats"}}
-function go(v){S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);renderTabs();scrollTo({top:0})}
+function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","calls"].includes(v)?v:"chats"}catch(e){return "chats"}}
+function go(v){if(v==="profile"){openProfScreen();return}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -834,7 +829,7 @@ function planLines(k){const p=PLAN[k];
  if(k==="pro")L.push(t("lSmart"));
  if(k==="plus"){L.push(t("lAI"));L.push(t("lMap"));L.push(t("lHelp"))}
  return L}
-function openPlans(hint){const h=$("planHint");if(h){h.textContent=hint||"";h.classList.toggle("hidden",!hint)}renderPlanGrid();openM("mPay")}
+function openPlans(){}
 function renderPlanGrid(){const el=$("planGrid");if(!el)return;
  el.innerHTML=["free","pro","plus"].map(k=>{const p=PLAN[k],cur=S.plan===k,busy=S.busyPlan===k;
   const price=p.price?"$"+p.price.toFixed(2):"$0";
@@ -1350,10 +1345,8 @@ async function uploadAvatar(dataUrl){
 }
 
 
-function renderPro(){$("proChip").classList.add("hidden");$("proChip").textContent=pl().name.toUpperCase();
- $("proCard").innerHTML=`<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-2" style="color:var(--acc)">${ic("crown",20)}<b class="text-base" style="color:var(--ink)">${pl().name} · ${t("planT")}</b></div><span class="text-xs" style="color:var(--mut)">${pl().price?"$"+pl().price.toFixed(2)+" / "+t("mo"):"$0"}</span></div>
- <ul class="text-sm space-y-1.5 my-3">${planLines(S.plan).slice(0,4).map(l=>`<li class="flex items-start gap-2"><span class="mt-0.5 shrink-0" style="color:var(--acc)">${ic("check",14)}</span><span>${esc(l)}</span></li>`).join("")}</ul>
- <button class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="openPlans()">${ic("crown",16)}${t("planT")}</button>`}
+function renderPro(){}
+
 function renderAuth(){const el=$("authCard");if(!el)return;
  if(!S.authed){el.innerHTML=`<div class="text-center space-y-3"><p class="font-semibold">${t("signedOut")}</p><button onclick="login()" class="btn pri w-full py-2.5 rounded-xl text-sm">${t("signIn")}</button></div>`;return}
  const st=(ok,yes,no)=>`<span class="text-[11px] px-2 py-0.5 rounded-full border ${ok?"bg-emerald-50 text-emerald-700 border-emerald-200":"bg-amber-50 text-amber-700 border-amber-200"}">${ok?yes:no}</span>`;
@@ -1365,9 +1358,16 @@ function renderAuth(){const el=$("authCard");if(!el)return;
    <div class="rounded-xl p-3" style="background:#F8FAFC;border:1px solid var(--line)"><p class="text-[11px]" style="color:var(--mut)">${t("lblPhoneP")}</p><p class="truncate">${esc(S.user.phone||"—")}</p><div class="mt-1">${st(!!S.user.phone,t("phoneSaved"),t("phoneMissing"))}</div></div>
   </div>`}
 async function saveProfile(){if(!S.authed){toast(t("authNeed"));return}
- const n=$("pName").value.trim(),email=$("pEmail").value.trim();
- if(n&&n!==S.user.name){if(!await saveFullName(n)){toast(t("nameSaveFail"));return}}
- S.user.email=email;renderAv();refreshTrust();renderAuth();saveUserData();toast(t("saved"))}
+ const n=($("pName").value||"").trim();
+ if(n.length<2){toast(t("errName"));return}
+ if(n!==S.user.name){if(!await saveFullName(n)){toast(t("nameSaveFail"));return}}
+ const digits=($("pPhone").value||"").replace(/\D/g,"");
+ if(digits){
+  if(digits.length<7||digits.length>13){toast(t("errPhone"));return}
+  const ph=normPhone($("pCC").value,digits);
+  if(ph!==(S.user.phone||"").replace(/\D/g,"").replace(/^/,"")&&ph!==S.user.phone){if(!await savePhone(ph)){toast(t("phoneSaveFail"));return}}
+ }
+ renderAv();refreshTrust();renderAuth();saveUserData();paintPersonal();toast(t("saved"))}
 $("saveP").onclick=saveProfile;
 // Saves the display name only. The UI updates at once; the server write is awaited and retried when back online.
 async function saveFullName(n){
@@ -1453,15 +1453,16 @@ let ccIso="PK",ccUserPicked=false;
 const ccFlag=iso=>String.fromCodePoint(...[...iso.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65));
 const ccDial=iso=>{const c=CC_LIST.find(x=>x[0]===iso);return c?c[2]:"+92"};
 const ccKnown=r=>!!r&&CC_LIST.some(c=>c[0]===r);
-function setCC(iso){ccIso=iso;$("suCC").value=ccDial(iso);const b=$("suCCBtn");
- if(b)b.innerHTML=`<span class="text-base leading-none" aria-hidden="true">${ccFlag(iso)}</span><span class="text-sm font-medium">${ccDial(iso)}</span>${ic("chevd",14)}`}
-function openCC(){$("ccQ").value="";renderCC();openM("mCC");setTimeout(()=>$("ccQ").focus(),60)}
+function setCC(iso){ccIso=iso;const dial=ccDial(iso);
+ [["suCC","suCCBtn"],["liCC","liCCBtn"],["pCC","pCCBtn"]].forEach(([h,b])=>{const hi=$(h);if(hi)hi.value=dial;const bt=$(b);
+  if(bt)bt.innerHTML=`<span class="text-base leading-none" aria-hidden="true">${ccFlag(iso)}</span><span class="text-sm font-medium">${dial}</span>${ic("chevd",14)}`})}
+function openCC(tgt){ccTarget=tgt||"su";$("ccQ").value="";renderCC();openM("mCC");setTimeout(()=>$("ccQ").focus(),60)}
 function renderCC(){const raw=($("ccQ").value||"").trim().toLowerCase(),qd=raw.replace(/\D/g,"");
  const hits=CC_LIST.filter(([iso,name,dial])=>!raw||name.toLowerCase().includes(raw)||(qd&&dial.slice(1).startsWith(qd)));
  $("ccList").innerHTML=hits.length?hits.map(([iso,name,dial])=>`<li><button type="button" onclick="pickCC('${iso}')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left ${iso===ccIso?"bg-violet-50":"hover:bg-slate-50"}">
    <span class="text-xl leading-none" aria-hidden="true">${ccFlag(iso)}</span><span class="flex-1 min-w-0 text-sm truncate">${esc(name)}</span><span class="text-sm font-medium" style="color:var(--mut)">${dial}</span></button></li>`).join("")
   :`<li class="py-8 text-center text-sm" style="color:var(--mut)">${t("ccNone")}</li>`}
-function pickCC(iso){ccUserPicked=true;setCC(iso);closeM("mCC");$("suPhone").focus()}
+function pickCC(iso){ccUserPicked=true;setCC(iso);closeM("mCC");const ph=$({su:"suPhone",li:"liPhone",p:"pPhone"}[ccTarget]||"suPhone");if(ph)ph.focus()}
 // Default country: device locale first, then timezone; an IP lookup (when reachable) refines it unless the user already chose
 async function detectCountry(){
  try{const r=new Intl.Locale(navigator.language).maximize().region;if(ccKnown(r))return r}catch(e){}
@@ -1487,7 +1488,7 @@ function clearAuthMsgs(){$("authErr").classList.add("hidden");$("authOk").classL
 
 // Red border + red text when the two password fields differ
 function setPwState(bad){
- ["suPass","suPass2"].forEach(id=>{const el=$(id);el.style.borderColor=bad?"#E11D48":"";el.style.boxShadow=bad?"0 0 0 3px rgba(225,29,72,.15)":""});
+ ["suPass","suPass2"].forEach(id=>{const el=$(id);if(!el)return;el.style.borderColor=bad?"#E11D48":"";el.style.boxShadow=bad?"0 0 0 3px rgba(225,29,72,.15)":""});
  const m=$("pwMatchMsg");if(m){m.textContent=t("errMatch");m.style.display=bad?"":"none"}
 }
 function initPwMatch(){
@@ -1500,28 +1501,38 @@ function initPwMatch(){
 
 async function signUp(){
  if(authBusy)return;clearAuthMsgs();
- const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),email=$("suEmail").value.trim().toLowerCase();
- const pass=$("suPass").value,pass2=$("suPass2").value,digits=$("suPhone").value.replace(/\D/g,"");
+ const full=$("suName").value.trim(),username=$("suUser").value.trim().toLowerCase(),pass=$("suPass").value;
  if(full.length<2)return authErr(t("errName"));
  if(!USERNAME_RE.test(username))return authErr(t("errUser"));
- if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return authErr(t("errEmail"));
- if(digits.length<7||digits.length>13)return authErr(t("errPhone"));
+ let email="",phone="";
+ if(suChannel==="phone"){
+  const digits=$("suPhone").value.replace(/\D/g,"");
+  if(digits.length<7||digits.length>13)return authErr(t("errPhone"));
+  phone=normPhone($("suCC").value,digits);
+  email=phoneAuthEmail(phone);
+ }else{
+  email=$("suEmail").value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return authErr(t("errEmail"));
+ }
  if(pass.length<8)return authErr(t("errPass"));
+ const pass2=(($("suPass2")||{}).value)||"";
+ if(!pass2){setPwState(true);return authErr(t("errConfirmReq"))}
  if(pass!==pass2){setPwState(true);return authErr(t("errMatch"))}
  setPwState(false);
  if(!sb)return authErr(t("sbOff"));
- try{const r=await sb.rpc("username_available",{u:username});if(r&&r.data===false)return authErr(t("errUserTaken"))}catch(e){}
- const phone=normPhone($("suCC").value,digits);
- const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
- if(error)return authErr(authFail(error));
- if(data&&data.user&&data.user.identities&&data.user.identities.length===0)return authErr(t("errHasAcc"));
- // Manual upsert so the profile row exists even if a database trigger fails
- const prof={id:data&&data.user&&data.user.id,full_name:full,username,email,phone,provider:"email"};
- if(prof.id)await upsertSignupProfile(prof);
- if(data&&data.session){enterFromSession(data.session.user);return}
- // No session returned (project requires email confirmation): try to sign in straight away, otherwise ask to confirm
- const si=await sb.auth.signInWithPassword({email,password:pass});
- if(si&&si.data&&si.data.session){if(prof.id)await upsertSignupProfile(prof);enterFromSession(si.data.session.user)}else authOk(t("checkEmail"));
+ authBusy=true;
+ try{
+  try{const r=await sb.rpc("username_available",{u:username});if(r&&r.data===false)return authErr(t("errUserTaken"))}catch(e){}
+  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:full,username,phone},emailRedirectTo:siteUrl()}});
+  if(error)return authErr(authFail(error));
+  if(data&&data.user&&data.user.identities&&data.user.identities.length===0)return authErr(t("errHasAcc"));
+  const prof={id:data&&data.user&&data.user.id,full_name:full,username,email:suChannel==="phone"?"":email,phone,provider:"email"};
+  if(prof.id)await upsertSignupProfile(prof);
+  if(data&&data.session){enterFromSession(data.session.user);return}
+  const si=await sb.auth.signInWithPassword({email,password:pass});
+  if(si&&si.data&&si.data.session){if(prof.id)await upsertSignupProfile(prof);enterFromSession(si.data.session.user)}
+  else authOk(t("checkEmail"));
+ }finally{authBusy=false}
 }
 
 let authBusy=false;
@@ -1529,15 +1540,23 @@ let authBusy=false;
 async function upsertSignupProfile(row){try{const {error}=await sb.from("profiles").upsert(row,{onConflict:"id"});if(error)console.warn("profiles upsert:",error.message);return !error}catch(e){return false}}
 async function logIn(){
  if(authBusy)return;clearAuthMsgs();
- // Read the live DOM values at submit time so browser / Google Password Manager autofill is always picked up
- const f=$("formLogin"),id=(($("auth-username")||{}).value||(f&&f.elements.username&&f.elements.username.value)||"").trim().toLowerCase(),
-  pass=($("auth-password")||{}).value||(f&&f.elements.password&&f.elements.password.value)||"";
- if(!id||!pass)return authErr(t("errLoginReq"));
+ const pass=(($("auth-password")||{}).value)||"";
+ if(!pass)return authErr(t("errLoginReq"));
  if(!sb)return authErr(t("sbOff"));
  authBusy=true;
  try{
-  let email=id;
-  if(!id.includes("@")){try{const r=await sb.rpc("email_for_username",{u:id});email=(r&&r.data)||""}catch(e){email=""}}
+  let email="";
+  if(liChannel==="phone"){
+   const digits=((($("liPhone")||{}).value)||"").replace(/\D/g,"");
+   if(digits.length<7||digits.length>13)return authErr(t("errPhone"));
+   const phone=normPhone($("liCC").value,digits);
+   try{const r=await sb.rpc("email_for_phone",{phone_in:phone});email=(r&&r.data)||""}catch(e){email=""}
+  }else{
+   const id=((($("auth-username")||{}).value)||"").trim().toLowerCase();
+   if(!id)return authErr(t("errLoginReq"));
+   email=id;
+   if(!id.includes("@")){try{const r=await sb.rpc("email_for_username",{u:id});email=(r&&r.data)||""}catch(e){email=""}}
+  }
   if(!email)return authErr(t("errLogin"));
   const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){const m=String(error.message||"").toLowerCase();
@@ -1579,7 +1598,7 @@ function enterFromSession(user){
   const md=user.user_metadata||{};
   const fullName=md.full_name||md.name||"";
   const provider=(user.app_metadata&&user.app_metadata.provider)||"email";
-  applySession({uid:user.id,name:fullName,contact:user.email||phoneOf(user)||"",provider,picture:md.avatar_url||"",
+  applySession({uid:user.id,name:fullName,contact:(isPhoneEmail(user.email)?"":user.email)||phoneOf(user)||"",provider,picture:md.avatar_url||"",
    username:md.username||"",phone:md.phone||phoneOf(user)||"",verified:!!user.email_confirmed_at,key:user.id});
   cleanAuthUrl();
   saveUserRow(user).then(ok=>{if(!ok)window.addEventListener("online",()=>saveUserRow(user),{once:true})});
@@ -1613,7 +1632,7 @@ function featStep(d){featGo(featIdx+d);restartFeat()}
 function renderFeatDots(){$("featDots").innerHTML=[...Array($("featSlides").children.length)].map((_,i)=>
  `<button type="button" aria-label="Slide ${i+1}" onclick="featGo(${i});restartFeat()" class="h-1.5 rounded-full transition-all ${i===featIdx?"w-5 bg-violet-600":"w-1.5 bg-slate-300"}"></button>`).join("")}
 function restartFeat(){clearInterval(featTimer);featTimer=setInterval(()=>featGo(featIdx+1),5000)}
-function initFeatures(){const el=$("featSlides");
+function initFeatures(){const el=$("featSlides");if(!el)return;
  el.addEventListener("scroll",()=>{const i=Math.round(el.scrollLeft/el.clientWidth);if(i!==featIdx){featIdx=i;renderFeatDots()}},{passive:true});
  el.addEventListener("touchstart",()=>clearInterval(featTimer),{passive:true});
  el.addEventListener("touchend",restartFeat,{passive:true});
@@ -1627,7 +1646,7 @@ async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.s
 
 // Restores the Supabase session if one exists; otherwise shows Sign Up / Log In
 function authBoot(){
- initCountryPicker();setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
+ initCountryPicker();setChannel("su","email");setChannel("li","email");setAuthMode(authMode);initHdrCur();initFeatures();initPwMatch();
  freshState("");
  if(!sb){showAuth();authErr(t("sbOff"));return}
  sb.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>{
@@ -2001,9 +2020,9 @@ async function createGroup(){const name=(($("ngName").value)||"").trim();const p
 function clearCalls(){if(!confirm(t("callsClearConfirm")))return;try{localStorage.removeItem("lifeone.calls")}catch(e){}renderCallsPanel()}
 
 /* ---------- More / Settings ---------- */
-function openMore(k){document.querySelectorAll("#tab-profile .mp").forEach(e=>{e.hidden=(e.id!=="mp_"+k)});
+function openMore(k){document.querySelectorAll("#profBody .mp").forEach(e=>{e.hidden=(e.id!=="mp_"+k)});
  const root=$("moreRoot");if(root)root.hidden=!!k;const top=$("moreTop");if(top)top.hidden=!!k;
- if(!k)paintMore();if(k==="money")renderMoney();if(k==="tasks")renderTasks();if(k==="lang")renderLangList();if(k==="personal")loadAbout();scrollTo({top:0})}
+ if(!k)paintMore();if(k==="money")renderMoney();if(k==="tasks")renderTasks();if(k==="lang")renderLangList();if(k==="personal"){paintPersonal();loadAbout()}const pt=$("profTitle");if(pt)pt.textContent=t(k?({personal:"moPersonal",money:"moMoney",tasks:"moTasks",lang:"moLang"})[k]:"navMore");scrollTo({top:0})}
 function paintMore(){const n=S.user.name||"";const a=$("moreAv");if(a)a.innerHTML=avHTML(n||"?",52,S.user.img||"");
  const nm=$("moreName");if(nm)nm.textContent=n;}
 function setLangMore(v){const l=$("lang");if(!l)return;l.value=v;if(l.onchange)l.onchange({target:{value:v}});setLabels();paintMore()}
@@ -2029,7 +2048,7 @@ function openWall(){const g=$("wallGrid");if(!g)return;const cur=curWall();
  openM("mWall")}
 function setWall(k){try{localStorage.setItem("lifeone.wall",k)}catch(e){}applyWall();closeM("mWall")}
 
-Object.assign(T.en,{moFamily:"Family and live location",moAbout:"About",aboutPh:"Write a short status or about message",aboutHint:"Shown on your profile to people you chat with. Up to 160 characters.",saveAbout:"Save About",aboutSaved:"About saved",aboutFail:"About could not be saved. Check your connection, and run the About database migration if this continues.",moTasks:"My Tasks",airOn:"Airplane mode is on. New messages are paused until you turn it off.",airOnToast:"Airplane mode on. Messages are paused.",airOffToast:"Airplane mode off. Syncing messages.",moMoney:"Money tracker",moTasks:"Tasks",grpDelTitle:"Delete group?",grpDelText:"Deleting this group removes it for all {n} members and deletes every message in it. This cannot be undone. Type the group name to confirm.",grpDelBtn:"Delete group",grpCancel:"Cancel",navChats:"Chats",navGroups:"Groups",navCalls:"Calls",navMore:"More",back:"Back",
+Object.assign(T.en,{welcomeTitle:"Welcome to LifeOne",welcomeSub:"Enjoy seamless communication, advanced management tools, Money Tracker, My Tasks, and much more in one powerful platform.",chipSecure:"Secure messaging",chipMoney:"Money Tracker",chipTasks:"My Tasks",chipAdv:"Advanced tools",errConfirmReq:"Please confirm your password.",tagline:"Enjoy with LifeOne",viaEmail:"Email",viaPhone:"Phone number",idLbl:"Email or username",moPhone:"Phone number (WhatsApp)",phoneHint:"Used for WhatsApp and phone sign-in.",phoneSaveFail:"Phone number could not be saved. Check your connection and try again.",invHint:"Share this link so people can join LifeOne.",moFamily:"Family and live location",moAbout:"About",aboutPh:"Write a short status or about message",aboutHint:"Shown on your profile to people you chat with. Up to 160 characters.",saveAbout:"Save About",aboutSaved:"About saved",aboutFail:"About could not be saved. Check your connection, and run the About database migration if this continues.",moTasks:"My Tasks",airOn:"Airplane mode is on. New messages are paused until you turn it off.",airOnToast:"Airplane mode on. Messages are paused.",airOffToast:"Airplane mode off. Syncing messages.",moMoney:"Money tracker",moTasks:"Tasks",grpDelTitle:"Delete group?",grpDelText:"Deleting this group removes it for all {n} members and deletes every message in it. This cannot be undone. Type the group name to confirm.",grpDelBtn:"Delete group",grpCancel:"Cancel",navChats:"Chats",navGroups:"Groups",navCalls:"Calls",navMore:"More",back:"Back",
  newGroup:"New group",grpNew:"New group",grpName:"Group name",grpPickHint:"Choose members from your contacts.",grpCreate:"Create group",
  grpNeedName:"Enter a group name.",grpNeedMember:"Choose at least one member.",grpNoContacts:"No contacts to add yet. Connect with people first.",
  grpEmpty:"No groups yet. Tap New group to create one.",grpCreated:"Group created",grpFail:"Something went wrong. Check your connection and try again.",
@@ -2068,6 +2087,38 @@ async function saveAbout(){if(!sb||!S.user.uid){toast(t("sbOff"));return}
  const {data,error}=await sb.from("profiles").update({bio:v}).eq("id",S.user.uid).select("id");
  if(error||!data||!data.length){console.warn("about:",error?error.message:"no rows changed");toast(t("aboutFail"));return}
  S.user.bio=v;toast(t("aboutSaved"))}
+
+
+/* ---------- sign-up / login channel (email or phone), phone-only accounts ---------- */
+let suChannel="email",liChannel="email",ccTarget="su";
+const isPhoneEmail=e=>String(e||"").toLowerCase().endsWith("@"+PHONE_EMAIL_DOMAIN);
+const phoneAuthEmail=p=>String(p).replace(/\D/g,"")+"@"+PHONE_EMAIL_DOMAIN;
+function setChannel(f,ch){const isSu=f==="su";if(isSu)suChannel=ch;else liChannel=ch;
+ const show=(id,on)=>{const e=$(id);if(e)e.style.display=on?"":"none"};
+ show(isSu?"suEmailBox":"liEmailBox",ch==="email");show(isSu?"suPhoneBox":"liPhoneBox",ch==="phone");
+ const on="bg-white shadow-sm text-slate-900",off="text-slate-500";
+ const tE=$(f+"TabEmail"),tP=$(f+"TabPhone");
+ if(tE)tE.className="btn py-1.5 rounded-md text-xs font-medium "+(ch==="email"?on:off);
+ if(tP)tP.className="btn py-1.5 rounded-md text-xs font-medium "+(ch==="phone"?on:off)}
+async function email_placeholder(){}
+async function savePhone(ph){if(!sb||!S.user.uid)return true;
+ const {data,error}=await sb.from("profiles").update({phone:ph}).eq("id",S.user.uid).select("id");
+ if(error||!data||!data.length){console.warn("phone:",error?error.message:"no rows changed");return false}
+ S.user.phone=ph;return true}
+function splitPhone(full){const d=String(full||"").replace(/\D/g,"");
+ const hit=CC_LIST.map(c=>[c[0],c[2].slice(1)]).sort((x,y)=>y[1].length-x[1].length).find(([,dl])=>d.startsWith(dl));
+ return hit?{iso:hit[0],nat:d.slice(hit[1].length)}:{iso:ccIso,nat:d}}
+function paintPersonal(){const set=(id,v)=>{const e=$(id);if(e)e.value=v};
+ set("pName",S.user.name||"");set("pUser",S.user.username||"");
+ set("pEmail",(S.user.email||"").includes("@")&&!isPhoneEmail(S.user.email)?S.user.email:"");
+ const sp=splitPhone(S.user.phone||"");setCC(sp.iso);set("pPhone",sp.nat)}
+
+/* ---------- full-screen profile & settings (one header, one back button) ---------- */
+function openProfScreen(){document.querySelectorAll(".modal.on").forEach(m=>m.classList.remove("on"));
+ const p=$("profScreen");if(!p)return;p.classList.remove("hidden");openMore(null);scrollTo({top:0})}
+function closeProfScreen(){const p=$("profScreen");if(p)p.classList.add("hidden");go(S.view&&S.view!=="profile"?S.view:"chats")}
+function profBack(){const sub=[...document.querySelectorAll("#profBody .mp")].some(e=>!e.hidden);
+ if(sub)openMore(null);else closeProfScreen()}
 
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});

@@ -495,7 +495,7 @@ function applyLang(){const l=S.lang;document.documentElement.lang=l;const fl=$("
 $("lang").onchange=e=>{S.lang=e.target.value;applyLang()};
 
 /* tabs */
-function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=S.gun+S.fam.reduce((a,f)=>a+f.un,0);const badge={tasks:pend,family:un};
+function renderTabs(){updateBell();const pend=S.tasks.filter(x=>!x.d).length,un=unreadCount();const badge={tasks:pend,family:un};
  $("tabs").innerHTML=["home","tasks","money","family","profile"].map(k=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${S.view===k?"on":""}">
  <span class="relative">${ic(k,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(k)}<i class="bar"></i></button>`).join("")}
 function go(v){S.view=v;document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));renderTabs();scrollTo({top:0})}
@@ -640,7 +640,7 @@ const PLAN={free:{name:"Free",price:0,max:3,cp:3,voice:false,video:false,precise
 const pl=()=>PLAN[S.plan];
 const canCall=v=>v?pl().video:pl().voice;
 function planLines(k){const p=PLAN[k];
- const loc=k==="free"?t("lArea"):k==="pro"?t("lLive"):t("lPrecise");
+ const loc=k==="free"?t("lLive"):k==="pro"?t("lLive"):t("lPrecise");
  const L=[t("lContacts").replace("{n}",p.max),p.video?t("lVideo"):p.voice?t("lVoice"):t("lText"),p.cp===Infinity?t("lCpUnl"):t("lCp").replace("{n}",p.cp),loc];
  if(k==="pro")L.push(t("lSmart"));
  if(k==="plus"){L.push(t("lAI"));L.push(t("lMap"));L.push(t("lHelp"))}
@@ -805,7 +805,7 @@ function inviteWA(){const n=waNum($("invTo").value);window.open((n?`https://wa.m
 function inviteSMS(){const to=$("invTo").value.replace(/[^\d+]/g,"");location.href="sms:"+to+"?body="+encodeURIComponent($("invMsg").value)}
 async function inviteCopy(){try{await navigator.clipboard.writeText($("invMsg").value);toast(t("copied"))}catch(e){$("invMsg").select();toast(t("copyFail"))}}
 async function inviteShare(){if(navigator.share){try{await navigator.share({text:$("invMsg").value})}catch(e){}}else inviteCopy()}
-function toggleShare(){S.shareOn=!S.shareOn;if(S.shareOn)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
+function toggleShare(){S.shareOn=!S.shareOn;saveUserData();if(S.shareOn)startGeo(true);else stopGeo();syncLocation(true);renderFam();renderShield();renderHomeFam();renderLocSetting();refreshTrust()}
 function renderLocSetting(){const el=$("locSetting");if(!el)return;
  if(!S.authed){el.innerHTML="";return}
  const on=S.shareOn;
@@ -822,7 +822,7 @@ function renderFam(){renderChatList();const on=S.fam.filter(f=>sharing(f)).lengt
  <button onclick="openChat('g')" class="btn pri rounded-xl px-4 py-2 text-sm">${ic("chat",16)}${t("open")}${S.gun?`<b class="px-1.5 rounded-full bg-white text-xs" style="color:var(--pri)">${S.gun}</b>`:""}</button></div>`;
  const locFor=(f,i)=>{if(!S.shareOn||consentOf(f)!=="active")return "";
   if(pl().precise)return locBlock(f,i)+(f.lat!=null?`<button onclick="window.open('https://www.google.com/maps?q=${f.lat},${f.lng}','_blank','noopener')" class="btn out rounded-xl px-3 py-1.5 text-xs mt-2">${ic("pin",14)}${t("openMap")}</button>`:"");
-  if(S.plan==="pro")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
+  if(S.plan==="pro"||S.plan==="free")return `<div class="rounded-xl p-3 mt-3 bg-emerald-50 border border-emerald-200 text-sm"><div class="flex items-center gap-2 font-semibold text-emerald-700">${ic("pin",16)}<span class="truncate">${t("vlive")}: ${esc(f.addr)}</span></div><div class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--mut)">${ic("battery",12)}${f.b}%</div></div>`;
   return `<div class="rounded-xl p-3 mt-3 bg-slate-50 border border-slate-200 text-sm flex items-center gap-2" style="color:var(--mut)">${ic("pin",16)}<span>${t("approx")}: ${esc(f.city||f.addr||"")}</span></div>`};
  const btnCall=(i,v)=>{const ok=canCall(v);return `<button onclick="startCall(${i},${v})" class="btn out py-2 rounded-xl text-sm ${ok?"":"opacity-70"}">${ic(v?"video":"phone",16)}${t(v?"video":"call")}${ok?"":ic("lock",12)}</button>`};
  const card=(f,i)=>{const c=consentOf(f),n=f.n.split(" ")[0];let body;
@@ -903,8 +903,9 @@ function openChatHead(){const cc=$("chatCalls");
   if(cc)cc.innerHTML="";return}
  const f=S.fam[chatK];if(!f){closeM("mChat");return}$("chatName").textContent=f.n;$("chatAv").innerHTML=avHTML(f.n,38);
  $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 ${f.on?"text-emerald-700":"text-slate-500"}">${ic("pin",13)}${t(f.on?"vlive":"lastSeen")}: ${esc(f.addr)}</span>${trustBadge(f.ts)}`;
- if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${ic(canCall(false)?"phone":"lock",16)}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${ic(canCall(true)?"video":"lock",16)}</button>`}
-function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t(video?"upVideo":"upVoice"));return}startCall(k,video)}
+ if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
+function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
+function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
 function openChat(k){if(k==="g"&&S.plan==="free"){openPlans(t("groupLocked"));return}chatK=k;if(k!=="g"&&!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else{S.fam[k].un=0;markRead(S.fam[k].key)}openChatHead();renderMsgs();openM("mChat");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);closeM("mChat")}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
@@ -998,9 +999,13 @@ function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
 $("tTitle").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
 
+const VOICE_FREE_MAX=3;
+const voiceKey=()=>"lifeone.voice."+S.user.uid+"."+new Date().toDateString();
+function voiceLeft(){if(S.plan!=="free")return Infinity;return Math.max(0,VOICE_FREE_MAX-store.get(voiceKey(),0))}
+function voiceUse(){if(S.plan!=="free")return;store.set(voiceKey(),store.get(voiceKey(),0)+1)}
 /* voice notes (real MediaRecorder when mic is allowed, simulated otherwise) */
 let rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
-async function recStart(){if(rec.on)return;rec={on:true,mr:null,stream:null,chunks:[],sec:0,timer:null};
+async function recStart(){if(rec.on)return;if(voiceLeft()<=0){openPlans(t("voiceLimit"));return}voiceUse();rec={on:true,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);
  try{rec.stream=await navigator.mediaDevices.getUserMedia({audio:true});rec.mr=new MediaRecorder(rec.stream);rec.mr.ondataavailable=e=>rec.chunks.push(e.data);rec.mr.start()}catch(e){rec.mr=null}}
@@ -1063,12 +1068,12 @@ Object.assign(T.en,{authTitle:"Welcome to LifeOne",authSub:"Your personal AI-pow
 let dataReady=false;
 const dataKey=()=>"lifeone.data."+S.user.uid;
 function saveUserData(){if(!dataReady||!S.user.uid)return;
- try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,fam:S.fam})}
+ try{store.set(dataKey(),{v:1,tx:TX,tasks:S.tasks,fam:S.fam,shareOn:!!S.shareOn})}
  catch(e){toast(t("storeFull"))}}
 function loadUserData(){const d=store.get(dataKey(),null);
  if(d){TX=Array.isArray(d.tx)?d.tx:[];S.tasks=Array.isArray(d.tasks)?d.tasks:[];S.chats={g:[]};S.fam=Array.isArray(d.fam)?d.fam:[]}
  else{TX=[];S.tasks=[];S.chats={g:[]};S.fam=[]}
- dataReady=true}
+ S.shareOn=!!(d&&d.shareOn);dataReady=true}
 function freshState(name){dataReady=false;
  S.tasks=[];S.fam=[];S.notifs=[{t:t("welcomeNote"),r:false}];S.chats={g:[]};S.gun=0;S.streak=0;
  S.habits=[{k:"hab1",d:0,g:21},{k:"hab2",d:0,g:14},{k:"hab3",d:0,g:30}];
@@ -1246,7 +1251,7 @@ function enterFromSession(user){
   applySession({uid:user.id,name:fullName,contact:user.email||phoneOf(user)||"",provider,picture:md.avatar_url||"",
    username:md.username||"",phone:md.phone||phoneOf(user)||"",verified:!!user.email_confirmed_at,key:user.id});
   cleanAuthUrl();
-  saveUserRow(user).then(ok=>{if(!ok)toast(t("dbErr"))});
+  saveUserRow(user).then(ok=>{if(!ok)window.addEventListener("online",()=>saveUserRow(user),{once:true})});
  }finally{enteringId=null}
 }
 async function saveUserRow(user){
@@ -1255,8 +1260,15 @@ async function saveUserRow(user){
   const md=user.user_metadata||{};
   const row={id:user.id,full_name:md.full_name||md.name||"",email:user.email||null,phone:md.phone||phoneOf(user)||null,
    username:md.username||null,provider:(user.app_metadata&&user.app_metadata.provider)||"email"};
-  const {error}=await DB.upsertUser(row,{ignoreDuplicates:true});
-  return !error;
+  const key="lifeone.prof."+user.id;
+  if(store.get(key,null)==="ok")return true;   // already saved on this device: skip the network call on refresh
+  for(let n=0;n<3;n++){
+   let error=null;
+   try{({error}=await DB.upsertUser(row,{ignoreDuplicates:true}))}catch(e){error=e||{message:"network"}}
+   if(!error){store.set(key,"ok");return true}
+   if(!isNetErr(error))return false;          // real server rejection: log only, never block the session
+   await new Promise(r=>setTimeout(r,1500*(n+1)))}   // network blip: retry with backoff
+  return false;
  }catch(e){return false}
 }
 // Removes ?code= / #access_token= from the address bar once the session is in
@@ -1278,7 +1290,7 @@ function initFeatures(){const el=$("featSlides");
 
 /* ---------- log out, data load, boot ---------- */
 // Transactions stay in this device’s storage; profile, contacts search and messages are live from Supabase
-function loadRemoteTx(){askNotifPerm();loadUserData();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
+function loadRemoteTx(){askNotifPerm();loadUserData();if(S.shareOn)startGeo();renderAll();handleReferral();loadMyProfile();loadProfiles().then(loadMessages);startRealtime()}
 function localSignedOut(){stopRealtime();S.authed=false;S.user.uid="";PROF.clear();freshState("");showAuth();renderAll()}
 async function logout(){closeM("mOut");closeM("mChat");try{if(sb)await sb.auth.signOut()}catch(e){}localSignedOut()}
 
@@ -1307,7 +1319,7 @@ async function loadMyProfile(){if(!sb||!S.user.uid)return;
  if(data.avatar_url)S.user.img=data.avatar_url;renderAll()}
 function syncProfile(){if(!sb||!S.user.uid)return;
  DB.upsertUser({id:S.user.uid,full_name:S.user.name,email:S.user.email||null,phone:S.user.phone||null,username:S.user.username||null,avatar_url:S.user.img||null,provider:S.user.provider||"email"})
-  .then(r=>{if(r&&r.error)toast(t("dbErr"))})}
+  .then(r=>{if(r&&r.error){console.warn("profile sync:",r.error.message);if(isNetErr(r.error))window.addEventListener("online",()=>syncProfile(),{once:true})}})}
 function addContact(u){if(!u||S.fam.some(f=>f.key===u.id))return;
  S.fam.push({key:u.id,n:u.name,rel:t("contact"),cc:"",addr:u.phone||u.email||"",city:"",lat:null,lng:null,ts:0,b:null,on:false,un:0,me:true,them:false,m:[]})}
 async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&id!==S.user.uid&&!S.fam.some(f=>f.key===id));if(!need.length||!sb)return;
@@ -1336,7 +1348,8 @@ function showMsgBanner(title,body,k){let b=$("msgBanner");
  if(!b){b=document.createElement("div");b.id="msgBanner";b.className="fixed left-1/2 -translate-x-1/2 top-3 z-[96] w-[92%] max-w-md card p-3 flex items-center gap-3 cursor-pointer shadow-lg";document.body.appendChild(b)}
  b.innerHTML=`<span class="w-9 h-9 rounded-full grid place-items-center text-white shrink-0" style="background:var(--pri)">${ic("chat",18)}</span><span class="min-w-0 flex-1"><b class="block text-sm truncate">${esc(title)}</b><span class="block text-xs truncate" style="color:var(--mut)">${esc(body)}</span></span>`;
  b.onclick=()=>{b.style.display="none";openChat(k)};b.style.display="flex";clearTimeout(showMsgBanner.h);showMsgBanner.h=setTimeout(()=>{b.style.display="none"},5000)}
-function updateBell(){const el=$("bellDot");if(!el)return;const n=S.gun+S.fam.reduce((a,f)=>a+(f.un||0),0)+S.notifs.filter(x=>!x.r).length;
+function unreadCount(){return (S.gun?1:0)+S.fam.filter(f=>(f.un||0)>0).length}
+function updateBell(){const el=$("bellDot");if(!el)return;const n=unreadCount()+S.notifs.filter(x=>!x.r).length;
  el.textContent=n>99?"99+":String(n);el.style.display=n?"flex":"none"}
 async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.sender_id===me;
  if(!mine&&r.receiver_id!==me&&!(r.audience||[]).includes(me))return;
@@ -1350,7 +1363,7 @@ async function onMsgRow(r){const me=S.user.uid;if(!r||!me)return;const mine=r.se
   if(!quiet){chime();buzz();showMsgBanner(who||"LifeOne",prev,k)}
   if(!quiet||document.hidden)sysNotify(who||"LifeOne",prev,"msg-"+k)}
  if(open){renderMsgs();if(!mine&&k!=="g")markRead(S.fam[k].key)}
- else if(!mine){if(k==="g")S.gun++;else S.fam[k].un++}
+ else if(!mine){if(k==="g")S.gun=1;else S.fam[k].un++}
  renderTabs();renderFam();saveUserData()}
 function onProfRow(r){if(!r||!r.id)return;PROF.set(r.id,r);applyProfLoc(r);
  if(r.id===S.user.uid){if(r.full_name)S.user.name=r.full_name;if(r.avatar_url)S.user.img=r.avatar_url;try{renderAv();renderAuth()}catch(e){}}
@@ -1372,7 +1385,7 @@ function startRealtime(){stopRealtime();if(!sb||!S.user.uid)return;
   else if(st==="CHANNEL_ERROR"||st==="TIMED_OUT"||st==="CLOSED"){rtJoined=false;scheduleRt()}});   // silent: no toast, REST polling covers the gap
  const cp=sb.channel("lo-prof-"+S.user.uid);rtProf=cp;
  cp.on("postgres_changes",{event:"*",schema:"public",table:"profiles"},p=>onProfRow(p.new)).subscribe();
- pollT=setInterval(()=>{if(!rtJoined)pollMsgs()},10000)}
+ pollT=setInterval(()=>pollMsgs(),4000)}
 window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 
@@ -1392,6 +1405,7 @@ Object.assign(T.en,{lifeUser:"Active Member",locBtn:"Location",inviteMember:"Inv
 Object.assign(T.en,{inc_biz:"Business",cDine:"Dining",s_wallet:"Mobile Wallet",s_card:"Credit Card",inviteWA:"Invite via WhatsApp"});
 Object.assign(T.en,{btnSoon:"Coming Soon",soonMsg:"This feature is Coming Soon! Payment gateways will be enabled in upcoming versions.",demoPay:"Pro and Pro Plus are Coming Soon. Payment gateways will be enabled in upcoming versions."});
 
+Object.assign(T.en,{premFeat:"Premium Feature - Please purchase premium to unlock calls",voiceLimit:"Free plan allows 3 voice messages per day. Upgrade to Premium for unlimited voice messages."});
 function renderAll(){saveUserData();[renderAv,renderTasks,renderMoney,renderFam,renderTabs,renderNotifs,renderPro,renderTrust,renderStrip,cpChips,renderShield,renderCpUsage,renderHabits,renderHomeFam,renderAuth,renderStreak,renderDemoBox,famSearch,renderLocSetting].forEach(f=>{try{f()}catch(e){console.error(f.name,e)}});
  $("pName").value=S.user.name;$("pEmail").value=S.user.email;$("pLoc").value=S.user.loc;fillCoords()}
 

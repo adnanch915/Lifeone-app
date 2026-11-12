@@ -193,6 +193,13 @@ html.dark .vn .vn-btn:active,html.dark .vn .vn-btn:focus-visible{background:var(
 .vwave{color:var(--vnu)}
 .vwave i.on{background:var(--vnp);opacity:1}
 
+.vmsg{padding:5px 10px 3px!important}
+.vmsg .vn{padding:0!important;gap:8px!important;width:min(14.5rem,66vw)!important}
+.vmsg .vn .vn-btn{width:30px!important;height:30px!important;box-shadow:0 2px 6px rgba(15,23,42,.18)}
+.vmsg .vn .vn-btn svg{width:13px;height:13px}
+.vmsg .vwave{height:18px}
+.vmsg .vn .justify-between{margin-top:0!important;font-size:9.5px;line-height:1.1}
+.vmsg>.justify-end{margin-top:0!important;line-height:1!important}
 /* ---- Chat options, emoji picker, reply preview, active tab pill ---- */
 .ddItem{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink);background:transparent;text-align:start;border:0;cursor:pointer}
 .ddItem:hover,.ddItem:active{background:var(--pri2)}
@@ -577,7 +584,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 <div id="mAdmin" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">Moderation</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mAdmin')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Open reports, oldest first. Visible to admins only.</p><div id="adminBody" class="space-y-3"></div></div></div>
 <div id="mHub" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between gap-2"><div class="min-w-0"><b id="hubName" class="block truncate text-base"></b><span id="hubMode" class="text-xs" style="color:var(--mut)"></span></div><div class="flex gap-2 shrink-0"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="openHubChat()">Chat</button><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHub')" aria-label="Close">&times;</button></div></div><p id="hubNote" class="text-xs" style="color:var(--mut)"></p><div id="hubComposer" class="card p-3 space-y-2"></div><div id="hubList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
 <div id="mMedia" class="modal" style="z-index:85"><div class="sheet" style="max-width:460px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:86vh"><div class="flex items-center justify-between px-4 pt-4 pb-3"><b class="text-base">Media</b><button type="button" class="btn out rounded-full w-8 h-8" aria-label="Close" onclick="closeM('mMedia')">&times;</button></div><div class="px-4 pb-3 grid grid-cols-3 gap-2"><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromCamera()">📷 Camera</button><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromLibrary()">🖼 Library</button><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromLocation()">📍 Location</button></div><p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider" style="color:var(--mut)">Recent in this chat</p><div id="mgGrid" class="px-4 pb-4 grid grid-cols-3 gap-1.5 overflow-auto"></div></div></div><div id="mMediaPrev" class="modal" style="z-index:88;padding:0;background:rgba(0,0,0,.94)"><div style="width:100%;height:100%;display:flex;flex-direction:column"><div class="flex items-center justify-between p-3" style="padding-top:calc(env(safe-area-inset-top,0px) + 12px)"><button type="button" class="btn rounded-full px-4 py-1.5 text-sm" style="background:rgba(255,255,255,.14);color:#fff" onclick="closeM('mMediaPrev')">Close</button><button type="button" id="mpSend" class="btn pri rounded-full px-4 py-1.5 text-sm font-semibold" onclick="">Send</button></div><div id="mpBody" class="flex-1 min-h-0 flex items-center justify-center p-3"></div></div></div><div id="mStoryViewers" class="modal" style="z-index:90"><div class="sheet" style="max-width:420px;padding:0;max-height:70vh;display:flex;flex-direction:column;overflow:hidden"><div class="flex items-center justify-between px-4 pt-4 pb-2"><div><b class="text-base">Story viewers</b><div id="svCount" class="text-xs" style="color:var(--mut)"></div></div><button type="button" class="btn out rounded-full w-8 h-8" aria-label="Close" onclick="stvCloseViewers()">&times;</button></div><div id="svList" class="px-2 pb-4 overflow-auto"></div></div></div><div id="mStoryView" class="modal" style="z-index:86;padding:0;background:#000"><div id="stvWrap" style="width:100%;height:100%;position:relative;background:#000;color:#fff;display:flex;flex-direction:column;overflow:hidden"><div id="stvBars" style="display:flex;gap:4px;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 10px"></div><div id="stvTop" style="display:flex;align-items:center;gap:10px;padding:0 64px 12px 14px;justify-content:flex-start;text-align:left"></div><div id="stvBody" style="flex:1;display:flex;align-items:center;justify-content:center;padding:14px;font-size:22px;font-weight:700;text-align:center;position:relative;min-height:0"></div><div id="stvFoot" style="display:flex;align-items:center;justify-content:flex-start;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)"></div><button type="button" aria-label="Previous story" onclick="stvPrev()" style="position:absolute;left:0;top:110px;bottom:90px;width:35%"></button><button type="button" aria-label="Next story" onclick="stvNext()" style="position:absolute;right:0;top:110px;bottom:90px;width:35%"></button><button type="button" aria-label="Close story" onclick="closeStv()" style="position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 14px);color:#fff;font-size:30px;line-height:1;z-index:2;padding:4px 10px">&times;</button></div></div>
-<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*,video/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" style="min-height:340px;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#16A34A,#22C55E);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-1.5 mt-3 flex-nowrap" style="overflow-x:auto;scrollbar-width:none"></div><p id="stMediaInfo" class="text-xs mt-2" style="color:var(--mut)"></p><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
+<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*,video/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" oninput="stFit()" style="min-height:110px;max-height:60vh;overflow-y:auto;box-sizing:border-box;transition:height .18s ease;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#16A34A,#22C55E);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-1.5 mt-3 flex-nowrap" style="overflow-x:auto;scrollbar-width:none"></div><p id="stMediaInfo" class="text-xs mt-2" style="color:var(--mut)"></p><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
 <div id="mFeed" class="modal" style="z-index:80"><div class="sheet" style="max-width:520px;max-height:94vh;display:flex;flex-direction:column;gap:10px"><div class="flex items-center gap-2"><div role="tablist" class="flex gap-1 p-1 rounded-full" style="background:var(--bg)"><button type="button" id="fpForYou" role="tab" onclick="setFeedMode('foryou')">For You</button><button type="button" id="fpFollowing" role="tab" onclick="setFeedMode('following')">Following</button></div><span id="feedModeLbl" hidden></span><div class="flex-1"></div><button type="button" onclick="menuUpload()" aria-label="Upload media" title="Upload" class="w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center" style="color:#374151"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" onclick="closeM('mFeed')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="feedList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
 <div id="mCapPrev" class="modal" style="z-index:86"><div class="sheet" style="max-width:520px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh"><div class="flex items-center justify-between px-4 pt-4 pb-3"><b class="text-base">New post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="capClose()" aria-label="Close">&times;</button></div><div id="capMedia" class="flex items-center justify-center" style="background:#000;min-height:220px;max-height:50vh;overflow:hidden"></div><div class="p-4 space-y-3" style="overflow:auto"><p id="capMeta" class="text-xs" style="color:var(--mut)"></p><label for="capText" class="block text-xs font-semibold" style="color:var(--mut)">Caption</label><textarea id="capText" rows="5" maxlength="2200" class="inp w-full text-sm" placeholder="Describe your photo or video in detail. Use #hashtags and @mentions." oninput="capCount()"></textarea><div class="flex justify-between gap-2 text-xs" style="color:var(--mut)"><span id="capTags" class="truncate"></span><span id="capCount" class="shrink-0">0 / 2200</span></div><input id="capLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><p id="capStatus" class="text-sm" style="color:#E11D48"></p><button id="capPub" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-semibold" onclick="capPublish()">Publish</button></div></div></div>
 <div id="mUpload" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Upload post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUpload')" aria-label="Close">&times;</button></div><div class="flex gap-2"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedPhoto').click()">Photo</button><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedVideo').click()">Video</button></div><input id="feedPhoto" type="file" accept="image/*" class="hidden" onchange="feedPick(this,'photo')" autocomplete="off"><input id="feedVideo" type="file" accept="video/*" class="hidden" onchange="feedPick(this,'video')" autocomplete="off"><textarea id="feedText" rows="3" maxlength="500" class="inp w-full text-sm" placeholder="Caption. Use #hashtags and @mentions." oninput="feedTagsPreview()"></textarea><div id="feedTags" class="flex flex-wrap gap-1 text-xs" style="color:var(--mut)"></div><input id="feedLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><button type="button" class="btn ghost w-full py-2.5 rounded-xl text-sm" onclick="feedPostText()">Post text only</button><p id="feedStatus" class="text-xs" style="color:var(--mut)"></p></div></div>
@@ -592,7 +599,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
    <div class="flex items-center gap-2 flex-wrap"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('chvPhoto').click()">Photo</button><input id="chvPhoto" type="file" accept="image/*" class="hidden" onchange="chanPostPhoto(this)" autocomplete="off"><button type="button" id="chvVoiceBtn" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="chanVoiceToggle()">Voice note</button><span id="chvStatus" class="text-xs flex-1 min-w-0 truncate" style="color:var(--mut)"></span><button type="button" class="btn pri rounded-full px-4 py-1.5 text-xs font-medium" onclick="chanPostText()">Post</button></div>
    <p id="chvErr" class="text-sm" style="color:#E11D48"></p></div>
 </div></div>
-<div id="mStyle" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Themes &amp; stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStyle')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Chat wallpaper</p><div id="wallPick" class="flex gap-2 flex-wrap"></div><p class="text-xs" style="color:var(--mut)">Stickers (made from a photo, private to you)</p><input id="stkFile" type="file" accept="image/*" class="text-sm" onchange="stickerPick(this)" autocomplete="off"><p id="stkStatus" class="text-xs" style="color:var(--mut)"></p><div id="stkGrid" class="grid grid-cols-3 gap-2" style="overflow:auto"></div></div></div>
+<input id="stkFile" type="file" accept="image/*" class="hidden" onchange="stickerPick(this)" autocomplete="off"><p id="stkStatus" class="hidden"></p>
 <div id="mCallPlus" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Call</b><button type="button" class="btn ghost w-full text-start py-3" onclick="forwardMeeting()">🔗 Forward Meeting Link</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(false)">📞 Voice Call</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(true)">🎥 Video Call</button></div></div>
 <div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" style="color:#E11D48" onclick="deleteChatForMe()">🗑 Delete chat</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
 <div id="mChatTheme" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Chat theme</b><p class="text-xs" style="color:var(--mut)">Colour of your messages in this chat.</p><div id="chatThemePick" class="flex gap-3 flex-wrap"></div></div></div>
@@ -1296,7 +1303,7 @@ function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinne
   const badge=isNew?`<span style="position:absolute;top:-8px;left:10px;padding:1px 7px;border-radius:999px;font-size:9px;font-weight:700;line-height:14px;color:#fff;background:#22C55E;box-shadow:0 1px 3px rgba(0,0,0,.2)">NEW</span>`:"";
   const group=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:#16A34A">${esc(m.from||"")}</p>`:"";
   const star=((m.starred||STARRED_IDS.has(m.id))?"★ ":"")+(MPINS.includes(pinKey(m))?"📌 ":"");
-  return `<div class="flex ${rowJust} px-2" style="position:relative"><span class="swipe-ic" id="swi${i}" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v2"/></svg></span><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" data-mid="${esc(m.id||"")}" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed${bare?" vnote-bare":""}" onpointermove="msgMove(event,${i})" style="${bare?"":bg+";"+glow+";"}position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11.5px] leading-none" style="opacity:1;font-weight:600;color:${own?"#1F2937":"#E5E7EB"}">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
+  return `<div class="flex ${rowJust} px-2" style="position:relative"><span class="swipe-ic" id="swi${i}" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v2"/></svg></span><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" data-mid="${esc(m.id||"")}" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed${bare?" vnote-bare":""}${(m.v&&!m.deleted)?" vmsg":""}" onpointermove="msgMove(event,${i})" style="${bare?"":bg+";"+glow+";"}position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11.5px] leading-none" style="opacity:1;font-weight:600;color:${own?"#1F2937":"#E5E7EB"}">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
  }).join("");
  if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData();
 }
@@ -2419,7 +2426,7 @@ function renderStoryBar(){
  const ownState=hasMine?(ownerHasUnseen(S.user.uid)?"unseen":"seen"):null;
  const own=`<div class="flex flex-col items-center gap-1 shrink-0 w-14" style="position:relative">
    <button type="button" onclick="storyCircleTap('${esc(S.user.uid)}')" class="btn" aria-label="${hasMine?"View your story and viewers":"Add story"}" style="padding:0">${RING(ownState,avHTML(S.user.name||"Me",46,S.user.img||""))}</button>
-   <button type="button" onclick="event.stopPropagation();storyPlusTap()" aria-label="Add new story" title="Add new story" style="position:absolute;right:-6px;top:28px;width:28px;height:28px;border-radius:50%;background:transparent;z-index:3;padding:0;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-weight:700;font-size:15px;line-height:17px;border:2px solid var(--card);text-align:center;display:block">+</span></button>
+   <button type="button" onclick="event.stopPropagation();storyPlusTap()" aria-label="Add new story" title="Add new story" style="position:absolute;right:0;top:32px;width:22px;height:22px;border-radius:50%;background:transparent;z-index:3;padding:0;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-weight:700;font-size:15px;line-height:17px;border:2px solid var(--card);text-align:center;display:block">+</span></button>
    <span class="text-[10px] truncate w-full text-center">Your story</span></div>`;
  const owners=new Map();
  STORIES.filter(x=>x.owner_id!==S.user.uid).forEach(x=>{if(!owners.has(x.owner_id))owners.set(x.owner_id,x)});
@@ -2428,13 +2435,13 @@ function renderStoryBar(){
  row.innerHTML=own+friends;
  row.style.overflowX="auto";
 }
-/* tapping a story circle plays it; the + badge is the only way to create one */
+/* tapping a story circle plays it (never opens the composer); only the + badge creates one */
 function storyCircleTap(uid){
  if(STORIES.some(x=>x.owner_id===uid))return openStoryViewer(uid);
- storyPlusTap();
+ toast("No story yet. Tap the + to add one.");
 }
-/* the + badge: composer opens and the phone gallery picker follows straight away */
-function storyPlusTap(){openStoryNew();try{storyMediaPick()}catch(e){}}
+/* the + badge opens the composer (text, colours, Media button for photo/video) */
+function storyPlusTap(){openStoryNew()}
 function openStory(i){
  const body=$("storyBody"),title=$("storyTitle");if(!body||!title)return;
  if(i==="me"){
@@ -3154,26 +3161,14 @@ async function loadChatTheme(){
  const {data}=await sb.from("chat_themes").select("wallpaper").eq("user_id",S.user.uid).maybeSingle();
  if(data&&WALL_KEYS.includes(data.wallpaper)){try{localStorage.setItem("lifeone.wall",data.wallpaper)}catch(e){}applyWall()}
 }
-function openStyle(){
- if(!sb||!S.user.uid){toast(t("sbOff"));return}
- const cur=(()=>{try{return localStorage.getItem("lifeone.wall")||"plain"}catch(e){return"plain"}})();
- $("wallPick").innerHTML=WALL_KEYS.map(k=>`<button type="button" class="chip ${cur===k?"on":""}" onclick="setWallpaperSynced('${k}')">${esc(WALLS[k].l)}</button>`).join("");
- openM("mStyle");loadStickers();
-}
 async function setWallpaperSynced(k){
  if(!WALL_KEYS.includes(k))return;
  try{localStorage.setItem("lifeone.wall",k)}catch(e){}
  applyWall();
- const {error}=await sb.from("chat_themes").upsert({user_id:S.user.uid,wallpaper:k,updated_at:new Date().toISOString()},{onConflict:"user_id"});
- toast(error?"Saved on this device. Could not sync.":"Wallpaper synced");
- openStyle();
+ try{if(sb&&S.user.uid)await sb.from("chat_themes").upsert({user_id:S.user.uid,wallpaper:k,updated_at:new Date().toISOString()},{onConflict:"user_id"})}catch(e){}
+ if(!(sb&&S.user.uid))return;
 }
-async function loadStickers(){
- const grid=$("stkGrid");if(!grid)return;
- const {data,error}=await sb.from("stickers").select("id,media_path,created_at").eq("owner_id",S.user.uid).order("created_at",{ascending:false});
- if(error){grid.innerHTML=emptyBox("Stickers are not set up yet. Run the backend SQL first.");return}
- grid.innerHTML=(data||[]).map(s=>`<div class="relative"><img data-sb="stickers" data-sp="${esc(s.media_path)}" src="${esc(signUrl("stickers",s.media_path))}" alt="Sticker" class="w-full rounded-xl" style="aspect-ratio:1;object-fit:contain;background:var(--line)"><button type="button" onclick="deleteSticker('${esc(s.id)}','${esc(s.media_path)}')" class="absolute top-1 right-1 w-6 h-6 rounded-full text-white text-xs" style="background:#E11D48" aria-label="Delete sticker">&times;</button></div>`).join("")||emptyBox("No stickers yet. Pick a photo to make one.");
-}
+function loadStickers(){}
 function makeSticker(file){
  return new Promise((res,rej)=>{
    const r=new FileReader();
@@ -3189,7 +3184,7 @@ function makeSticker(file){
 }
 async function stickerPick(input){
  const f=(input.files||[])[0];input.value="";if(!f)return;
- const st=$("stkStatus");st.textContent="Making sticker…";
+ const st={set textContent(v){if(v&&v!=="Making sticker…")toast(v)}};toast("Making sticker…");
  try{
   const blob=await makeSticker(f);
   const path=S.user.uid+"/"+Date.now()+"_k.png";
@@ -3300,7 +3295,7 @@ async function openStickerPick(){
  closeAttachBar();STKPICK=null;$("stkPreview").innerHTML="";$("stkSendBtn").disabled=true;
  openM("mStickerPick");
  const {data,error}=await sb.from("stickers").select("id,media_path").eq("owner_id",S.user.uid).order("created_at",{ascending:false});
- $("stkPickGrid").innerHTML=error?emptyBox("Stickers are not set up yet."):((data||[]).map(x=>`<button type="button" onclick="pickSticker('${esc(x.id)}','${esc(x.media_path)}')" class="rounded-xl p-1" style="background:var(--bg)" aria-label="Sticker"><img data-sb="stickers" data-sp="${esc(x.media_path)}" src="${esc(signUrl("stickers",x.media_path))}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"></button>`).join("")||emptyBox("You have no stickers. Make one under Themes & stickers."));
+ $("stkPickGrid").innerHTML=error?emptyBox("Stickers are not set up yet."):((data||[]).map(x=>`<button type="button" onclick="pickSticker('${esc(x.id)}','${esc(x.media_path)}')" class="rounded-xl p-1" style="background:var(--bg)" aria-label="Sticker"><img data-sb="stickers" data-sp="${esc(x.media_path)}" src="${esc(signUrl("stickers",x.media_path))}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"></button>`).join("")||emptyBox("You have no stickers yet. Tap Create sticker to make one."));
 }
 function pickSticker(id,path){
  STKPICK={id,path};
@@ -4268,7 +4263,7 @@ function closePencilOutside(e){
 }
 function closePencil(){const p=$("pencilPop");if(p)p.style.display="none"}
 function pencilAddMember(){closePencil();openSearchModal("member")}
-function pencilStickers(){closePencil();openStyle()}
+function pencilStickers(){closePencil();stkCreate()}
 function pencilRequests(){closePencil();openRequests()}
 function openRequests(){loadChatRelations();openM("mRequests")}
 function paintRequestBadge(n){
@@ -4413,7 +4408,20 @@ function openStoryNew(){
  $("stNewErr").textContent="";$("stCanvas").textContent="";STPHOTO=null;STBGKEY="g1";STFONT=0;
  paintStoryCanvas();
  openM("mStoryNew");
- setTimeout(()=>$("stCanvas").focus(),80);
+ stFit(true);
+ setTimeout(()=>{$("stCanvas").focus();stFit(true)},80);
+}
+/* the status box starts small and grows smoothly as more lines are typed */
+function stFit(instant){
+ const c=$("stCanvas");if(!c)return;
+ const minH=STPHOTO?340:110,maxH=Math.round(window.innerHeight*0.6);
+ const prev=c.offsetHeight||minH;
+ c.style.transition="none";c.style.minHeight=minH+"px";c.style.height="auto";
+ const need=Math.min(Math.max(c.scrollHeight,minH),maxH);
+ c.style.alignItems=c.scrollHeight>maxH?"flex-start":"center";
+ if(instant===true){c.style.height=need+"px";void c.offsetHeight;c.style.transition="height .18s ease";return}
+ c.style.height=prev+"px";void c.offsetHeight;
+ c.style.transition="height .18s ease";c.style.height=need+"px";
 }
 function paintStoryCanvas(){
  const c=$("stCanvas");
@@ -4425,6 +4433,7 @@ function paintStoryCanvas(){
  $("stSwatches").innerHTML=Object.keys(STORY_GRADS).map(k=>`<button type="button" aria-label="Background ${k}" onclick="storySetBg('${k}')" class="w-6 h-6 rounded-full border-2 shrink-0 ${(!STPHOTO&&STBGKEY===k)?"border-white":"border-transparent"}" style="background:${STORY_GRADS[k]}"></button>`).join("")+
    `<button type="button" onclick="storyMediaPick()" class="btn out rounded-full px-3 py-1 text-xs shrink-0 ms-auto">Media</button>`;
  $("stAa").textContent="Aa";$("stAa").title=STORY_FONTS[STFONT][1];
+ stFit(true);
 }
 function storyCycleFont(){STFONT=(STFONT+1)%STORY_FONTS.length;paintStoryCanvas();toast(STORY_FONTS[STFONT][1]+" font")}
 function storySetBg(k){STBGKEY=k;STPHOTO=null;paintStoryCanvas()}
@@ -4562,19 +4571,35 @@ function ddBlock(){
 }
 document.addEventListener("click",e=>{const d=$("chatDD");if(!d||d.style.display!=="flex")return;if(d.contains(e.target))return;if(e.target.closest&&e.target.closest("#chatMoreBtn"))return;closeChatDD()});
 document.body.insertAdjacentHTML("beforeend",
- '<div id="mThemeHub" class="modal" style="z-index:92"><div class="sheet space-y-4" style="max-width:420px;max-height:88vh;overflow:auto">'+
+ '<div id="mThemeHub" class="modal" style="z-index:92"><div class="sheet" style="max-width:420px;max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:16px">'+
  '<div class="flex items-center justify-between"><b class="text-lg">Theme &amp; Wallpaper</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM(\'mThemeHub\')" aria-label="Close">&times;</button></div>'+
-  '<div id="thWalls" class="grid grid-cols-2 gap-3"></div>'+
- '<button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-semibold" onclick="thCustom()">Custom image or colour</button>'+
+ '<div id="thWalls" class="grid grid-cols-2 gap-3"></div>'+
+ '<div><p class="text-sm font-semibold" style="margin-bottom:8px">Custom colour</p><div id="thSwatches" class="flex flex-wrap gap-2"></div></div>'+
+ '<button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2" onclick="$(\'thImg\').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Choose from gallery</button>'+
+ '<input id="thImg" type="file" accept="image/*" class="hidden" onchange="thImage(this)" autocomplete="off">'+
  '<button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="thReset()">Reset this chat to default</button>'+
  '</div></div>');
 function ddTheme(){closeChatDD();renderThemeHub();openM("mThemeHub")}
 function renderThemeHub(){
- const g=$("thWalls");if(!g)return;const cur=curWall();
- g.innerHTML=Object.keys(WALLS).map(k=>`<button type="button" onclick="thPick('${k}')" aria-pressed="${k===cur}" class="relative rounded-2xl h-20 overflow-hidden text-sm font-semibold" style="background:${WALLS[k].bg||"var(--card)"};border:2px solid ${k===cur?"#16A34A":"var(--line)"};color:var(--ink)"><span class="absolute bottom-1.5 start-1.5 px-2 py-0.5 rounded-md text-xs" style="background:var(--card)">${WALLS[k].l}</span></button>`).join("");
+ const g=$("thWalls");if(!g)return;
+ const cb=getChatBg(),cur=cb?null:curWall();
+ g.innerHTML=Object.keys(WALLS).map(k=>{const on=k===cur;return `<button type="button" onclick="thPick('${k}')" aria-pressed="${on}" class="text-start" style="display:flex;flex-direction:column;gap:6px;background:transparent;border:0;padding:0"><span style="display:block;height:76px;border-radius:14px;background:${WALLS[k].bg||"var(--bg)"};border:2px solid ${on?"#16A34A":"var(--line)"};box-shadow:${on?"0 0 0 3px rgba(22,163,74,.25)":"none"}"></span><span class="text-xs font-semibold" style="color:var(--ink);padding:0 2px">${WALLS[k].l}</span></button>`}).join("");
+ const same=(t,v)=>cb&&cb.type===t&&cb.value===v;
+ const sw=$("thSwatches");if(sw)sw.innerHTML=BG_SOLIDS.map(c=>`<button type="button" aria-label="Colour ${c}" onclick="thColour('solid','${c}')" class="cbSw ${same("solid",c)?"sel":""}" style="background:${c}"></button>`).join("")+BG_GRADS.map(c=>`<button type="button" aria-label="Gradient" onclick="thColour('grad','${c}')" class="cbSw ${same("grad",c)?"sel":""}" style="background:${c}"></button>`).join("");
 }
-function thPick(k){setWallpaperSynced(k);renderThemeHub()}
-function thCustom(){closeM("mThemeHub");openChatBg()}
+function thPick(k){try{localStorage.removeItem(chatBgKey())}catch(e){}setWallpaperSynced(k);renderThemeHub()}
+function thColour(type,value){
+ try{localStorage.setItem(chatBgKey(),JSON.stringify({type,value}))}catch(e){toast("Could not save the background.");return}
+ applyChatBg();renderThemeHub();
+}
+async function thImage(input){
+ const f=(input.files||[])[0];input.value="";if(!f)return;
+ if(!f.type.startsWith("image/")){toast("Choose an image file.");return}
+ try{const blob=await compressImage(f);const dataUrl=await blobToDataURL(blob);
+  localStorage.setItem(chatBgKey(),JSON.stringify({type:"image",value:dataUrl}));
+  applyChatBg();renderThemeHub();toast("Background changed")}
+ catch(e){toast("That image could not be used. Try a smaller one.")}
+}
 function thReset(){resetChatBg();renderThemeHub()}
 let SCROLL_HOLD=false,SCROLL_T=null;
 function restoreViewScroll(v){

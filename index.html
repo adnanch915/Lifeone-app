@@ -217,6 +217,12 @@ html.dark .req-no{color:#FDA4AF}
 [data-chat-row]{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 [data-chat-row].sel{background:var(--pri2)!important;box-shadow:inset 0 0 0 2px #34D399;border-radius:14px}
 #chatSheet{}
+/* ---- Final nav + search polish ---- */
+html nav #tabs>button::before,html nav #tabs>button.on::before{content:none!important;display:none!important}
+html nav #tabs>button,html nav #tabs>button.on,html nav #tabs>button:hover,html nav #tabs>button:focus,html nav #tabs>button:active,html.dark nav #tabs>button,html.dark nav #tabs>button.on{background:transparent!important;box-shadow:none!important;border:0!important;outline:none!important}
+html nav #tabs>button:not(.on) svg,html.dark nav #tabs>button:not(.on) svg{color:#475569!important;stroke:#475569!important}
+html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!important;stroke:#16A34A!important}
+#capText{resize:vertical;min-height:110px}
 </style>
 </head>
 <body class="unauth">
@@ -520,11 +526,6 @@ html.dark .req-no{color:#FDA4AF}
  <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="ccQ" oninput="renderCC()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="ccSearch" autocomplete="off" autocapitalize="none"></div></div>
  <ul id="ccList" class="flex-1 overflow-y-auto px-2 pb-4" style="min-height:14rem"></ul>
 </div></div>
-<div id="mSearch" class="modal" style="z-index:70"><div class="sheet" style="max-width:440px;padding:0;display:flex;flex-direction:column;max-height:80vh">
- <div class="flex items-center justify-between px-5 pt-5 pb-3"><h3 class="font-bold text-lg" data-i18n="searchMember"></h3><button type="button" onclick="closeM('mSearch')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
- <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="msQ" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" name="lo-search-member" oninput="renderMemberSearch()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="msPh"></div></div>
- <div id="msRes" class="flex-1 overflow-y-auto px-5 pb-5" style="min-height:10rem"></div>
-</div></div>
 <div id="mAI" class="modal" style="z-index:70"><div class="sheet" style="max-width:520px;padding:.75rem">
 <div class="flex justify-end mb-1"><button type="button" onclick="closeM('mAI')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
   <div class="rounded-2xl p-4 bg-white" style="border:1px solid #A7F3D0;box-shadow:0 12px 32px -14px rgba(16,185,129,.28)">
@@ -555,6 +556,7 @@ html.dark .req-no{color:#FDA4AF}
 <div id="mMedia" class="modal" style="z-index:85"><div class="sheet" style="max-width:460px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:86vh"><div class="flex items-center justify-between px-4 pt-4 pb-3"><b class="text-base">Media</b><button type="button" class="btn out rounded-full w-8 h-8" aria-label="Close" onclick="closeM('mMedia')">&times;</button></div><div class="px-4 pb-3 grid grid-cols-3 gap-2"><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromCamera()">📷 Camera</button><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromLibrary()">🖼 Library</button><button type="button" class="btn out rounded-xl py-3 text-sm font-medium" onclick="mediaFromLocation()">📍 Location</button></div><p class="px-4 pb-2 text-[11px] font-semibold uppercase tracking-wider" style="color:var(--mut)">Recent in this chat</p><div id="mgGrid" class="px-4 pb-4 grid grid-cols-3 gap-1.5 overflow-auto"></div></div></div><div id="mMediaPrev" class="modal" style="z-index:88;padding:0;background:rgba(0,0,0,.94)"><div style="width:100%;height:100%;display:flex;flex-direction:column"><div class="flex items-center justify-between p-3" style="padding-top:calc(env(safe-area-inset-top,0px) + 12px)"><button type="button" class="btn rounded-full px-4 py-1.5 text-sm" style="background:rgba(255,255,255,.14);color:#fff" onclick="closeM('mMediaPrev')">Close</button><button type="button" id="mpSend" class="btn pri rounded-full px-4 py-1.5 text-sm font-semibold" onclick="">Send</button></div><div id="mpBody" class="flex-1 min-h-0 flex items-center justify-center p-3"></div></div></div><div id="mStoryViewers" class="modal" style="z-index:90"><div class="sheet" style="max-width:420px;padding:0;max-height:70vh;display:flex;flex-direction:column;overflow:hidden"><div class="flex items-center justify-between px-4 pt-4 pb-2"><div><b class="text-base">Story viewers</b><div id="svCount" class="text-xs" style="color:var(--mut)"></div></div><button type="button" class="btn out rounded-full w-8 h-8" aria-label="Close" onclick="stvCloseViewers()">&times;</button></div><div id="svList" class="px-2 pb-4 overflow-auto"></div></div></div><div id="mStoryView" class="modal" style="z-index:86;padding:0;background:#000"><div id="stvWrap" style="width:100%;height:100%;position:relative;background:#000;color:#fff;display:flex;flex-direction:column;overflow:hidden"><div id="stvBars" style="display:flex;gap:4px;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 10px"></div><div id="stvTop" style="display:flex;align-items:center;gap:10px;padding:0 64px 12px 14px;justify-content:flex-start;text-align:left"></div><div id="stvBody" style="flex:1;display:flex;align-items:center;justify-content:center;padding:14px;font-size:22px;font-weight:700;text-align:center;position:relative;min-height:0"></div><div id="stvFoot" style="display:flex;align-items:center;justify-content:flex-start;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)"></div><button type="button" aria-label="Previous story" onclick="stvPrev()" style="position:absolute;left:0;top:110px;bottom:90px;width:35%"></button><button type="button" aria-label="Next story" onclick="stvNext()" style="position:absolute;right:0;top:110px;bottom:90px;width:35%"></button><button type="button" aria-label="Close story" onclick="closeStv()" style="position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 14px);color:#fff;font-size:30px;line-height:1;z-index:2;padding:4px 10px">&times;</button></div></div>
 <div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*,video/*" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" style="min-height:340px;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#16A34A,#22C55E);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-1.5 mt-3 flex-nowrap" style="overflow-x:auto;scrollbar-width:none"></div><p id="stMediaInfo" class="text-xs mt-2" style="color:var(--mut)"></p><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
 <div id="mFeed" class="modal" style="z-index:80"><div class="sheet" style="max-width:520px;max-height:94vh;display:flex;flex-direction:column;gap:10px"><div class="flex items-center gap-2"><div role="tablist" class="flex gap-1 p-1 rounded-full" style="background:var(--bg)"><button type="button" id="fpForYou" role="tab" onclick="setFeedMode('foryou')">For You</button><button type="button" id="fpFollowing" role="tab" onclick="setFeedMode('following')">Following</button></div><span id="feedModeLbl" hidden></span><div class="flex-1"></div><button type="button" onclick="menuUpload()" aria-label="Upload media" title="Upload" class="w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center" style="color:#374151"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" onclick="closeM('mFeed')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="feedList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
+<div id="mCapPrev" class="modal" style="z-index:86"><div class="sheet" style="max-width:520px;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:92vh"><div class="flex items-center justify-between px-4 pt-4 pb-3"><b class="text-base">New post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="capClose()" aria-label="Close">&times;</button></div><div id="capMedia" class="flex items-center justify-center" style="background:#000;min-height:220px;max-height:50vh;overflow:hidden"></div><div class="p-4 space-y-3" style="overflow:auto"><p id="capMeta" class="text-xs" style="color:var(--mut)"></p><label for="capText" class="block text-xs font-semibold" style="color:var(--mut)">Caption</label><textarea id="capText" rows="5" maxlength="2200" class="inp w-full text-sm" placeholder="Describe your photo or video in detail. Use #hashtags and @mentions." oninput="capCount()"></textarea><div class="flex justify-between gap-2 text-xs" style="color:var(--mut)"><span id="capTags" class="truncate"></span><span id="capCount" class="shrink-0">0 / 2200</span></div><input id="capLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><p id="capStatus" class="text-sm" style="color:#E11D48"></p><button id="capPub" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-semibold" onclick="capPublish()">Publish</button></div></div></div>
 <div id="mUpload" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Upload post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUpload')" aria-label="Close">&times;</button></div><div class="flex gap-2"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedPhoto').click()">Photo</button><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedVideo').click()">Video</button></div><input id="feedPhoto" type="file" accept="image/*" class="hidden" onchange="feedPick(this,'photo')" autocomplete="off"><input id="feedVideo" type="file" accept="video/*" class="hidden" onchange="feedPick(this,'video')" autocomplete="off"><textarea id="feedText" rows="3" maxlength="500" class="inp w-full text-sm" placeholder="Caption. Use #hashtags and @mentions." oninput="feedTagsPreview()"></textarea><div id="feedTags" class="flex flex-wrap gap-1 text-xs" style="color:var(--mut)"></div><input id="feedLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><button type="button" class="btn ghost w-full py-2.5 rounded-xl text-sm" onclick="feedPostText()">Post text only</button><p id="feedStatus" class="text-xs" style="color:var(--mut)"></p></div></div>
 <div id="mComments" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:460px;max-height:80vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Comments</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mComments')" aria-label="Close">&times;</button></div><div id="cmtPost" data-pid="" hidden></div><div id="cmtList" class="space-y-2" style="overflow:auto;flex:1"></div><input id="cmtText" maxlength="500" class="inp w-full text-sm" placeholder="Write a comment" autocomplete="off"><p id="cmtErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="sendComment()">Post comment</button></div></div>
 <div id="mChannels" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Channels</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChannels')" aria-label="Close">&times;</button></div><div class="card p-3 space-y-2"><b class="text-sm">Create a channel</b><input id="chnName" maxlength="60" class="inp w-full text-sm" placeholder="Channel name" autocomplete="off"><textarea id="chnAbout" maxlength="200" rows="2" class="inp w-full text-sm" placeholder="What will you broadcast?"></textarea><p id="chnErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2 rounded-xl text-sm" onclick="createChannel()">Create channel</button></div><div id="chnLists" style="overflow:auto;flex:1"></div></div></div>
@@ -738,7 +740,7 @@ function renderLangItems(){const el=$("langItems");if(!el)return;const q=(($("la
  const rows=LANGS.filter(l=>!q||l.n.toLowerCase().includes(q)||l.c.includes(q));
  el.innerHTML=rows.length?rows.map(l=>{const on=S.lang===l.c;return `<button type="button" onclick="setLang('${l.c}')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn" aria-pressed="${on}"><span class="flex items-center gap-3 min-w-0"><span class="text-xl leading-none" aria-hidden="true">${l.f}</span><span class="font-medium truncate">${l.n}</span></span>${on?tick:""}</button>`}).join(""):`<p class="text-sm text-center py-6" style="color:var(--mut)">No language found</p>`}
 const NAV=[["chats","navChats","chat"],["feed","navFeed","globe"],["groups","navGroups","family"],["marketplace","navMarket","store"],["notifs","navNotifs","bell"]];
-function renderTabs(){updateBell();renderStoryBar();{const sb=$("storyBar");if(sb)sb.style.display=(S.view==="chats")?"":"none"}{const dv=$("storyDivider");if(dv)dv.style.display=(S.view==="chats")?"":"none"}paintHeader();const cur=(S.view==="family"||S.view==="profile")?"":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn,marketplace:S.mktNew||0,notifs:S.notifs.filter(x=>!x.r).length};
+function renderTabs(){updateBell();renderStoryBar();{const sb=$("storyBar");if(sb)sb.style.display=(S.view==="chats")?"":"none"}{const dv=$("storyDivider");if(dv)dv.style.display=(S.view==="chats")?"":"none"}paintHeader();const cur=FEED_OPEN?"feed":NOTIF_OPEN?"notifs":((S.view==="family"||S.view==="profile")?"":S.view);const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn,marketplace:S.mktNew||0,notifs:S.notifs.filter(x=>!x.r).length};
  $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" aria-label="${t(lk)}" title="${t(lk)}" class="tab btn relative flex items-center justify-center py-3.5 ${cur===k?"on":""}"><span class="relative">${ic(ik,28)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span><i class="bar"></i></button>`).join("");setLabels()}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","marketplace"].includes(v)?v:"chats"}catch(e){return "chats"}}
 function go(v){if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();restoreViewScroll(v)}
@@ -1023,9 +1025,9 @@ async function remoteSearch(term){if(!sb||!term)return;
  if(error||!data)return;data.forEach(r=>PROF.set(r.id,r));
  try{famSearch();renderMemberSearch()}catch(e){}}
 function scheduleRemote(raw){if(!raw||raw===lastRemoteQ)return;lastRemoteQ=raw;clearTimeout(rsT);rsT=setTimeout(()=>remoteSearch(raw),250)}
-function openSearchModal(){lastRemoteQ="";loadProfiles();$("msQ").value="";renderMemberSearch();openM("mSearch");setTimeout(()=>$("msQ").focus(),60)}
+function openSearchModal(){if(S.view!=="chats"||FEED_OPEN||NOTIF_OPEN)go("chats");loadProfiles();toggleHdrSearch(true);hideHdr()}
 // Searches every registered account in the Supabase profiles table by name, @username, email or phone
-function renderMemberSearch(){const el=$("msRes");if(!el)return;
+function renderMemberSearch(){const el=$("msRes");if(!el||!$("msQ"))return;
  const raw=($("msQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
  scheduleRemote(raw);
  if(!q){el.innerHTML="";return}
@@ -2301,21 +2303,52 @@ function phaseOneSignupAndProfile(){
   if(w&&!w.querySelector(".lo-phone-note")){const note=document.createElement("p");note.className="lo-phone-note text-[11px] mt-1";note.style.color="var(--mut)";note.textContent="Optional. Shown only on your marketplace and business listings so buyers can contact you directly. Never used for search.";w.appendChild(note)}}
 }
 function hideHdr(){const r=$("hdrRes");if(r)r.hidden=true}
-let hdrT=null;
+let hdrT=null,hdrSeq=0;
 function hdrSearchRun(raw){
  const term=(raw||"").trim().replace(/^@/,"");
  clearTimeout(hdrT);
+ const seq=++hdrSeq;
  if(!term){hideHdr();return}
+ const box=$("hdrRes");if(box){box.hidden=false;box.innerHTML=`<p class="text-sm p-3" style="color:var(--mut)">Searching…</p>`}
+ hdrT=setTimeout(()=>hdrExactLookup(term,seq),250);
+}
+/* strict: a row appears only when the name or username matches the typed text exactly (case-insensitive) */
+async function hdrExactLookup(term,seq){
  const q=term.toLowerCase();
- const people=S.fam.map((f,i)=>({f,i})).filter(({f})=>(f.n||"").toLowerCase().includes(q)).slice(0,12).map(({f,i})=>({idx:i,name:f.n||"",avatar:f.img||""}));
- renderGlobalResults(q,people);
+ const local=S.fam.map((f,i)=>({f,i})).filter(({f})=>(f.n||"").trim().toLowerCase()===q)
+   .map(({f,i})=>({idx:i,key:f.key||"",name:f.n||"",username:"",avatar:f.img||""}));
+ let remote=[];
+ if(sb&&S.user.uid){
+   const safe=term.replace(/[,()"]/g,"").trim();
+   if(safe){
+     const {data,error}=await sb.from("profiles").select(SEARCH_COLS).or(`username.ilike.${safe},full_name.ilike.${safe}`).neq("id",S.user.uid).limit(25);
+     if(!error&&data)remote=data.filter(r=>(r.username||"").toLowerCase()===q||(r.full_name||"").trim().toLowerCase()===q);
+     remote.forEach(r=>PROF.set(r.id,r));
+   }
+ }
+ if(seq!==hdrSeq)return;
+ const seen=new Set(local.map(u=>u.key));
+ const rows=[...local];
+ remote.forEach(r=>{if(seen.has(r.id))return;seen.add(r.id);
+   rows.push({idx:S.fam.findIndex(f=>f.key===r.id),key:r.id,name:r.full_name||r.username||"",username:r.username||"",avatar:r.avatar_url||""})});
+ renderExactResults(rows);
 }
-function renderGlobalResults(q,people){
+function renderExactResults(rows){
  const box=$("hdrRes");if(!box)return;
- const rows=people.map(u=>`<div class="flex items-center gap-3 p-2 rounded-xl"><div class="shrink-0">${avHTML(u.name,40,u.avatar)}</div><div class="flex-1 min-w-0"><b class="block truncate text-sm">${esc(u.name)}</b></div><button type="button" onclick="goFromSearch('chat','${u.idx}')" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">Open</button></div>`);
- box.innerHTML=rows.length?`<p class="text-[11px] font-semibold uppercase tracking-wider px-2 pt-2" style="color:var(--mut)">Chats</p>${rows.join("")}`:`<p class="text-sm p-2" style="color:var(--mut)">No conversation matches this name.</p>`;
  box.hidden=false;
+ if(!rows.length){
+   box.innerHTML=`<div class="p-4 text-center"><b class="block text-sm">No result</b><p class="text-xs mt-1" style="color:var(--mut)">No LifeOne user has this exact name or username.</p></div>`;
+   return;
+ }
+ box.innerHTML=rows.map(u=>{
+   const linked=u.idx>=0&&S.fam[u.idx]&&S.fam[u.idx].key===u.key;
+   const action=linked
+     ?`<button type="button" onclick="goFromSearch('chat','${u.idx}')" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">Message</button>`
+     :`<button type="button" onclick="hdrConnect('${esc(u.key)}')" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium">Connect</button>`;
+   return `<div class="flex items-center gap-3 p-2 rounded-xl"><div class="shrink-0">${avHTML(u.name,40,u.avatar)}</div><div class="flex-1 min-w-0"><b class="block truncate text-sm">${esc(u.name)}</b>${u.username?`<span class="block truncate text-xs" style="color:var(--mut)">@${esc(u.username)}</span>`:""}</div>${action}</div>`;
+ }).join("");
 }
+function hdrConnect(key){if(!key)return;connectContact(key);hdrSearchRun(($("hdrSearch")||{}).value||"")}
 function goFromSearch(kind,key){hideHdr();const inp=$("hdrSearch");if(inp)inp.value="";if(kind==="group")openChat(key);else openChat(+key)}
 function openMenu(){const d=$("menuDrawer");if(d)d.classList.remove("hidden");paintDarkRow();renderMenuTop();paintLiveRow()}
 function closeMenu(){const d=$("menuDrawer");if(d)d.classList.add("hidden")}
@@ -3001,18 +3034,7 @@ async function feedPostText(){
 async function feedPick(input,kind){
  const f=(input.files||[])[0];input.value="";if(!f)return;
  if(kind==="video"&&f.size>FEED_VIDEO_MAX){feedStatus("Video must be 25 MB or smaller.");return}
- feedStatus("Uploading…");
- try{
-  let blob=f, type=f.type||"video/mp4", ext=kind==="video"?"mp4":"jpg";
-  if(kind==="photo"){blob=await compressImage(f);type="image/jpeg"}
-  const path=S.user.uid+"/"+Date.now()+"_f."+ext;
-  const {error:uerr}=await sb.storage.from("posts-media").upload(path,blob,{contentType:type,cacheControl:"3600"});
-  if(uerr){feedStatus("Upload failed. Try again.");return}
-  const caption=(($("feedText")||{}).value||"").trim()||null;
-  const {error}=await sb.from("posts").insert({author_id:S.user.uid,kind,media_path:path,caption,location:(($("feedLoc")||{}).value||"").trim()||null});
-  if(error){feedStatus("Could not post.");return}
-  $("feedText").value="";feedStatus("");loadFeed(true);
- }catch(e){feedStatus("That file could not be read.")}
+ capOpen(f,kind);
 }
 async function deletePost(pid){
  if(!confirm("Delete this post?"))return;
@@ -4496,6 +4518,60 @@ document.addEventListener("click",e=>{
  }
  if(CSEL!==null&&!(e.target.closest&&e.target.closest("#hdrSelL,#hdrSelR")))chatSelEnd();
 },true);
+</script>
+<script>
+/* ===== tab state, select header without search, feed media preview ===== */
+/* chat selection header: search is never shown while selecting */
+const __cspBase=chatSelPaint;
+chatSelPaint=function(){
+ if(CSEL!==null){const w=$("hdrSearchWrap");if(w)w.style.display="none";hideHdr();const tt=$("hdrTitle");if(tt)tt.style.display=""}
+ __cspBase();
+};
+/* the active tab always follows the open view; Feed and Notifications re-highlight at once */
+const __goBase2=go;
+go=function(v){const r=__goBase2(v);renderTabs();return r};
+const __closeBase=closeM;
+closeM=function(id){__closeBase(id);if(id==="mFeed"||id==="mNotif")renderTabs()};
+
+/* ---- feed: caption + preview before publish ---- */
+let CAP=null;
+function capClear(){if(CAP&&CAP.url){try{URL.revokeObjectURL(CAP.url)}catch(e){}}CAP=null;const m=$("capMedia");if(m)m.innerHTML=""}
+function capOpen(file,kind){
+ capClear();
+ CAP={file,kind,url:URL.createObjectURL(file)};
+ $("capMedia").innerHTML=kind==="video"
+   ?`<video src="${CAP.url}" controls playsinline style="width:100%;max-height:50vh;background:#000"></video>`
+   :`<img src="${CAP.url}" alt="Selected photo" style="max-width:100%;max-height:50vh;object-fit:contain">`;
+ $("capMeta").textContent=(kind==="video"?"Video":"Photo")+" · "+(file.size/1048576).toFixed(1)+" MB";
+ $("capText").value="";$("capLoc").value="";$("capStatus").textContent="";capCount();
+ closeM("mUpload");openM("mCapPrev");
+}
+function capCount(){
+ const v=$("capText").value||"";
+ $("capCount").textContent=v.length+" / 2200";
+ $("capTags").textContent=(v.match(/#[\p{L}\p{N}_]+/gu)||[]).slice(0,12).join(" ");
+}
+function capClose(){closeM("mCapPrev");capClear()}
+async function capPublish(){
+ const p=CAP;if(!p||!sb||!S.user.uid){toast(t("sbOff"));return}
+ const btn=$("capPub"),st=$("capStatus");
+ if(btn.disabled)return;
+ st.textContent="";
+ const caption=($("capText").value||"").trim()||null;
+ const location=($("capLoc").value||"").trim()||null;
+ btn.disabled=true;btn.textContent="Publishing…";
+ try{
+   let blob=p.file,type=p.file.type||(p.kind==="video"?"video/mp4":"image/jpeg"),ext=p.kind==="video"?"mp4":"jpg";
+   if(p.kind==="photo"){blob=await compressImage(p.file);type="image/jpeg"}
+   const path=S.user.uid+"/"+Date.now()+"_f."+ext;
+   const {error:uerr}=await sb.storage.from("posts-media").upload(path,blob,{contentType:type,cacheControl:"3600"});
+   if(uerr){st.textContent="Upload failed. Try again.";return}
+   const {error}=await sb.from("posts").insert({author_id:S.user.uid,kind:p.kind,media_path:path,caption,location});
+   if(error){st.textContent="Could not publish. Try again.";return}
+   closeM("mCapPrev");capClear();toast("Posted");loadFeed(true);
+ }catch(e){st.textContent="That file could not be read."}
+ finally{btn.disabled=false;btn.textContent="Publish"}
+}
 </script>
 </body>
 </html>

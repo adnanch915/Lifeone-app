@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <style>
-:root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#0084FF;--acc:#10B981;--pri2:#ECFDF5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:light;--bg:#fff;--card:#F8FAFC;--line:#E2E8F0;--ink:#0F172A;--mut:#64748B;--pri:#16A34A;--acc:#10B981;--pri2:#ECFDF5;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,-apple-system,"Noto Sans","Noto Sans Arabic","Noto Nastaliq Urdu",sans-serif;min-height:100vh}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px}
@@ -77,7 +77,7 @@ html.dark .text-slate-500,html.dark .text-slate-600,html.dark .text-slate-400,ht
 html.dark .text-emerald-700,html.dark .text-emerald-600{color:#6EE7B7!important}
 html.dark .text-rose-600,html.dark .text-rose-700{color:#FDA4AF!important}
 html.dark .text-amber-700,html.dark .text-amber-600{color:#FCD34D!important}
-html.dark .text-blue-600{color:#93C5FD!important}
+html.dark .text-green-600{color:#86EFAC!important}
 html.dark [style*="color:#5B21B6"],html.dark [style*="color:#92400E"]{color:#E9D5FF!important}
 html.dark .bg-amber-50{background:rgba(245,158,11,.18)!important}
 html.dark .bg-emerald-50{background:rgba(16,185,129,.18)!important}
@@ -130,7 +130,7 @@ html.dark #profScreen,html.dark #profScreen *:not(.pri):not([style*="background"
 body.chat-open nav{display:none!important}
 .chatTool{flex:none;padding:8px 12px;border-radius:999px;background:var(--bg);font-size:13px;font-weight:600;white-space:nowrap;border:1px solid var(--line)}
 .chatIcon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg);flex:none;font-size:18px}
-.chatMic{width:44px;height:44px;border-radius:50%;background:#0084FF;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.chatMic{width:44px;height:44px;border-radius:50%;background:#16A34A;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
 .rxBtn{width:38px;height:38px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card);border:1px solid var(--line);flex:none}
 #stCanvas:empty::before{content:attr(data-placeholder);opacity:.65}
 #replyBar{display:none;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
@@ -138,6 +138,7 @@ body.sub-page header{z-index:90!important}
 body.sub-page nav{z-index:90!important}
 body.sub-page #mFeed.modal,body.sub-page #mNotif.modal{position:fixed!important;top:56px!important;bottom:64px!important;left:0!important;right:0!important;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:var(--bg)!important;z-index:80!important}
 body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!important;width:100%!important;max-height:none!important;height:100%!important;border-radius:0!important;box-shadow:none!important;overflow:auto!important}
+#msgBar button{background:var(--pri2);color:var(--ink)}
 </style>
 </head>
 <body class="unauth">
@@ -298,6 +299,7 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
  <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg" data-lbl="grpNew"></h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mNewGrp')" aria-label="Close">&times;</button></div>
  <input id="ngName" class="inp" maxlength="80" autocomplete="off">
  <p class="text-xs" style="color:var(--mut)" data-lbl="grpPickHint"></p>
+ <input id="ngSearch" class="inp" placeholder="Search members" autocomplete="off" oninput="filterMembers('ngList',this.value)" aria-label="Search members">
  <div id="ngList" class="space-y-1 overflow-auto" style="max-height:44vh"></div>
  <p id="ngErr" class="text-xs text-rose-600" hidden></p>
  <div class="space-y-1"><label class="text-xs font-medium" style="color:var(--mut)">Group type</label><select id="ngKind" class="inp w-full text-sm"><option value="broadcast">Broadcast Hub (only admins post)</option><option value="public">Community Feed (members post and comment)</option></select></div><button id="ngGo" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" onclick="createGroup()" data-lbl="grpCreate"></button>
@@ -343,14 +345,14 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
  </div>
 </div></div>
 
-<div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0">
- <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
+<div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0;padding:0">
+ <div class="flex justify-between items-center px-3 pt-3 pb-2 bg-white" style="border-bottom:1px solid var(--line)">
   <button class="p-2 -ms-2" style="color:var(--mut)" onclick="closeChat()" aria-label="Back" data-ic="left" data-s="20"></button>
   <button type="button" id="chatHead" onclick="openHeadInfo()" class="flex items-center gap-2 min-w-0 text-start" style="justify-content:flex-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex flex-col"><span class="flex items-center gap-1.5 min-w-0"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><span id="chatStatus" class="text-xs truncate" style="color:var(--mut)"></span></span><div id="chatLoc" class="hidden"></div></button>
   <div class="flex items-center gap-1 shrink-0"><button type="button" id="callPlusBtn" onclick="openCallPlus()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Call options" title="Call"><span style="font-size:13px;font-weight:700">📞+</span></button><div id="chatCalls" class="hidden"></div><button type="button" onclick="openChatMenu()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
  </div>
- <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
- <div id="inBar" class="flex flex-col gap-2 pt-2 pb-1">
+ <div id="chatBody" class="flex-1 min-h-0 flex flex-col"><div id="pinBar" class="items-center gap-2 px-3 py-2 text-xs" style="display:none;background:var(--card);border-bottom:1px solid var(--line)"></div><div id="msgs" class="flex-1 min-h-0 overflow-auto space-y-2 py-3"></div>
+ <div id="inBar" class="flex flex-col gap-2 pt-2 pb-2 px-3"><div id="mentionBox" class="flex-col gap-0.5 rounded-xl p-1 overflow-auto" style="display:none;max-height:190px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.08)"></div>
   <div id="attachBar" class="hidden gap-2 overflow-x-auto" style="scrollbar-width:none">
     <button type="button" class="chatTool" onclick="openStickerPick()" aria-label="Sticker">🙂 Sticker</button>
     <button type="button" class="chatTool" onclick="openFileSheet()" aria-label="File">📎 File</button>
@@ -359,7 +361,8 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
     <button type="button" class="chatTool" onclick="$('camIn').click()" aria-label="Camera">📷 Camera</button>
   </div>
   <div class="flex items-center gap-2">
-    <input id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()">
+    <button type="button" onclick="openStickerPick()" class="chatIcon" aria-label="Stickers" title="Stickers">🙂</button>
+ <input id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()">
     <button type="button" class="chatIcon" onclick="toggleEmoji()" aria-label="Emoji">☺</button>
     <button type="button" class="chatIcon" onclick="toggleAttachBar()" aria-label="Attach">＋</button>
     <button id="sendBtn" type="button" class="chatMic" onclick="sendMsg()" aria-label="Send" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>
@@ -368,7 +371,7 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
   <div id="emojiPick" class="hidden flex flex-wrap gap-1 p-2 rounded-xl" style="background:var(--bg)"><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😀')">😀</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😂')">😂</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😍')">😍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🥰')">🥰</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😎')">😎</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤔')">🤔</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😢')">😢</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😡')">😡</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👍')">👍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙏')">🙏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🔥')">🔥</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🎉')">🎉</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('❤️')">❤️</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('💯')">💯</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😊')">😊</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👏')">👏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤝')">🤝</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('✅')">✅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙌')">🙌</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😅')">😅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😴')">😴</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤩')">🤩</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😇')">😇</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😘')">😘</button></div>
   <input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)" autocomplete="off">
   <input id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)" autocomplete="off">
-</div>
+</div></div>
  <div id="recBar" class="hidden items-center gap-2 pt-2"><button type="button" class="btn out w-11 h-11 rounded-xl shrink-0" onclick="recStop(false)" aria-label="Delete recording" title="Delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button><div class="flex-1 min-w-0 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-50 text-rose-600"><i class="rec w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></i><b id="recT" class="font-mono text-sm shrink-0">0:00</b><span id="recWave" class="rec-wave flex items-center gap-0.5 h-5 flex-1 min-w-0 overflow-hidden"><span style="animation-delay:0.00s"></span><span style="animation-delay:0.12s"></span><span style="animation-delay:0.24s"></span><span style="animation-delay:0.36s"></span><span style="animation-delay:0.48s"></span><span style="animation-delay:0.60s"></span><span style="animation-delay:0.72s"></span><span style="animation-delay:0.84s"></span><span style="animation-delay:0.96s"></span></span><button type="button" id="recPauseBtn" onclick="recToggle()" class="btn out w-8 h-8 rounded-full shrink-0" aria-label="Pause" title="Pause"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button></div><button type="button" class="btn pri w-11 h-11 rounded-xl shrink-0" onclick="recStop(true)" aria-label="Send voice note" title="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
 </div></div>
 
@@ -476,42 +479,7 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
 <div id="mWall" class="modal" style="z-index:75"><div class="sheet space-y-3" style="max-width:380px"><div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg">Chat wallpaper</h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mWall')" aria-label="Close">&times;</button></div><div id="wallGrid" class="grid grid-cols-2 gap-3"></div></div></div>
 <div id="mPublic" class="modal" style="z-index:76"><div class="sheet space-y-4" style="max-width:420px"><div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg">Profile</h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mPublic')" aria-label="Close">&times;</button></div><div id="pubBody" class="space-y-4"></div></div></div>
 <div id="mStory" class="modal" style="z-index:78"><div class="sheet space-y-3" style="max-width:420px"><div class="flex items-center justify-between gap-3"><b id="storyTitle" class="text-base"></b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStory')" aria-label="Close">&times;</button></div><div id="storyBody" class="space-y-2"></div></div></div>
-<div id="menuDrawer" class="fixed inset-0 hidden" style="z-index:80"><div class="absolute inset-0" style="background:rgba(0,0,0,.4)" onclick="closeMenu()"></div><aside class="absolute top-0 end-0 h-full card p-4 flex flex-col gap-1" style="width:min(320px,88vw);border-radius:18px 0 0 18px;overflow:auto">
- <div class="flex items-center justify-between mb-1"><b class="text-base" data-i18n="menuLbl">Menu</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeMenu()" aria-label="Close menu">&times;</button></div>
- <section class="card p-3 space-y-2 mb-1">
-   <div class="flex items-center gap-3"><span id="mnAv" class="shrink-0"></span><div class="min-w-0 flex-1"><b id="mnName" class="block truncate text-sm"></b><span id="mnUser" class="block truncate text-xs" style="color:var(--mut)"></span></div><span id="mnTrust" class="text-[11px] px-2 py-1 rounded-full font-semibold" style="background:var(--bg)">Trust —</span></div>
-   <div class="grid grid-cols-3 gap-1">
-     <button type="button" class="btn out rounded-lg py-2 text-xs font-medium" onclick="closeMenu();go('profile')">Profile settings</button>
-     <button type="button" class="btn out rounded-lg py-2 text-xs font-medium" onclick="closeMenu();openAbout()">About</button>
-     <button type="button" class="btn out rounded-lg py-2 text-xs font-medium" onclick="closeMenu();openVerify()">Verify account</button>
-   </div>
- </section>
- <p class="text-[11px] font-semibold px-1 mt-1" style="color:var(--mut)">LOCATION</p>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium flex justify-between items-center" onclick="closeMenu();openLive()"><span>Live location</span><span id="mnLiveState" class="text-xs" style="color:var(--mut)">Off</span></button>
- <p class="text-[11px] font-semibold px-1 mt-2" style="color:var(--mut)">APPEARANCE</p>
- <button type="button" id="darkRow" onclick="toggleTheme();paintDarkRow()" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium flex justify-between items-center"><span>Dark mode</span><span id="darkState" style="color:var(--mut)"></span></button>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openStyle()">Chat wallpaper &amp; themes</button>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openLang()">Language, country &amp; profession</button>
- <p class="text-[11px] font-semibold px-1 mt-2" style="color:var(--mut)">FAVORITES &amp; SAVED</p>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openFavs()">Favorite chats</button>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openStarred()">Starred messages</button>
- <p class="text-[11px] font-semibold px-1 mt-2" style="color:var(--mut)">PRIVACY &amp; VAULT</p>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openVault()">Secret vault (locked media)</button>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openLockedFolder()">Locked chats</button>
- <p class="text-[11px] font-semibold px-1 mt-2" style="color:var(--mut)">COMMUNITY</p>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openChannels()">Channels</button>
- 
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openAI()">AI Assistant</button>
- <button type="button" id="adminItem" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openAdmin()" style="display:none">Moderation</button>
- <p class="text-[11px] font-semibold px-1 mt-2" style="color:var(--mut)">HELP &amp; SUPPORT</p>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openHelp()">Help &amp; support</button>
- <button type="button" class="btn out w-full text-start rounded-xl px-3 py-3 text-sm font-medium" onclick="closeMenu();openUserReport()">Report a user or scam</button>
- <div class="mt-auto pt-3 space-y-2" style="border-top:1px solid var(--line)">
-   <div class="flex items-center justify-between text-xs px-1" style="color:var(--mut)"><span>Version <b id="appVer"></b></span><span id="updState"></span></div>
-   <button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-medium" onclick="checkUpdates()">Check for updates</button>
-   <button type="button" class="btn w-full rounded-xl py-2.5 text-sm font-medium" style="background:#E11D48;color:#fff" onclick="closeMenu();openM('mOut')">Log out</button>
- </div>
-</aside></div>
+<div id="menuDrawer" class="fixed inset-0 hidden" style="z-index:80"><div class="absolute inset-0" style="background:rgba(0,0,0,.4)" onclick="closeMenu()"></div><aside class="absolute top-0 end-0 h-full card p-4 flex flex-col gap-3" style="width:min(320px,88vw);border-radius:18px 0 0 18px;overflow:auto"><div class="flex items-center justify-between"><b class="text-base" data-i18n="menuLbl">Menu</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeMenu()" aria-label="Close menu">&times;</button></div><button type="button" onclick="closeMenu();go('profile')" class="card p-3 flex items-center gap-3 text-start btn" aria-label="Open profile"><span id="mnAv" class="shrink-0"></span><div class="min-w-0 flex-1"><b id="mnName" class="block truncate text-sm"></b><span id="mnUser" class="block truncate text-xs" style="color:var(--mut)"></span></div><span id="mnTrust" class="text-[11px] px-2 py-1 rounded-full font-semibold" style="background:var(--bg)">Trust —</span></button><div class="mt-auto pt-3" style="border-top:1px solid var(--line)"><button type="button" class="btn w-full rounded-xl py-2.5 text-sm font-medium" style="background:#E11D48;color:#fff" onclick="closeMenu();openM('mOut')">Log out</button></div><div hidden><span id="mnLiveState"></span><span id="adminItem"></span><span id="appVer"></span><span id="updState"></span><span id="darkState"></span><button id="darkRow" type="button"></button></div></aside></div>
 <div id="mUser" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:380px"><h3 class="font-bold text-lg">Choose your username</h3><p class="text-sm" style="color:var(--mut)">This is how people find you in search. 3 to 20 letters, numbers, dots or underscores.</p><input id="usrNew" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="inp w-full" placeholder="e.g. adnan_dev" maxlength="20"><p id="usrErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveUsername()">Save username</button></div></div>
 <div id="mProduct" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:460px;max-height:88vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">Listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mProduct')" aria-label="Close">&times;</button></div><div id="mProductBody" class="space-y-3"></div></div></div>
 <div id="mSell" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b id="sellTitle" class="text-base">New listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mSell')" aria-label="Close">&times;</button></div><p id="sellInfo" class="text-xs" style="color:var(--mut)"></p><div class="space-y-2"><div id="sellThumbs" class="flex gap-2 flex-wrap items-center"></div><button id="sellPick" type="button" class="btn out w-full py-2 rounded-xl text-sm" onclick="$('sell_files').click()">Add photos (up to 6)</button><input id="sell_files" type="file" accept="image/*" multiple class="hidden" onchange="pickSellPhotos(this)" autocomplete="off"></div><input id="sell_title" class="inp w-full text-sm" maxlength="100" placeholder="Title" autocomplete="off"><div class="grid grid-cols-2 gap-2"><input id="sell_price" class="inp text-sm" type="number" inputmode="numeric" min="0" placeholder="Price (PKR)" autocomplete="off"><select id="sell_cat" class="inp text-sm"><option value="Electronics">Electronics</option><option value="Home">Home</option><option value="Fashion">Fashion</option><option value="Vehicles">Vehicles</option><option value="Services">Services</option><option value="Other">Other</option></select></div><div class="grid grid-cols-2 gap-2"><select id="sell_cond" class="inp text-sm"><option value="">Condition</option><option value="new">New</option><option value="like_new">Like new</option><option value="used">Used</option></select><input id="sell_city" class="inp text-sm" maxlength="80" placeholder="City" autocomplete="off"></div><textarea id="sell_desc" class="inp w-full text-sm" rows="4" maxlength="2000" placeholder="Description"></textarea><label class="flex items-center gap-2 text-sm"><input id="sell_phone" type="checkbox" autocomplete="off"> Show my phone number on this listing</label><p id="sellErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button id="sellSave" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveSell()">Save listing</button></div></div>
@@ -520,7 +488,7 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
 <div id="mAdmin" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">Moderation</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mAdmin')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Open reports, oldest first. Visible to admins only.</p><div id="adminBody" class="space-y-3"></div></div></div>
 <div id="mHub" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between gap-2"><div class="min-w-0"><b id="hubName" class="block truncate text-base"></b><span id="hubMode" class="text-xs" style="color:var(--mut)"></span></div><div class="flex gap-2 shrink-0"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="openHubChat()">Chat</button><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHub')" aria-label="Close">&times;</button></div></div><p id="hubNote" class="text-xs" style="color:var(--mut)"></p><div id="hubComposer" class="card p-3 space-y-2"></div><div id="hubList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
 <div id="mStoryView" class="modal" style="z-index:86"><div style="width:100%;max-width:420px;height:min(82vh,660px);position:relative;background:#000;border-radius:18px;overflow:hidden;color:#fff;display:flex;flex-direction:column"><div id="stvBars" style="display:flex;gap:4px;padding:10px"></div><div id="stvTop" style="display:flex;align-items:center;gap:10px;padding:0 12px 8px"></div><div id="stvBody" style="flex:1;display:flex;align-items:center;justify-content:center;padding:14px;font-size:22px;font-weight:700;text-align:center"></div><button type="button" aria-label="Previous story" onclick="stvPrev()" style="position:absolute;left:0;top:80px;bottom:0;width:35%"></button><button type="button" aria-label="Next story" onclick="stvNext()" style="position:absolute;right:0;top:80px;bottom:0;width:35%"></button><button type="button" aria-label="Close story" onclick="closeStv()" style="position:absolute;right:10px;top:8px;color:#fff;font-size:24px;z-index:2">&times;</button></div></div>
-<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*,video/*" class="hidden" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" style="min-height:340px;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#0084FF,#7C3AED);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-2 mt-3 flex-wrap"></div><p id="stMediaInfo" class="text-xs mt-2" style="color:var(--mut)"></p><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
+<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*,video/*" class="hidden" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" style="min-height:340px;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#16A34A,#22C55E);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-2 mt-3 flex-wrap"></div><p id="stMediaInfo" class="text-xs mt-2" style="color:var(--mut)"></p><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
 <div id="mFeed" class="modal" style="z-index:80"><div class="sheet" style="max-width:520px;max-height:94vh;display:flex;flex-direction:column;gap:10px"><div class="flex items-center gap-2"><div role="tablist" class="flex gap-1 p-1 rounded-full" style="background:var(--bg)"><button type="button" id="fpForYou" role="tab" onclick="setFeedMode('foryou')">For You</button><button type="button" id="fpFollowing" role="tab" onclick="setFeedMode('following')">Following</button></div><span id="feedModeLbl" hidden></span><div class="flex-1"></div><button type="button" onclick="menuUpload()" aria-label="Upload media" title="Upload" class="w-9 h-9 rounded-full bg-white border border-slate-300 flex items-center justify-center" style="color:#374151"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" onclick="closeM('mFeed')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="feedList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
 <div id="mUpload" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Upload post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUpload')" aria-label="Close">&times;</button></div><div class="flex gap-2"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedPhoto').click()">Photo</button><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedVideo').click()">Video</button></div><input id="feedPhoto" type="file" accept="image/*" class="hidden" onchange="feedPick(this,'photo')" autocomplete="off"><input id="feedVideo" type="file" accept="video/*" class="hidden" onchange="feedPick(this,'video')" autocomplete="off"><textarea id="feedText" rows="3" maxlength="500" class="inp w-full text-sm" placeholder="Caption. Use #hashtags and @mentions." oninput="feedTagsPreview()"></textarea><div id="feedTags" class="flex flex-wrap gap-1 text-xs" style="color:var(--mut)"></div><input id="feedLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><button type="button" class="btn ghost w-full py-2.5 rounded-xl text-sm" onclick="feedPostText()">Post text only</button><p id="feedStatus" class="text-xs" style="color:var(--mut)"></p></div></div>
 <div id="mComments" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:460px;max-height:80vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Comments</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mComments')" aria-label="Close">&times;</button></div><div id="cmtPost" data-pid="" hidden></div><div id="cmtList" class="space-y-2" style="overflow:auto;flex:1"></div><input id="cmtText" maxlength="500" class="inp w-full text-sm" placeholder="Write a comment" autocomplete="off"><p id="cmtErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="sendComment()">Post comment</button></div></div>
@@ -536,11 +504,11 @@ body.sub-page #mFeed .sheet,body.sub-page #mNotif .sheet{max-width:none!importan
 </div></div>
 <div id="mStyle" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Themes &amp; stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStyle')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Chat wallpaper</p><div id="wallPick" class="flex gap-2 flex-wrap"></div><p class="text-xs" style="color:var(--mut)">Stickers (made from a photo, private to you)</p><input id="stkFile" type="file" accept="image/*" class="text-sm" onchange="stickerPick(this)" autocomplete="off"><p id="stkStatus" class="text-xs" style="color:var(--mut)"></p><div id="stkGrid" class="grid grid-cols-3 gap-2" style="overflow:auto"></div></div></div>
 <div id="mCallPlus" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Call</b><button type="button" class="btn ghost w-full text-start py-3" onclick="forwardMeeting()">🔗 Forward Meeting Link</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(false)">📞 Voice Call</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(true)">🎥 Video Call</button></div></div>
-<div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
+<div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" style="color:#E11D48" onclick="deleteChatForMe()">🗑 Delete chat</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
 <div id="mChatTheme" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Chat theme</b><p class="text-xs" style="color:var(--mut)">Colour of your messages in this chat.</p><div id="chatThemePick" class="flex gap-3 flex-wrap"></div></div></div>
 <div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Send a file</b><button type="button" class="btn ghost w-full text-start py-3" onclick="pickDocuments()">📄 Documents (PDF, DOCX)</button><button type="button" class="btn ghost w-full text-start py-3" onclick="pickExistingMedia()">🖼 Existing Media</button><button type="button" class="btn ghost w-full text-start py-3" style="opacity:.6" onclick="sendBlocked()">📦 Send APK / App (not allowed)</button></div></div>
 <div id="mLocation" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Share location</b><p class="text-sm" style="color:var(--mut)">This sends your current location as a map link to this chat only.</p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="shareLocationNow()">Share current location</button></div></div>
-<div id="mStickerPick" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStickerPick')" aria-label="Close">&times;</button></div><div id="stkPreview" style="min-height:40px"></div><button id="stkSendBtn" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" disabled onclick="sendPickedSticker()">Send Sticker</button><div id="stkPickGrid" class="grid grid-cols-4 gap-2" style="overflow:auto"></div></div></div>
+<div id="mStickerPick" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStickerPick')" aria-label="Close">&times;</button></div><div id="stkPreview" style="min-height:40px"></div><button id="stkSendBtn" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" disabled onclick="sendPickedSticker()">Send Sticker</button><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkCreate()">＋ Create sticker</button><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkMedia()">🖼 Photo or video</button></div><div id="stkPickGrid" class="grid grid-cols-4 gap-2" style="overflow:auto"></div></div></div>
 <div id="mProfile" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Profile</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mProfile')" aria-label="Close">&times;</button></div><div id="ppBody" class="space-y-3"></div></div></div>
 <div id="mPostMenu" class="modal" style="z-index:84"><div class="sheet space-y-2" style="max-width:360px"><b class="text-base">Post</b><button type="button" class="btn ghost w-full text-start py-3" onclick="pmDownload()">Download media</button><button type="button" id="pmSave" class="btn ghost w-full text-start py-3" onclick="pmToggleSave()">Save</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mPostMenu')">Cancel</button></div></div>
 <div id="mPicView" class="modal" style="z-index:91;background:#000"><div id="picBox" style="position:fixed;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;background:#000;-webkit-overflow-scrolling:touch"></div><button type="button" onclick="closeM('mPicView')" aria-label="Close" style="position:fixed;top:12px;left:12px;z-index:3;color:#fff;font-size:24px;background:rgba(0,0,0,.4);border-radius:999px;width:40px;height:40px">&times;</button></div>
@@ -711,7 +679,7 @@ function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home
 function go(v){if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();scrollTo({top:0})}
 
 /* tasks */
-const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
+const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-green-50 text-green-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
 
 const hhmm=d=>String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
 const UC={High:"bg-rose-50 text-rose-600 border-rose-200",Medium:"bg-amber-50 text-amber-700 border-amber-200",Low:"bg-slate-100 text-slate-600 border-slate-200"},UK={High:"uHigh",Medium:"uMed",Low:"uLow"};
@@ -1133,7 +1101,7 @@ function endCall(silent){clearInterval(call.timer);if(call.stream)call.stream.ge
 /* chat (personal + group) */
 let chatK=0;
 const WAVE=[6,12,8,16,10,18,7,14,9,17,11,6,13,8];
-function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
+function openChatHead(){hideMentions();refreshVoiceBtn();const cc=$("chatCalls");
  if(isGK(chatK)){const g=groupOf(chatK);if(!g){closeM("mChat");return}$("chatName").textContent=g.name;setStatusFor(null);setBlueFor(null);$("chatAv").innerHTML=avHTML(g.name,38,"");$("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1" style="color:var(--acc)">${ic("family",13)}${g.members.length} ${t("members")}</span>`;if(cc)cc.innerHTML="";return}
  if(chatK==="g"){$("chatName").textContent=t("grp");setStatusFor(null);setBlueFor(null);$("chatAv").innerHTML=GROUP_AV();
   $("chatLoc").innerHTML=`<span class="inline-flex items-center gap-1 text-emerald-700">${ic("shield",13)}${S.fam.filter(f=>f.on).length+1} / ${S.fam.length+1} ${t("vlive")}</span>`;
@@ -1207,24 +1175,24 @@ async function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!
 const TK1='<svg width="13" height="9" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/></svg>';
 const TK2='<svg width="17" height="9" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/><path d="M6 8.5l2 0 6-7"/></svg>';
 function msgTime(ts){if(!ts)return "";return new Date(ts).toLocaleTimeString(LOC[S.lang]||undefined,{hour:"numeric",minute:"2-digit"})}
-function tickHTML(m){if(m.pending)return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔</span>`;if(m.read)return `<span class="ms-1" style="color:#0084FF;letter-spacing:-3px">✔✔</span>`;if(chatPartnerOnline())return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔✔</span>`;return `<span class="ms-1" style="color:rgba(0,0,0,.45)">✔</span>`}
+function tickHTML(m){if(m.pending)return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔</span>`;if(m.read)return `<span class="ms-1" style="color:#16A34A;letter-spacing:-3px">✔✔</span>`;if(chatPartnerOnline())return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔✔</span>`;return `<span class="ms-1" style="color:rgba(0,0,0,.45)">✔</span>`}
 // Pulls "is_read" for our own sent messages so the blue double tick appears when the other person has seen them
 function syncReceipts(){if(!sb||!S.user.uid||S.airplane)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
  sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
-function renderMsgs(keep){
+function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinnedSet();
  const L=S.chats[chatK]||[];const el=$("msgs");const y=el.scrollTop;
  const mine=chatBubble();
  el.innerHTML=L.map((m,i)=>{
-  if(m.id&&HIDDEN.has(m.id))return "";
+  if(m.id&&HIDDEN.has(m.id))return "";if(CLR&&tsMs(m.ts)&&tsMs(m.ts)<=CLR)return "";
   const own=!!m.me;
   const ms=tsMs(m.ts);
   const isNew=!own&&!m.read&&ms>CHAT_READ_AT;
   const body=m.deleted?`<span class="italic" style="opacity:.75">This message was deleted</span>`:(MSG_EDIT&&MSG_EDIT.i===i)?msgEditorHTML(i):m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
-  const bg=own?`background:${mine};color:#fff;border-radius:18px 18px 6px 18px;outline:1.5px solid #15803D;outline-offset:-1px`:`background:#F3F4F6;color:#111827;border-radius:18px 18px 18px 6px;outline:1.5px solid #1F2937;outline-offset:-1px`;
+  const bg=own?`background:${mine};color:#111827;border-radius:18px 18px 6px 18px;outline:1px solid #BBF7D0;outline-offset:-1px`:`background:#F3F4F6;color:#111827;border-radius:18px 18px 18px 6px;outline:1px solid #E5E7EB;outline-offset:-1px`;
   const glow=isNew?"box-shadow:0 0 0 2px #22C55E,0 0 12px rgba(34,197,94,.55)":"";
   const badge=isNew?`<span style="position:absolute;top:-8px;left:10px;padding:1px 7px;border-radius:999px;font-size:9px;font-weight:700;line-height:14px;color:#fff;background:#22C55E;box-shadow:0 1px 3px rgba(0,0,0,.2)">NEW</span>`:"";
-  const group=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:#0084FF">${esc(m.from||"")}</p>`:"";
-  const star=(m.starred||STARRED_IDS.has(m.id))?"★ ":"";
+  const group=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:#16A34A">${esc(m.from||"")}</p>`:"";
+  const star=((m.starred||STARRED_IDS.has(m.id))?"★ ":"")+(MPINS.includes(pinKey(m))?"📌 ":"");
   return `<div class="flex ${own?"justify-end":"justify-start"} px-2"><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed" onpointermove="msgMove(event,${i})" style="${bg};${glow};position:relative;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11px] leading-none" style="opacity:.85">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
  }).join("");
  if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData();
@@ -1291,7 +1259,7 @@ function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
  sendToRecipients({msg,k,to,m})}
 function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";paintSendMic();const rp=REPLY;clearReply();push(rp?{t:v,replyTo:rp.id,replyText:rp.text}:{t:v})}
-$("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
+$("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter"){if(mentionPick(e))return;sendMsg()}});$("msgIn").addEventListener("input",updateMentions);
 
 
 const VOICE_FREE_MAX=3;
@@ -1875,7 +1843,7 @@ const DB={
 Object.assign(T.en,{newVoice:"New voice",nameSaveFail:"Name could not be saved. Check your connection and try again."});
 
 /* ---------- verified badge, public profile, reviews, media ---------- */
-function blueBadge(s){return clampTrust(s)>=100?`<span class="inline-flex shrink-0" title="Verified" aria-label="Verified"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1D9BF0"/><path d="M7.2 12.3l3 3 6.6-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`:""}
+function blueBadge(s){return clampTrust(s)>=100?`<span class="inline-flex shrink-0" title="Verified" aria-label="Verified"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#16A34A"/><path d="M7.2 12.3l3 3 6.6-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`:""}
 function setBlueFor(f){const el=$("chatBlue");if(el)el.innerHTML=f?blueBadge(memberTrust(f)):""}
 let PUB=null,pubRate=0;
 // Only public columns are selected here. Phone and email are never requested for another member.
@@ -1998,7 +1966,7 @@ async function grpRename(id){const v=(($("grpNameIn")||{}).value||"").trim();if(
  if(await grpDo(sb.from("groups").update({name:v}).eq("id",id).select("id"),"grpSaved"))openGroupInfo(gkey(id))}
 function grpPickAdd(id){const g=groupById(id);if(!g)return;const have=new Set(g.members.map(m=>m.id));
  const cands=S.fam.filter(f=>f.key&&!have.has(f.key));
- $("grpAddList").innerHTML=cands.length?cands.map(f=>`<div class="flex items-center gap-3 py-1.5">${avHTML(f.n,32,f.img)}<span class="flex-1 min-w-0 text-sm truncate">${esc(f.n)}</span><button onclick="grpAdd('${id}','${esc(f.key)}')" class="btn pri rounded-lg px-3 py-1 text-xs">${t("grpAdd")}</button></div>`).join(""):`<p class="text-xs" style="color:var(--mut)">${t("grpNoContacts")}</p>`}
+ $("grpAddList").innerHTML=cands.length?`<input id="grpSearch" class="inp mb-2" placeholder="Search members" autocomplete="off" oninput="filterMembers('grpAddList',this.value)" aria-label="Search members">`+cands.map(f=>`<div class="flex items-center gap-3 py-1.5" data-q="${normQ(f.n+" "+(f.username||""))}">${avHTML(f.n,32,f.img)}<span class="flex-1 min-w-0 text-sm truncate">${esc(f.n)}</span><button onclick="grpAdd('${id}','${esc(f.key)}')" class="btn pri rounded-lg px-3 py-1 text-xs">${t("grpAdd")}</button></div>`).join(""):`<p class="text-xs" style="color:var(--mut)">${t("grpNoContacts")}</p>`}
 async function grpAdd(id,uid){if(await grpDo(sb.from("group_members").insert({group_id:id,user_id:uid,role:"member"}),"grpAdded"))openGroupInfo(gkey(id))}
 async function grpRole(id,uid,role){const g=groupById(id);if(!g)return;
  if(role==="member"&&g.members.filter(m=>m.role==="admin").length<=1){toast(t("grpLastAdmin"));return}
@@ -2022,10 +1990,72 @@ async function grpDeleteConfirm(){const g=groupById(delGrpId);if(!g||$("delGrpIn
  if(ok){delGrpId=null;closeM("mDelGrp");closeM("mGrp");if(chatK===gkey(g.id))closeChat()}}
 
 /* ---------- create group ---------- */
+/* ---------- message pins, clear chat, member search ---------- */
+function pinKey(m){return m.id?("id:"+m.id):("ts:"+tsMs(m.ts)+":"+String(m.t||"").slice(0,24))}
+function pinnedSet(){try{return JSON.parse(localStorage.getItem("lifeone.pins."+chatKey())||"[]")}catch(e){return []}}
+function isPinnedMsg(m){return pinnedSet().includes(pinKey(m))}
+function togglePinMsg(i){const L=S.chats[chatK]||[];const m=L[i];if(!m)return;const key=pinKey(m);let list=pinnedSet();
+ if(list.includes(key)){list=list.filter(x=>x!==key);toast("Message unpinned")}
+ else{list=[key,...list].slice(0,3);toast("Message pinned (up to 3 per chat)")}
+ try{localStorage.setItem("lifeone.pins."+chatKey(),JSON.stringify(list))}catch(e){}
+ renderMsgs(true)}
+function renderPinBar(){const bar=$("pinBar");if(!bar)return;
+ const pins=pinnedSet();const L=S.chats[chatK]||[];
+ let idx=-1;for(let k=L.length-1;k>=0;k--){const x=L[k];if(x.id&&HIDDEN.has(x.id))continue;if(pins.includes(pinKey(x))){idx=k;break}}
+ if(idx<0){bar.style.display="none";bar.innerHTML="";return}
+ const m=L[idx];
+ bar.style.display="flex";
+ bar.innerHTML=`<span class="shrink-0" aria-hidden="true">📌</span><span class="min-w-0 flex-1 truncate">${esc(m.file?"Attachment":(m.v?"Voice message":(m.t||"")))}</span><button type="button" class="btn out rounded-lg px-2 py-1 text-[11px] shrink-0" onclick="togglePinMsg(${idx})">Unpin</button>`}
+function clearedAt(){try{return Number(localStorage.getItem("lifeone.clear."+chatKey()))||0}catch(e){return 0}}
+function deleteChatForMe(){closeM("mChatMenu");
+ if(!confirm("Delete this chat's messages on this device? New messages will still appear."))return;
+ try{localStorage.setItem("lifeone.clear."+chatKey(),String(Date.now()))}catch(e){}
+ S.chats[chatK]=[];renderMsgs(true);toast("Chat deleted")}
+function normQ(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase().replace(/^@+/,"").trim()}
+function filterMembers(listId,q){const list=$(listId);if(!list)return;const k=normQ(q);let shown=0;
+ [...list.children].forEach(c=>{if(!c.dataset||c.dataset.q===undefined)return;const hit=!k||c.dataset.q.includes(k);c.style.display=hit?"":"none";if(hit)shown++});
+ let empty=list.querySelector(".mem-empty");
+ if(!empty){empty=document.createElement("p");empty.className="mem-empty text-xs py-2";empty.style.color="var(--mut)";list.appendChild(empty)}
+ empty.textContent=shown?"":'No members match "'+String(q||"").trim()+'"';empty.style.display=shown?"none":""}
+/* ---------- sticker tools and @-mention member detection ---------- */
+function stkCreate(){closeM("mStickerPick");const f=$("stkFile");if(f)f.click();else toast("Sticker creation is not available.")}
+function stkMedia(){closeM("mStickerPick");const f=$("attachIn");if(f)f.click();else toast("Photo and video sending is not available.")}
+let MENTION_LIST=[],MENTION_START=-1,MENTION_END=-1;
+function mentionMembers(){
+ if(isGK(chatK)){const g=groupOf(chatK);return g?g.members.map(m=>({id:m.id,name:m.name,avatar:m.avatar||""})):[]}
+ if(chatK==="g")return S.fam.filter(f=>f.key).map(f=>({id:f.key,name:f.n,avatar:f.img||""}));
+ return [];
+}
+function hideMentions(){const b=$("mentionBox");if(b){b.style.display="none";b.innerHTML=""}MENTION_LIST=[];MENTION_START=-1;MENTION_END=-1}
+function updateMentions(){const inp=$("msgIn"),box=$("mentionBox");if(!inp||!box)return;
+ const members=mentionMembers();
+ const pos=inp.selectionStart==null?inp.value.length:inp.selectionStart;
+ const m=/(^|\s)@([^\s@]{0,30})$/.exec(inp.value.slice(0,pos));
+ if(!m||!members.length){hideMentions();return}
+ const q=normQ(m[2]);
+ const me=S.user.uid;
+ const list=members.filter(x=>x.id!==me&&x.name)
+   .map(x=>({x,n:normQ(x.name)}))
+   .filter(o=>!q||o.n.includes(q))
+   .sort((a,b)=>((b.n.startsWith(q)?1:0)-(a.n.startsWith(q)?1:0))||a.n.localeCompare(b.n))
+   .slice(0,6).map(o=>o.x);
+ if(!list.length){hideMentions();return}
+ MENTION_LIST=list;MENTION_START=pos-m[2].length-1;MENTION_END=pos;
+ box.innerHTML=list.map((x,i)=>`<button type="button" class="btn ghost w-full text-start rounded-lg px-2 py-1.5 flex items-center gap-2" onpointerdown="event.preventDefault()" onclick="insertMention(${i})">${avHTML(x.name,26,x.avatar)}<span class="min-w-0 truncate text-sm">${esc(x.name)}</span></button>`).join("");
+ box.style.display="flex";
+}
+function insertMention(i){const x=MENTION_LIST[i];const inp=$("msgIn");if(!x||!inp||MENTION_START<0)return;
+ const name=String(x.name).replace(/\s+/g," ").trim();
+ const v=inp.value;const ins="@"+name+(/^\s/.test(v.slice(MENTION_END))?"":" ");
+ inp.value=v.slice(0,MENTION_START)+ins+v.slice(MENTION_END);
+ const pos=MENTION_START+ins.length;inp.setSelectionRange(pos,pos);
+ hideMentions();paintSendMic();inp.focus()}
+function mentionPick(e){const b=$("mentionBox");if(!b||b.style.display==="none"||!MENTION_LIST.length)return false;
+ if(e)e.preventDefault();insertMention(0);return true}
 function openNewGroup(){if(S.plan==="free"){openPlans(t("groupLocked"));return}
- $("ngName").value="";$("ngErr").hidden=true;
+ $("ngName").value="";$("ngErr").hidden=true;if($("ngSearch"))$("ngSearch").value="";
  const contacts=S.fam.filter(f=>f.key);
- $("ngList").innerHTML=contacts.length?contacts.map(f=>`<label class="flex items-center gap-3 py-2 px-1 rounded-xl cursor-pointer">${avHTML(f.n,36,f.img)}<span class="flex-1 min-w-0 text-sm font-medium truncate">${esc(f.n)}</span><input type="checkbox" value="${esc(f.key)}" class="ng-pick w-5 h-5 accent-emerald-600" autocomplete="off"></label>`).join(""):emptyBox(t("grpNoContacts"));
+ $("ngList").innerHTML=contacts.length?contacts.map(f=>`<label class="flex items-center gap-3 py-2 px-1 rounded-xl cursor-pointer" data-q="${normQ(f.n+" "+(f.username||""))}">${avHTML(f.n,36,f.img)}<span class="flex-1 min-w-0 text-sm font-medium truncate">${esc(f.n)}</span><input type="checkbox" value="${esc(f.key)}" class="ng-pick w-5 h-5 accent-emerald-600" autocomplete="off"></label>`).join(""):emptyBox(t("grpNoContacts"));
  openM("mNewGrp")}
 async function createGroup(){const name=(($("ngName").value)||"").trim();const picks=[...document.querySelectorAll(".ng-pick:checked")].map(i=>i.value);
  const err=m=>{const e=$("ngErr");e.textContent=m;e.hidden=false};
@@ -2068,7 +2098,7 @@ Object.assign(T.en,{chatsTab:"Chats",groupsTab:"Groups",callsTab:"Calls",noChats
 /* ---------- chat wallpaper ---------- */
 const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(16,185,129,.14),rgba(52,211,153,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};
 function curWall(){try{const k=localStorage.getItem("lifeone.wall");return WALLS[k]?k:"plain"}catch(e){return"plain"}}
-function applyWall(){const el=$("msgs");if(el)el.style.background=WALLS[curWall()].bg}
+function applyWall(){const el=$("chatBody");if(el)el.style.background=WALLS[curWall()].bg}
 function openWall(){const g=$("wallGrid");if(!g)return;const cur=curWall();
  g.innerHTML=Object.keys(WALLS).map(k=>`<button type="button" class="tile h-20 rounded-xl text-sm font-medium flex items-center justify-center" aria-pressed="${k===cur}" onclick="setWall('${k}')" style="background:${WALLS[k].bg||"var(--card)"};border:1px solid var(--line)"><span class="px-2 py-0.5 rounded-md" style="background:var(--card);color:var(--ink)">${WALLS[k].l}</span></button>`).join("");
  openM("mWall")}
@@ -2967,7 +2997,7 @@ async function deleteSticker(id,path){
 let CHAT_READ_AT=0;
 function tsMs(x){return typeof x==="number"?x:(Date.parse(x)||0)}
 function chatKey(){if(chatK==="g")return"g";const f=S.fam[chatK];return f&&f.key?String(f.key):String(chatK)}
-function chatBubble(){return "#16A34A"}
+function chatBubble(){return "#D9FDD3"}
 function chatPartnerOnline(){const f=S.fam[chatK];return !!(f&&f.online===true)}
 function chatReadAt(k){const key=(k==="g")?"g":((S.fam[k]||{}).key||String(k));try{return Number(localStorage.getItem("lifeone.read."+key))||0}catch(e){return 0}}
 function chatMarkReadNow(k){const key=(k==="g")?"g":((S.fam[k]||{}).key||String(k));try{localStorage.setItem("lifeone.read."+key,String(Date.now()))}catch(e){}}
@@ -3007,7 +3037,7 @@ function toggleMute(){
 function menuSearchChat(){closeM("mChatMenu");openChatSearch()}
 function menuWallpaper(){closeM("mChatMenu");openChatBg()}
 function menuTheme(){closeM("mChatMenu");
- $("chatThemePick").innerHTML=["#0084FF","#7C3AED","#E11D48","#059669","#D97706","#0891B2"].map(c=>`<button type="button" class="w-10 h-10 rounded-full border-2 border-white shadow" style="background:${c}" onclick="setChatBubble('${c}')" aria-label="Colour ${c}"></button>`).join("");
+ $("chatThemePick").innerHTML=["#16A34A","#7C3AED","#E11D48","#059669","#D97706","#65A30D"].map(c=>`<button type="button" class="w-10 h-10 rounded-full border-2 border-white shadow" style="background:${c}" onclick="setChatBubble('${c}')" aria-label="Colour ${c}"></button>`).join("");
  openM("mChatTheme");
 }
 function setChatBubble(c){try{localStorage.setItem("lifeone.bubble."+chatKey(),c)}catch(e){}closeM("mChatTheme");renderMsgs(true);toast("Theme set for this chat")}
@@ -3116,7 +3146,7 @@ function feedCard(p){
    : `<img data-sb="posts-media" data-sp="${esc(p.media_path)}" src="${esc(signUrl("posts-media",p.media_path))}" alt="" loading="lazy" class="w-full rounded-xl" style="display:block;min-height:200px;max-height:420px;object-fit:cover;background:var(--line);-webkit-touch-callout:none;user-select:none" draggable="false">`;
  const liked=FEED.mine.has(p.id);
  const saved=FEED_SAVED.has(p.id);
- const caption=(p.caption||"").split(/(\s+)/).map(w=>/^[#@]/.test(w)?`<span style="color:#0084FF">${esc(w)}</span>`:esc(w)).join("");
+ const caption=(p.caption||"").split(/(\s+)/).map(w=>/^[#@]/.test(w)?`<span style="color:#16A34A">${esc(w)}</span>`:esc(w)).join("");
  return `<article class="space-y-2 py-2" style="border-bottom:1px solid var(--line)">
   <div class="flex items-center gap-2">
    <button type="button" class="shrink-0" onclick="openUserProfile('${esc(p.author_id)}')" aria-label="Open profile">${avHTML(name,36,a.avatar_url||"")}</button>
@@ -3183,7 +3213,7 @@ async function openUserProfile(uid){
  if(req!==PROF_REQ)return;
  const stats=st||{posts:0,followers:0,following:0,likes:0};
  const prof=p||{};const links=prof.social_links||{};
- const linkHtml=Object.entries(links).filter(([,v])=>/^https:\/\//i.test(String(v||""))).map(([k,v])=>`<a href="${esc(v)}" target="_blank" rel="noopener noreferrer" class="text-sm" style="color:#0084FF">${esc(k)}</a>`).join("<br>")||`<span class="text-sm" style="color:var(--mut)">No social links.</span>`;
+ const linkHtml=Object.entries(links).filter(([,v])=>/^https:\/\//i.test(String(v||""))).map(([k,v])=>`<a href="${esc(v)}" target="_blank" rel="noopener noreferrer" class="text-sm" style="color:#16A34A">${esc(k)}</a>`).join("<br>")||`<span class="text-sm" style="color:var(--mut)">No social links.</span>`;
  const following=FEED_FOLLOW.has(uid);
  const action=isMe?"":`<button type="button" class="btn ${following?"ghost":"pri"} rounded-full px-4 py-2 text-sm font-medium" onclick="toggleFollow('${esc(uid)}')">${following?"Following":"Follow"}</button>`;
  $("ppBody").innerHTML=`<div class="flex flex-col items-center text-center gap-2">${avHTML(prof.full_name||prof.username||"",84,prof.avatar_url||"")}<b class="text-lg">${esc(prof.full_name||prof.username||"Member")}</b>${prof.username?`<span class="text-sm" style="color:var(--mut)">@${esc(prof.username)}</span>`:""}${action}</div>
@@ -3453,7 +3483,7 @@ function showMsgBar(i){
  bar.style.cssText=`position:fixed;left:${left}px;top:${top}px;width:${W}px;z-index:95;display:flex;justify-content:space-between;align-items:center;padding:6px 6px;border-radius:16px;background:var(--card);box-shadow:0 10px 30px rgba(0,0,0,.18);border:1px solid var(--line);transition:opacity .15s`;
  bar.style.flexDirection="column-reverse";bar.style.gap="4px";bar.innerHTML=`<div style="display:flex;justify-content:space-around;width:100%;padding-bottom:4px;border-bottom:1px solid var(--line)">${REACT_EMOJI.map(em=>`<button type="button" onclick="reactMsg(${i},'${em}')" aria-label="React ${em}" style="font-size:22px;width:40px;height:40px;border-radius:999px">${em}</button>`).join("")}</div><div style="display:flex;justify-content:space-between;align-items:center;width:100%">`+btn("copy","📋","Copy")+btn("forward","↪","Forward",{disabled:!(m.t||m.file)})
    +(own?btn("edit","✎","Edit",{disabled:!editable}):btn("privatereply","💬","Private Reply",{disabled:!m.sid}))
-   +btn("translate","🌐","Translate",{disabled:!m.t})
+   +btn("translate","🌐","Translate",{disabled:!m.t})+btn("pin","📌",isPinnedMsg(m)?"Unpin":"Pin",{disabled:!server})
    +btn("star","★","Star",{disabled:!server})
    +btn("delete","🗑","Delete",{disabled:!server&&!own,red:true})+`</div>`;
  document.body.appendChild(bar);MSG_BAR=bar;{const bh=bar.offsetHeight;let t2=r.top-bh-6;let below=false;if(t2<64){t2=r.bottom+6;below=true}bar.style.top=t2+"px";bar.style.flexDirection=below?"column":"column-reverse"}
@@ -3471,7 +3501,7 @@ function msgAct(act,i){
  else if(act==="edit"){MSG_EDIT={i};DEL_CHOICE=null;renderMsgs(true)}
  else if(act==="privatereply"){startChat({id:m.sid,name:m.from||"Member",avatar:"",username:""})}
  else if(act==="translate")openTranslate(i);
- else if(act==="star")toggleStarMsg(i);
+ else if(act==="star")toggleStarMsg(i);else if(act==="pin")togglePinMsg(i);
  else if(act==="delete"){DEL_CHOICE=i;MSG_EDIT=null;renderMsgs(true)}
 }
 function msgEditorHTML(i){
@@ -3854,7 +3884,7 @@ async function loadPartnerLocations(){
  const now=Date.now();
  const rows=(data||[]).filter(r=>Date.parse(r.expires_at)>now);
  box.innerHTML=rows.length?rows.map(r=>{const p=r.profile||{};const name=p.full_name||p.username||"Contact";
-   return `<div class="flex items-center gap-3 py-2" style="border-bottom:1px solid var(--line)">${avHTML(name,36,p.avatar_url||"")}<div class="min-w-0 flex-1"><b class="block truncate text-sm">${esc(name)}</b><span class="block text-xs" style="color:var(--mut)">Updated ${msgTime(r.updated_at)}</span></div><a href="https://www.google.com/maps?q=${Number(r.lat)},${Number(r.lng)}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold" style="color:#0084FF">Open map</a></div>`}).join(""):emptyBox("No one is sharing their live location with you right now.");
+   return `<div class="flex items-center gap-3 py-2" style="border-bottom:1px solid var(--line)">${avHTML(name,36,p.avatar_url||"")}<div class="min-w-0 flex-1"><b class="block truncate text-sm">${esc(name)}</b><span class="block text-xs" style="color:var(--mut)">Updated ${msgTime(r.updated_at)}</span></div><a href="https://www.google.com/maps?q=${Number(r.lat)},${Number(r.lng)}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold" style="color:#16A34A">Open map</a></div>`}).join(""):emptyBox("No one is sharing their live location with you right now.");
 }
 /* language, country and profession: applied as you choose */
 function openLang(){
@@ -3958,7 +3988,7 @@ async function loadReactions(){
 }
 function reactHTML(m){
  const e=REACTS.get(m.id);if(!e||!e.size)return "";
- return `<div class="flex flex-wrap gap-1 mt-1">${[...e.entries()].map(([em,v])=>`<span class="text-xs px-1.5 py-0.5 rounded-full" style="background:var(--card);border:1px solid ${v.mine?"#0084FF":"var(--line)"}">${em} ${v.n}</span>`).join("")}</div>`;
+ return `<div class="flex flex-wrap gap-1 mt-1">${[...e.entries()].map(([em,v])=>`<span class="text-xs px-1.5 py-0.5 rounded-full" style="background:var(--card);border:1px solid ${v.mine?"#16A34A":"var(--line)"}">${em} ${v.n}</span>`).join("")}</div>`;
 }
 async function reactMsg(i,em){
  closeMsgBar();
@@ -3973,7 +4003,7 @@ async function reactMsg(i,em){
 }
 /* ---------- per-chat wallpaper / background ---------- */
 const BG_SOLIDS=["#FFFFFF","#F3F4F6","#E0F2FE","#DCFCE7","#FEF9C3","#FCE7F3","#EDE9FE","#1F2937"];
-const BG_GRADS=["linear-gradient(160deg,#A5B4FC,#67E8F9)","linear-gradient(160deg,#FDE68A,#FCA5A5)","linear-gradient(160deg,#86EFAC,#38BDF8)","linear-gradient(160deg,#312E81,#0F172A)"];
+const BG_GRADS=["linear-gradient(160deg,#A5B4FC,#67E8F9)","linear-gradient(160deg,#FDE68A,#FCA5A5)","linear-gradient(160deg,#86EFAC,#4ADE80)","linear-gradient(160deg,#312E81,#0F172A)"];
 function chatBgKey(){return "lifeone.chatbg."+chatKey()}
 function getChatBg(){try{return JSON.parse(localStorage.getItem(chatBgKey())||"null")}catch(e){return null}}
 function applyChatBg(){
@@ -4005,7 +4035,7 @@ async function setChatBgImage(input){
 function resetChatBg(){try{localStorage.removeItem(chatBgKey())}catch(e){}applyChatBg();toast("Default background restored")}
 /* ---------- swipe to reply, quotes, story composer ---------- */
 let REPLY=null, PRESS=null;
-const STORY_GRADS={g1:"linear-gradient(135deg,#0084FF,#7C3AED)",g2:"linear-gradient(135deg,#F59E0B,#EF4444)",g3:"linear-gradient(135deg,#10B981,#0EA5E9)",g4:"linear-gradient(135deg,#EC4899,#8B5CF6)",g5:"linear-gradient(135deg,#111827,#374151)",g6:"linear-gradient(135deg,#FDE68A,#FCA5A5)"};
+const STORY_GRADS={g1:"linear-gradient(135deg,#16A34A,#7C3AED)",g2:"linear-gradient(135deg,#F59E0B,#EF4444)",g3:"linear-gradient(135deg,#10B981,#22C55E)",g4:"linear-gradient(135deg,#EC4899,#8B5CF6)",g5:"linear-gradient(135deg,#111827,#374151)",g6:"linear-gradient(135deg,#FDE68A,#FCA5A5)"};
 const STORY_FONTS=[["system-ui,sans-serif","Modern","modern"],["Georgia,serif","Classic","classic"],["'Courier New',monospace","Typewriter","typewriter"],["'Brush Script MT',cursive","Script","script"],["Impact,sans-serif","Bold","bold"]];
 const STORY_FONT_CSS={modern:"system-ui,sans-serif",classic:"Georgia,serif",typewriter:"'Courier New',monospace",script:"'Brush Script MT',cursive",bold:"Impact,sans-serif"};
 function storyFontCss(k){return STORY_FONT_CSS[k]||STORY_FONT_CSS.modern}

@@ -223,6 +223,19 @@ html nav #tabs>button,html nav #tabs>button.on,html nav #tabs>button:hover,html 
 html nav #tabs>button:not(.on) svg,html.dark nav #tabs>button:not(.on) svg{color:#475569!important;stroke:#475569!important}
 html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!important;stroke:#16A34A!important}
 #capText{resize:vertical;min-height:110px}
+
+/* ---- v-final: contrast, quote jump, file sheet, wallpaper picker ---- */
+.msg-flash{animation:msgFlash 1.4s ease}
+@keyframes msgFlash{0%,60%{box-shadow:0 0 0 3px #22C55E,0 0 18px rgba(34,197,94,.7)}100%{box-shadow:0 0 0 0 transparent}}
+.qt{cursor:pointer;display:flex;align-items:center;gap:7px;border-left:3px solid #16A34A;padding:4px 8px;margin-bottom:5px;border-radius:8px;font-size:12.5px;line-height:1.25;min-width:0}
+.qt.me{background:rgba(22,101,52,.13);color:#0B1220}.qt.th{background:rgba(255,255,255,.12);color:#F9FAFB;border-left-color:#34D399}
+.qt .qi{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:#16A34A;color:#fff}
+.vn-own .opacity-70,.vn-own span{color:#1F2937;opacity:1!important;font-weight:600}.vn-them .opacity-70{opacity:.95!important;color:#E5E7EB}
+.fsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fsBtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:transparent;border:0;color:var(--ink);font-size:12px;font-weight:600;font-family:inherit}
+.fsBtn:active{background:var(--bg)}.fsIc{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 14px rgba(15,23,42,.16)}
+.cbSw{width:40px;height:40px;border-radius:50%;border:2px solid #CBD5E1;position:relative}.cbSw.sel{border-color:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
+#cbPrev{height:150px;border-radius:16px;border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;overflow:hidden;background-size:cover;background-position:center}
 </style>
 </head>
 <body class="unauth">
@@ -573,7 +586,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 <div id="mCallPlus" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Call</b><button type="button" class="btn ghost w-full text-start py-3" onclick="forwardMeeting()">🔗 Forward Meeting Link</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(false)">📞 Voice Call</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(true)">🎥 Video Call</button></div></div>
 <div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" style="color:#E11D48" onclick="deleteChatForMe()">🗑 Delete chat</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
 <div id="mChatTheme" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Chat theme</b><p class="text-xs" style="color:var(--mut)">Colour of your messages in this chat.</p><div id="chatThemePick" class="flex gap-3 flex-wrap"></div></div></div>
-<div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Send a file</b><button type="button" class="btn ghost w-full text-start py-3" onclick="pickDocuments()">📄 Documents (PDF, DOCX)</button><button type="button" class="btn ghost w-full text-start py-3" onclick="pickExistingMedia()">🖼 Existing Media</button><button type="button" class="btn ghost w-full text-start py-3" style="opacity:.6" onclick="sendBlocked()">📦 Send APK / App (not allowed)</button></div></div>
+<div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet" style="max-width:360px;padding:16px 16px 12px"><div class="flex items-center justify-between mb-2"><b class="text-base">Send a file</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mFileSheet')" aria-label="Close">&times;</button></div><div class="fsGrid"><button type="button" class="fsBtn" onclick="pickDocuments()"><span class="fsIc" style="background:linear-gradient(135deg,#6366F1,#4F46E5)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>Document</button><button type="button" class="fsBtn" onclick="pickExistingMedia()"><span class="fsIc" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>Photo &amp; video</button><button type="button" class="fsBtn" onclick="pickAudioFile()"><span class="fsIc" style="background:linear-gradient(135deg,#F59E0B,#EA580C)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>Audio</button><button type="button" class="fsBtn" onclick="pickApkFile()"><span class="fsIc" style="background:linear-gradient(135deg,#22C55E,#15803D)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>APK / App</button><button type="button" class="fsBtn" onclick="pickArchiveFile()"><span class="fsIc" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 10v5M10.5 12h3"/></svg></span>ZIP / Archive</button><button type="button" class="fsBtn" onclick="closeM('mFileSheet');openLocation()"><span class="fsIc" style="background:linear-gradient(135deg,#14B8A6,#0F766E)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-11.5A7 7 0 0 0 5 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>Location</button></div><p class="text-[11px] mt-2 text-center" style="color:var(--mut)">Up to 20 MB. Only open apps from people you trust.</p></div></div>
 <div id="mLocation" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Share location</b><p class="text-sm" style="color:var(--mut)">This sends your current location as a map link to this chat only.</p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="shareLocationNow()">Share current location</button></div></div>
 <div id="mStickerPick" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStickerPick')" aria-label="Close">&times;</button></div><div id="stkPreview" style="min-height:40px"></div><button id="stkSendBtn" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" disabled onclick="sendPickedSticker()">Send Sticker</button><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkCreate()">＋ Create sticker</button><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkMedia()">🖼 Photo or video</button></div><div id="stkPickGrid" class="grid grid-cols-4 gap-2" style="overflow:auto"></div></div></div>
 <div id="mProfile" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Profile</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mProfile')" aria-label="Close">&times;</button></div><div id="ppBody" class="space-y-3"></div></div></div>
@@ -601,7 +614,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 <div id="mHelp" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Help &amp; support</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHelp')" aria-label="Close">&times;</button></div><details class="card p-3"><summary class="text-sm font-semibold">How do I start a chat?</summary><p class="text-sm mt-2" style="color:var(--mut)">Search a person by full name or @username and send a chat request. You can chat once they accept.</p></details><details class="card p-3"><summary class="text-sm font-semibold">How do locked chats and the vault work?</summary><p class="text-sm mt-2" style="color:var(--mut)">A passcode protects locked chats and the vault on this device. Vault files are encrypted before upload. Your original photo stays in your gallery, so delete it there yourself once it is in the vault.</p></details><details class="card p-3"><summary class="text-sm font-semibold">Is my phone number visible?</summary><p class="text-sm mt-2" style="color:var(--mut)">No. Phone numbers are never shown to other members.</p></details><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="closeM('mHelp');openUserReport()">Report a user or scam</button></div></div>
 <div id="mUserReport" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:440px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Report a user or scam</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUserReport')" aria-label="Close">&times;</button></div><label class="block text-xs" style="color:var(--mut)">What is this about?</label><select id="rpCat" class="inp w-full text-sm"><option value="scam">Scam or fraud</option><option value="harassment">Harassment</option><option value="spam">Spam</option><option value="impersonation">Impersonation</option><option value="other">Other</option><option value="support">Help request</option></select><label class="block text-xs" style="color:var(--mut)">Who? (username or name, optional)</label><input id="rpTarget" maxlength="120" class="inp w-full text-sm" placeholder="@username" autocomplete="off"><label class="block text-xs" style="color:var(--mut)">What happened?</label><textarea id="rpDesc" maxlength="2000" rows="4" class="inp w-full text-sm" placeholder="Describe it in your own words"></textarea><label class="block text-xs" style="color:var(--mut)">Evidence</label><input id="rpFiles" type="file" multiple accept="image/*,application/pdf" class="text-sm w-full" autocomplete="off"><p id="rpFilesInfo" class="text-xs" style="color:var(--mut)"></p><p id="rpErr" class="text-sm" style="color:#E11D48"></p><p id="rpOk" class="text-sm" style="color:#059669"></p><button type="button" id="rpSend" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitUserReport()">Send report</button></div></div>
 <div id="mRequests" class="modal" style="z-index:84;padding:0;align-items:stretch;justify-content:stretch"><div class="sheet" style="max-width:none;width:100%;height:100%;max-height:none;border-radius:0;padding:0;border:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden"><div class="flex items-center gap-3 px-3" style="min-height:56px;border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)"><button type="button" class="btn out w-10 h-10 rounded-full shrink-0" onclick="closeM('mRequests')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><b class="text-lg flex-1">Message requests</b></div><p class="text-xs px-4 pt-3" style="color:var(--mut)">People who want to message you. Confirm to start a chat, or reject the request.</p><div id="reqList" class="px-3 py-2 space-y-2" style="overflow:auto;flex:1"></div></div></div>
-<div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Change Wallpaper / Background</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Applies to this chat only.</p><p class="text-sm font-semibold">Solid colours</p><div id="cbSolids" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Gradients</p><div id="cbGrads" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Your own image</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm" onclick="$('cbImg').click()">Choose image from your phone</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"><button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button></div></div>
+<div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><div><h3 class="font-bold text-base">Change Wallpaper / Background</h3><p class="text-xs" style="color:var(--mut)">Applies to this chat only. Tap to preview, then Apply.</p></div><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><div id="cbPrev" aria-label="Live preview"><div style="align-self:flex-start;max-width:70%;padding:7px 11px;border-radius:16px 16px 16px 5px;background:#1E2633;color:#F9FAFB;font-size:13px">Hey! How does this look?<div style="font-size:10.5px;font-weight:600;color:#E5E7EB;text-align:right;margin-top:2px">10:24</div></div><div style="align-self:flex-end;max-width:70%;padding:7px 11px;border-radius:16px 16px 5px 16px;background:#D9FDD3;color:#0B1220;font-size:13px">Looks great <div style="font-size:10.5px;font-weight:600;color:#1F2937;text-align:right;margin-top:2px">10:25 <span style="color:#166534;font-weight:900">✔✔</span></div></div></div><div><p class="text-sm font-semibold">Solid colours</p><p class="text-xs mb-2" style="color:var(--mut)">One calm flat colour behind your messages.</p><div id="cbSolids" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Gradients</p><p class="text-xs mb-2" style="color:var(--mut)">A soft blend of two colours.</p><div id="cbGrads" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Your own image</p><p class="text-xs mb-2" style="color:var(--mut)">Pick a photo from your gallery. It is resized and kept on this device.</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2" onclick="$('cbImg').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Choose from gallery</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"></div><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button><button type="button" class="btn pri rounded-xl py-2.5 text-sm font-semibold" onclick="applyChatBgPending()">Apply</button></div></div></div>
 <div id="pencilPop" role="menu" style="display:none;position:fixed;right:14px;bottom:150px;z-index:90;width:216px;padding:6px;border-radius:16px;background:var(--card);box-shadow:0 12px 32px rgba(15,23,42,.18);border:1px solid var(--line);flex-direction:column;gap:2px"><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-3" style="padding:10px;font-size:14px;color:var(--ink);border-radius:12px" onclick="pencilAddMember()"><span class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span><span class="font-semibold">Add Member</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-3" style="padding:10px;font-size:14px;color:var(--ink);border-radius:12px" onclick="pencilRequests()"><span class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="font-semibold flex-1">Message Requests</span><span id="pcReqCount" class="text-[11px] font-bold px-1.5 rounded-full" style="background:#E11D48;color:#fff;min-width:18px;text-align:center"></span></button></div>
 
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
@@ -1025,7 +1038,7 @@ async function remoteSearch(term){if(!sb||!term)return;
  if(error||!data)return;data.forEach(r=>PROF.set(r.id,r));
  try{famSearch();renderMemberSearch()}catch(e){}}
 function scheduleRemote(raw){if(!raw||raw===lastRemoteQ)return;lastRemoteQ=raw;clearTimeout(rsT);rsT=setTimeout(()=>remoteSearch(raw),250)}
-function openSearchModal(){if(S.view!=="chats"||FEED_OPEN||NOTIF_OPEN)go("chats");loadProfiles();toggleHdrSearch(true);hideHdr()}
+function openSearchModal(mode){if(S.view!=="chats"||FEED_OPEN||NOTIF_OPEN)go("chats");loadProfiles();toggleHdrSearch(true,mode||"member");hideHdr()}
 // Searches every registered account in the Supabase profiles table by name, @username, email or phone
 function renderMemberSearch(){const el=$("msRes");if(!el||!$("msQ"))return;
  const raw=($("msQ").value||"").trim().replace(/^@/,""),q=raw.toLowerCase(),qd=contactDigits(raw);
@@ -1245,8 +1258,7 @@ async function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!
 const TK1='<svg width="13" height="9" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/></svg>';
 const TK2='<svg width="17" height="9" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/><path d="M6 8.5l2 0 6-7"/></svg>';
 function msgTime(ts){if(!ts)return "";return new Date(ts).toLocaleTimeString(LOC[S.lang]||undefined,{hour:"numeric",minute:"2-digit"})}
-function tickHTML(m){if(m.pending)return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔</span>`;if(m.read)return `<span class="ms-1" style="color:#16A34A;letter-spacing:-3px">✔✔</span>`;if(chatPartnerOnline())return `<span class="ms-1" style="color:rgba(0,0,0,.45);letter-spacing:-3px">✔✔</span>`;return `<span class="ms-1" style="color:rgba(0,0,0,.45)">✔</span>`}
-// Pulls "is_read" for our own sent messages so the blue double tick appears when the other person has seen them
+function tickHTML(m){const dk="#374151";if(m.pending)return `<span class="ms-1" style="color:${dk};font-weight:800;letter-spacing:-3px">✔</span>`;if(m.read)return `<span class="ms-1" style="color:#166534;font-weight:900;letter-spacing:-3px">✔✔</span>`;if(chatPartnerOnline())return `<span class="ms-1" style="color:${dk};font-weight:800;letter-spacing:-3px">✔✔</span>`;return `<span class="ms-1" style="color:${dk};font-weight:800">✔</span>`}
 function syncReceipts(){if(!sb||!S.user.uid||S.airplane)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
  sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
 function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinnedSet();
@@ -1260,12 +1272,12 @@ function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinne
   const body=m.deleted?`<span class="italic" style="opacity:.75">This message was deleted</span>`:(MSG_EDIT&&MSG_EDIT.i===i)?msgEditorHTML(i):m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
   const bare=false;
   const rowJust=own?"justify-end":"justify-start";
-  const bg=own?`background:${mine};color:#111827;border-radius:18px 18px 6px 18px;outline:1px solid #BBF7D0;outline-offset:-1px`:`background:#1E2633;color:#F9FAFB;border-radius:18px 18px 18px 6px;outline:1px solid rgba(255,255,255,.06);outline-offset:-1px;box-shadow:0 2px 10px rgba(15,23,42,.18)`;
+  const bg=own?`background:${mine};color:#0B1220;border-radius:18px 18px 6px 18px;outline:1px solid #BBF7D0;outline-offset:-1px`:`background:#1E2633;color:#F9FAFB;border-radius:18px 18px 18px 6px;outline:1px solid rgba(255,255,255,.06);outline-offset:-1px;box-shadow:0 2px 10px rgba(15,23,42,.18)`;
   const glow=isNew?"box-shadow:0 0 0 2px #22C55E,0 0 12px rgba(34,197,94,.55)":"";
   const badge=isNew?`<span style="position:absolute;top:-8px;left:10px;padding:1px 7px;border-radius:999px;font-size:9px;font-weight:700;line-height:14px;color:#fff;background:#22C55E;box-shadow:0 1px 3px rgba(0,0,0,.2)">NEW</span>`:"";
   const group=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:#16A34A">${esc(m.from||"")}</p>`:"";
   const star=((m.starred||STARRED_IDS.has(m.id))?"★ ":"")+(MPINS.includes(pinKey(m))?"📌 ":"");
-  return `<div class="flex ${rowJust} px-2" style="position:relative"><span class="swipe-ic" id="swi${i}" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v2"/></svg></span><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed${bare?" vnote-bare":""}" onpointermove="msgMove(event,${i})" style="${bare?"":bg+";"+glow+";"}position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11px] leading-none" style="opacity:.85">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
+  return `<div class="flex ${rowJust} px-2" style="position:relative"><span class="swipe-ic" id="swi${i}" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 5 5v2"/></svg></span><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" data-mid="${esc(m.id||"")}" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed${bare?" vnote-bare":""}" onpointermove="msgMove(event,${i})" style="${bare?"":bg+";"+glow+";"}position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11.5px] leading-none" style="opacity:1;font-weight:600;color:${own?"#1F2937":"#E5E7EB"}">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
  }).join("");
  if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData();
 }
@@ -1983,11 +1995,11 @@ function fileAttr(m){return /^https?:/.test(m.url||"")?"":` data-sb="chat-media"
 function fileCard(m){const img=/^image\//.test(m.ft||""),vid=/^video\//.test(m.ft||"");const src=fileSrc(m),at=fileAttr(m);
  if(img)return `<a href="${esc(src)}"${at} target="_blank" rel="noopener"><img src="${esc(src)}"${at} alt="${esc(m.name)}" loading="lazy" class="rounded-xl" style="max-width:100%;max-height:260px;display:block;background:var(--line)"></a>`;
  if(vid)return `<video src="${esc(src)}"${at} controls playsinline preload="metadata" class="rounded-xl" style="max-width:100%;max-height:260px;display:block"></video>`;
- return `<a href="${esc(src)}"${at} target="_blank" rel="noopener" class="flex items-center gap-2.5 py-0.5" style="color:inherit;text-decoration:none"><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:rgba(127,127,127,.18)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span><span class="min-w-0"><span class="block text-sm font-medium truncate" style="max-width:12rem">${esc(m.name)}</span><span class="block text-[11px] opacity-75">${fmtSize(m.size)||"Open file"}</span></span></a>`}
+ return `<a href="${esc(src)}"${at} target="_blank" rel="noopener" class="flex items-center gap-2.5 py-0.5" style="color:inherit;text-decoration:none"${/\.(apk|xapk|aab)$/i.test(m.name||"")?` download="${esc(m.name)}"`:""}><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:${/\.(apk|xapk|aab)$/i.test(m.name||"")?"rgba(22,163,74,.25)":"rgba(127,127,127,.18)"}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span><span class="min-w-0"><span class="block text-sm font-medium truncate" style="max-width:12rem">${esc(m.name)}</span><span class="block text-[11px] opacity-75">${fmtSize(m.size)||"Open file"}</span></span></a>`}
 async function attachPicked(input){const file=input.files&&input.files[0];input.value="";if(!file)return;
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
  if(file.size>20*1024*1024){toast("File is larger than 20 MB");return}
- const okType=/^(image|video)\//.test(file.type)||file.type==="application/pdf"||/\.(docx?|xlsx?|txt)$/i.test(file.name);
+ const okType=/^(image|video|audio)\//.test(file.type)||file.type==="application/pdf"||/\.(docx?|xlsx?|pptx?|txt|csv|apk|xapk|aab|zip|rar|7z|mp3|m4a|wav|aac|ogg)$/i.test(file.name);
  if(!okType){toast("This file type is not supported");return}
  if(chatK==="g"){toast("Send files in a direct chat for now");return}
  toast("Uploading…");
@@ -2304,40 +2316,57 @@ function phaseOneSignupAndProfile(){
 }
 function hideHdr(){const r=$("hdrRes");if(r)r.hidden=true}
 let hdrT=null,hdrSeq=0;
+let SEARCH_MODE="chats";
+function setSearchMode(m){SEARCH_MODE=m;const i=$("hdrSearch");if(!i)return;const ph=m==="member"?"@username, full name or phone number":"Search by name";i.placeholder=ph;i.setAttribute("aria-label",ph);i.removeAttribute("data-ph")}
 function hdrSearchRun(raw){
- const term=(raw||"").trim().replace(/^@/,"");
- clearTimeout(hdrT);
- const seq=++hdrSeq;
+ const term=(raw||"").trim();
+ clearTimeout(hdrT);const seq=++hdrSeq;
  if(!term){hideHdr();return}
+ if(SEARCH_MODE==="chats"){hdrChatsLookup(term);return}
  const box=$("hdrRes");if(box){box.hidden=false;box.innerHTML=`<p class="text-sm p-3" style="color:var(--mut)">Searching…</p>`}
  hdrT=setTimeout(()=>hdrExactLookup(term,seq),250);
 }
+/* chats search: existing chats, by name only */
+function hdrChatsLookup(term){
+ const q=term.replace(/^@/,"").toLowerCase();
+ const rows=S.fam.map((f,i)=>({f,i})).filter(({f})=>(f.n||"").toLowerCase().includes(q))
+   .map(({f,i})=>({idx:i,key:f.key||"",name:f.n||"",username:"",avatar:f.img||""}));
+ renderExactResults(rows,"No chat has this name.");
+}
 /* strict: a row appears only when the name or username matches the typed text exactly (case-insensitive) */
 async function hdrExactLookup(term,seq){
- const q=term.toLowerCase();
- const local=S.fam.map((f,i)=>({f,i})).filter(({f})=>(f.n||"").trim().toLowerCase()===q)
+ /* add-member search: exact @username, exact full name, or exact phone number */
+ const clean=term.replace(/[,()"]/g,"").trim();
+ const uname=clean.replace(/^@/,"").toLowerCase();
+ const digits=clean.replace(/\D/g,"");
+ const isPhone=/^[+\d\s\-().]+$/.test(clean)&&digits.length>=7;
+ const q=uname,qName=clean.toLowerCase();
+ const local=S.fam.map((f,i)=>({f,i})).filter(({f})=>(f.n||"").trim().toLowerCase()===qName)
    .map(({f,i})=>({idx:i,key:f.key||"",name:f.n||"",username:"",avatar:f.img||""}));
  let remote=[];
- if(sb&&S.user.uid){
-   const safe=term.replace(/[,()"]/g,"").trim();
-   if(safe){
-     const {data,error}=await sb.from("profiles").select(SEARCH_COLS).or(`username.ilike.${safe},full_name.ilike.${safe}`).neq("id",S.user.uid).limit(25);
-     if(!error&&data)remote=data.filter(r=>(r.username||"").toLowerCase()===q||(r.full_name||"").trim().toLowerCase()===q);
-     remote.forEach(r=>PROF.set(r.id,r));
+ if(sb&&S.user.uid&&clean){
+   let r=await sb.rpc("find_profiles_exact",{q:clean});
+   if(!r.error&&r.data)remote=r.data;
+   else{ /* migration not run yet: fall back to name and username only */
+     const safe=uname.replace(/[%_]/g,"");
+     const f=await sb.from("profiles").select(SEARCH_COLS).or(`username.ilike.${safe},full_name.ilike.${safe}`).neq("id",S.user.uid).limit(25);
+     if(!f.error&&f.data)remote=f.data.filter(x=>(x.username||"").toLowerCase()===q||(x.full_name||"").trim().toLowerCase()===qName);
+     if(isPhone)console.warn("Phone search needs the find_profiles_exact SQL migration.");
    }
+   remote.forEach(x=>PROF.set(x.id,x));
  }
  if(seq!==hdrSeq)return;
  const seen=new Set(local.map(u=>u.key));
  const rows=[...local];
- remote.forEach(r=>{if(seen.has(r.id))return;seen.add(r.id);
-   rows.push({idx:S.fam.findIndex(f=>f.key===r.id),key:r.id,name:r.full_name||r.username||"",username:r.username||"",avatar:r.avatar_url||""})});
- renderExactResults(rows);
+ remote.forEach(x=>{if(seen.has(x.id))return;seen.add(x.id);
+   rows.push({idx:S.fam.findIndex(f=>f.key===x.id),key:x.id,name:x.full_name||x.username||"",username:x.username||"",avatar:x.avatar_url||""})});
+ renderExactResults(rows,"No registered user matches this exact @username, full name or phone number.");
 }
-function renderExactResults(rows){
+function renderExactResults(rows,emptyMsg){
  const box=$("hdrRes");if(!box)return;
  box.hidden=false;
  if(!rows.length){
-   box.innerHTML=`<div class="p-4 text-center"><b class="block text-sm">No result</b><p class="text-xs mt-1" style="color:var(--mut)">No LifeOne user has this exact name or username.</p></div>`;
+   box.innerHTML=`<div class="p-4 text-center"><b class="block text-sm">No result</b><p class="text-xs mt-1" style="color:var(--mut)">${esc(emptyMsg||"Nothing matches.")}</p></div>`;
    return;
  }
  box.innerHTML=rows.map(u=>{
@@ -2367,8 +2396,8 @@ function renderStoryBar(){
  const hasMine=STORIES.some(x=>x.owner_id===S.user.uid);
  const ownState=hasMine?(ownerHasUnseen(S.user.uid)?"unseen":"seen"):null;
  const own=`<div class="flex flex-col items-center gap-1 shrink-0 w-14" style="position:relative">
-   <button type="button" onclick="storyCircleTap('${esc(S.user.uid)}')" class="btn" aria-label="${hasMine?"View your story":"No story yet"}" style="padding:0">${RING(ownState,avHTML(S.user.name||"Me",46,S.user.img||""))}</button>
-   <button type="button" onclick="openStoryNew()" aria-label="Add story" title="Add story" style="position:absolute;right:-2px;top:36px;width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-weight:700;font-size:15px;line-height:18px;border:2px solid var(--card);text-align:center">+</button>
+   <button type="button" onclick="storyCircleTap('${esc(S.user.uid)}')" class="btn" aria-label="${hasMine?"View your story and viewers":"Add story"}" style="padding:0">${RING(ownState,avHTML(S.user.name||"Me",46,S.user.img||""))}</button>
+   <button type="button" onclick="event.stopPropagation();storyPlusTap()" aria-label="Add new story" title="Add new story" style="position:absolute;right:-6px;top:28px;width:28px;height:28px;border-radius:50%;background:transparent;z-index:3;padding:0;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;border-radius:50%;background:var(--pri);color:#fff;font-weight:700;font-size:15px;line-height:17px;border:2px solid var(--card);text-align:center;display:block">+</span></button>
    <span class="text-[10px] truncate w-full text-center">Your story</span></div>`;
  const owners=new Map();
  STORIES.filter(x=>x.owner_id!==S.user.uid).forEach(x=>{if(!owners.has(x.owner_id))owners.set(x.owner_id,x)});
@@ -2380,8 +2409,10 @@ function renderStoryBar(){
 /* tapping a story circle plays it; the + badge is the only way to create one */
 function storyCircleTap(uid){
  if(STORIES.some(x=>x.owner_id===uid))return openStoryViewer(uid);
- toast("No story yet. Tap + to add one.");
+ storyPlusTap();
 }
+/* the + badge: composer opens and the phone gallery picker follows straight away */
+function storyPlusTap(){openStoryNew();try{storyMediaPick()}catch(e){}}
 function openStory(i){
  const body=$("storyBody"),title=$("storyTitle");if(!body||!title)return;
  if(i==="me"){
@@ -3219,9 +3250,14 @@ function mgPreview(j){const m=MG_LIST[j];if(!m)return;const src=fileSrc(m);const
 }
 function mediaFromCamera(){closeM("mMedia");const c=$("camIn");if(c)c.click()}
 function mediaFromLocation(){closeM("mMedia");openLocation()}
-function mediaFromLibrary(){closeM("mMedia");const a=$("attachIn");if(a)a.click()}
+function mediaFromLibrary(){closeM("mMedia");pickWith("image/*,video/*")}
 function openFileSheet(){openM("mFileSheet")}
-function pickDocuments(){closeM("mFileSheet");const a=$("attachIn");a.accept=".pdf,.doc,.docx";a.click()}
+function pickWith(acc){closeM("mFileSheet");const a=$("attachIn");if(!a)return;a.accept=acc;a.click()}
+function pickDocuments(){pickWith(".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv")}
+function pickExistingMedia(){pickWith("image/*,video/*")}
+function pickAudioFile(){pickWith("audio/*,.mp3,.m4a,.wav,.aac,.ogg")}
+function pickApkFile(){pickWith("*/*")}   /* many Android pickers hide .apk behind a strict accept list, so any file is allowed and the name is checked after */
+function pickArchiveFile(){pickWith(".zip,.rar,.7z,application/zip")}
 function pickExistingMedia(){closeM("mFileSheet");const a=$("attachIn");a.accept="image/*,video/*";a.click()}
 function openLocation(){openM("mLocation")}
 function shareLocationNow(){
@@ -3255,7 +3291,7 @@ async function sendPickedSticker(){
   STKPICK=null;
  }catch(e){toast("Could not send the sticker.")}
 }
-function sendBlocked(){toast("Apps and APK files are not sent in chat, for your safety.")}
+function sendBlocked(){pickApkFile()}
 /* ---------- settings: dark mode lives here, not in the header ---------- */
 function paintDarkRow(){const e=$("darkState");if(e)e.textContent=document.documentElement.classList.contains("dark")?"On":"Off"}
 /* ---------- dashboard: feed modes, search, actions, profile, long-press ---------- */
@@ -4151,7 +4187,7 @@ function closePencilOutside(e){
  p.style.display="none";
 }
 function closePencil(){const p=$("pencilPop");if(p)p.style.display="none"}
-function pencilAddMember(){closePencil();openSearchModal()}
+function pencilAddMember(){closePencil();openSearchModal("member")}
 function pencilStickers(){closePencil();openStyle()}
 function pencilRequests(){closePencil();openRequests()}
 function openRequests(){loadChatRelations();openM("mRequests")}
@@ -4205,10 +4241,20 @@ function paintWallLayer(){
  }
 }
 function applyChatBg(){paintWallLayer()}
-function openChatBg(){
- $("cbSolids").innerHTML=BG_SOLIDS.map(c=>`<button type="button" aria-label="Colour ${c}" onclick="setChatBg('solid','${c}')" class="w-10 h-10 rounded-full border border-slate-300" style="background:${c}"></button>`).join("");
- $("cbGrads").innerHTML=BG_GRADS.map(g=>`<button type="button" aria-label="Gradient" onclick="setChatBg('grad','${g}')" class="w-10 h-10 rounded-full border border-slate-300" style="background:${g}"></button>`).join("");
- openM("mChatBg");
+let CBPEND=null;
+function cbCss(b){return !b?(WALLS[curWall()].bg||"var(--bg)"):(b.type==="image"?`url("${b.value}") center/cover no-repeat`:b.value)}
+function cbPaint(){
+ const p=$("cbPrev");if(p)p.style.background=cbCss(CBPEND);
+ const same=(t,v)=>CBPEND&&CBPEND.type===t&&CBPEND.value===v;
+ $("cbSolids").innerHTML=BG_SOLIDS.map(c=>`<button type="button" aria-label="Colour ${c}" onclick="cbPick('solid','${c}')" class="cbSw ${same("solid",c)?"sel":""}" style="background:${c}"></button>`).join("");
+ $("cbGrads").innerHTML=BG_GRADS.map(g=>`<button type="button" aria-label="Gradient" onclick="cbPick('grad','${g}')" class="cbSw ${same("grad",g)?"sel":""}" style="background:${g}"></button>`).join("");
+}
+function cbPick(type,value){CBPEND={type,value};cbPaint()}
+function openChatBg(){CBPEND=getChatBg();cbPaint();openM("mChatBg")}
+function applyChatBgPending(){
+ if(!CBPEND){resetChatBg();closeM("mChatBg");return}
+ try{localStorage.setItem(chatBgKey(),JSON.stringify(CBPEND))}catch(e){toast("Could not save the background.");return}
+ applyChatBg();closeM("mChatBg");toast("Background changed");
 }
 function setChatBg(kind,value){
  try{localStorage.setItem(chatBgKey(),JSON.stringify({type:kind==="grad"?"grad":"solid",value}))}catch(e){toast("Could not save the background.");return}
@@ -4217,14 +4263,10 @@ function setChatBg(kind,value){
 async function setChatBgImage(input){
  const f=(input.files||[])[0];input.value="";if(!f)return;
  if(!f.type.startsWith("image/")){toast("Choose an image file.");return}
- try{
-   const blob=await compressImage(f);
-   const dataUrl=await blobToDataURL(blob);
-   localStorage.setItem(chatBgKey(),JSON.stringify({type:"image",value:dataUrl}));
-   applyChatBg();toast("Background changed");
- }catch(e){toast("That image could not be used. Try a smaller one.")}
+ try{const blob=await compressImage(f);const dataUrl=await blobToDataURL(blob);CBPEND={type:"image",value:dataUrl};cbPaint()}
+ catch(e){toast("That image could not be used. Try a smaller one.")}
 }
-function resetChatBg(){try{localStorage.removeItem(chatBgKey())}catch(e){}applyChatBg();toast("Default background restored")}
+function resetChatBg(){try{localStorage.removeItem(chatBgKey())}catch(e){}CBPEND=null;applyChatBg();if($("cbPrev"))cbPaint();toast("Default background restored")}
 /* ---------- swipe to reply, quotes, story composer ---------- */
 let REPLY=null, PRESS=null;
 const STORY_GRADS={g1:"linear-gradient(135deg,#16A34A,#7C3AED)",g2:"linear-gradient(135deg,#F59E0B,#EF4444)",g3:"linear-gradient(135deg,#10B981,#22C55E)",g4:"linear-gradient(135deg,#EC4899,#8B5CF6)",g5:"linear-gradient(135deg,#111827,#374151)",g6:"linear-gradient(135deg,#FDE68A,#FCA5A5)"};
@@ -4233,11 +4275,26 @@ const STORY_FONT_CSS={modern:"system-ui,sans-serif",classic:"Georgia,serif",type
 function storyFontCss(k){return STORY_FONT_CSS[k]||STORY_FONT_CSS.modern}
 let STFONT=0, STBGKEY="g1", STPHOTO=null;
 function storyBgCss(k){return STORY_GRADS[k]||STORY_GRADS.g1}
+const QMIC='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/></svg>',QCLIP='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.5l-8.5 8.5a5.5 5.5 0 01-8-8L13 4.5a3.7 3.7 0 015.3 5.3L9.8 18.3a1.8 1.8 0 01-2.6-2.6l7.7-7.7"/></svg>';
+function quoteInfo(q,fb){
+ if(q){if(q.v)return {k:"v",label:"Voice message",sub:q.d?dur(Number(q.d)||0):""};if(q.file)return {k:"f",label:q.name||"Attachment",sub:""};return {k:"t",label:String(q.t||""),sub:""}}
+ if(fb==="Voice message")return {k:"v",label:"Voice message",sub:""};if(fb==="Attachment")return {k:"f",label:"Attachment",sub:""};return {k:"t",label:fb||"Message",sub:""};
+}
 function quoteHTML(m){
  if(!m.replyTo)return "";
  const q=(S.chats[chatK]||[]).find(x=>x.id===m.replyTo);
- const txt=q?(q.v?"Voice message":q.file?"Attachment":(q.t||"")):(m.replyText||"Message");
- return `<div style="border-left:3px solid ${m.me?"rgba(255,255,255,.7)":"#16A34A"};padding:2px 8px;margin-bottom:4px;border-radius:6px;background:${m.me?"rgba(255,255,255,.14)":"rgba(255,255,255,.08)"};font-size:12px;opacity:.9" class="truncate">${esc(String(txt).slice(0,120))}</div>`;
+ const i=quoteInfo(q,m.replyText);
+ const ic_=i.k==="v"?`<span class="qi">${QMIC}</span>`:i.k==="f"?`<span class="qi" style="background:#64748B">${QCLIP}</span>`:"";
+ const who=q?(q.me?"You":(q.from||"")):"";
+ return `<div class="qt ${m.me?"me":"th"}" role="button" tabindex="0" aria-label="Go to original message" onpointerdown="event.stopPropagation()" onclick="event.stopPropagation();jumpToMsg('${esc(m.replyTo)}')">${ic_}<span class="min-w-0 flex-1">${who?`<b class="block truncate" style="font-size:11px;color:${m.me?"#166534":"#34D399"}">${esc(who)}</b>`:""}<span class="block truncate">${esc(i.label.slice(0,120))}${i.sub?` · ${i.sub}`:""}</span></span></div>`;
+}
+function jumpToMsg(id){
+ const box=$("msgs");if(!box||!id)return;
+ const el=[...box.querySelectorAll("[data-mid]")].find(e=>e.dataset.mid===String(id));
+ if(!el){toast("Original message is not available.");return}
+ el.scrollIntoView({behavior:"smooth",block:"center"});
+ el.classList.remove("msg-flash");void el.offsetWidth;el.classList.add("msg-flash");
+ setTimeout(()=>el.classList.remove("msg-flash"),1500);
 }
 function msgMove(ev,i){
  if(!PRESS||PRESS.i!==i)return;
@@ -4259,14 +4316,14 @@ function setReply(i){
  const m=(S.chats[chatK]||[])[i];if(!m)return;
  if(!isServerMsg(m)){toast("Wait until the message is sent.");return}
  const who=m.me?(S.user.name||"You"):(m.from||((S.fam[chatK]&&S.fam[chatK].n)||"Contact"));
- REPLY={id:m.id,name:who,text:(m.v?"Voice message":m.file?"Attachment":(m.t||"")).slice(0,120)};
+ REPLY={id:m.id,name:who,kind:m.v?"v":m.file?"f":"t",text:(m.v?"Voice message":m.file?(m.name||"Attachment"):(m.t||"")).slice(0,120)};
  paintReply();const inp=$("msgIn");if(inp)inp.focus();
 }
 function paintReply(){
  const b=$("replyBar");if(!b)return;
  if(!REPLY){b.style.display="none";b.innerHTML="";return}
  b.style.display="flex";
- b.innerHTML=`<div class="min-w-0 flex-1" style="border-left:3px solid #16A34A;padding-left:8px"><span class="block truncate text-[12px] font-semibold" style="color:#16A34A">${esc(REPLY.name)}</span><span class="block truncate text-xs" style="color:var(--mut)">${esc(REPLY.text)}</span></div><button type="button" onclick="clearReply()" aria-label="Cancel reply" class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center" style="background:var(--bg);color:var(--ink)">&times;</button>`;
+ b.innerHTML=`<div class="min-w-0 flex-1 flex items-center gap-2" style="border-left:3px solid #16A34A;padding-left:8px;cursor:pointer" onclick="jumpToMsg('${esc(REPLY.id)}')">${REPLY.kind==="v"?`<span class="qi" style="width:26px;height:26px;border-radius:50%;background:#16A34A;color:#fff;display:flex;align-items:center;justify-content:center;flex:none">${QMIC}</span>`:""}<div class="min-w-0 flex-1"><span class="block truncate text-[12px] font-semibold" style="color:#16A34A">${esc(REPLY.name)}</span><span class="block truncate text-xs" style="color:var(--mut)">${esc(REPLY.text)}</span></div></div><button type="button" onclick="clearReply()" aria-label="Cancel reply" class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center" style="background:var(--bg);color:var(--ink)">&times;</button>`;
 }
 
 function clearReply(){REPLY=null;paintReply()}
@@ -4312,7 +4369,7 @@ async function postStory(){
    if(STPHOTO){
      const path=S.user.uid+"/"+Date.now()+(STPHOTO.kind==="video"?(/webm/.test(STPHOTO.mime)?"_v.webm":"_v.mp4"):"_s.jpg");
      const {error:uerr}=await sb.storage.from("stories-media").upload(path,STPHOTO.blob,{contentType:STPHOTO.mime,cacheControl:"3600"});
-     if(uerr){err.textContent="Photo upload failed.";return}
+     if(uerr){console.warn("story upload",uerr);err.textContent="Upload failed: "+(uerr.message||"check the stories-media bucket policies")+".";return}
      const row={owner_id:S.user.uid,kind:STPHOTO.kind,media_path:path,font:STORY_FONTS[STFONT][2]};if(text)row.body=text;
      const {error}=await tryInsert(row);
      if(error){err.textContent="Could not share the story.";return}
@@ -4341,12 +4398,12 @@ function paintHeader(){
  const titles={chats:"Chats",groups:"Channels",marketplace:"Marketplace"};
  el.textContent=NOTIF_OPEN?"Notifications":FEED_OPEN?"Feed":(titles[S.view]||"Chats");
 }
-function toggleHdrSearch(force){
+function toggleHdrSearch(force,mode){
  const w=$("hdrSearchWrap"),tt=$("hdrTitle"),inp=$("hdrSearch");if(!w)return;
  const show=typeof force==="boolean"?force:(w.style.display==="none"||!w.style.display);
  w.style.display=show?"flex":"none";if(tt)tt.style.display=show?"none":"";
- if(show){if(inp)setTimeout(()=>inp.focus(),30)}
- else{if(inp)inp.value="";const r=$("hdrRes");if(r){r.hidden=true;r.innerHTML=""}}
+ if(show){setSearchMode(mode==="member"?"member":"chats");if(inp){inp.value="";setTimeout(()=>inp.focus(),30)}const r=$("hdrRes");if(r){r.hidden=true;r.innerHTML=""}}
+ else{if(inp)inp.value="";const r=$("hdrRes");if(r){r.hidden=true;r.innerHTML=""}setSearchMode("chats")}
 }
 function paintFeedPills(){
  const a=$("fpForYou"),b=$("fpFollowing");if(!a||!b)return;

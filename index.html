@@ -192,6 +192,23 @@ html.dark .vn-them{--vnp:#F9FAFB;--vnu:#94A3B8;--vnb:#34D399;--vni:#0B1120}
 html.dark .vn .vn-btn:active,html.dark .vn .vn-btn:focus-visible{background:var(--vnb)!important;color:var(--vni)!important}
 .vwave{color:var(--vnu)}
 .vwave i.on{background:var(--vnp);opacity:1}
+
+/* ---- Chat options, emoji picker, reply preview, active tab pill ---- */
+.ddItem{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink);background:transparent;text-align:start;border:0;cursor:pointer}
+.ddItem:hover,.ddItem:active{background:var(--pri2)}
+.ddIc{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--pri2);color:var(--pri);flex:none}
+#emojiPick:not(.hidden){display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:16px;background:var(--card);border:1px solid var(--line);margin-top:6px}
+#epTabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.ep-tab{flex:none;width:38px;height:34px;border-radius:10px;font-size:18px;background:transparent;border:0}
+.ep-tab.on{background:#16A34A}
+#epGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;overflow-y:auto;height:210px;padding:2px}
+.ep-em{width:100%;aspect-ratio:1;font-size:22px;line-height:1;border-radius:10px;background:transparent;border:0;display:flex;align-items:center;justify-content:center}
+.ep-em:active{background:var(--pri2)}
+#chatSheet #replyBar{margin:0 4px 6px;padding:8px 10px;border-radius:14px;background:var(--card);border:1px solid var(--line);align-items:center;gap:10px}
+html nav #tabs>button{position:relative}
+html nav #tabs>button.on::before{content:"";position:absolute;left:14px;right:14px;top:50%;height:44px;transform:translateY(-50%);border-radius:999px;background:#16A34A;z-index:0}
+html nav #tabs>button>span{position:relative;z-index:1}
+html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#FFFFFF!important;stroke:#FFFFFF!important}
 </style>
 </head>
 <body class="unauth">
@@ -401,12 +418,14 @@ html.dark .vn .vn-btn:active,html.dark .vn .vn-btn:focus-visible{background:var(
 <div id="mChat" class="modal" style="padding:0"><div id="chatSheet" class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0;padding:0"><div id="wallLayer" aria-hidden="true"></div>
  <div id="chatHeader" class="glass-bar flex items-center px-3 pt-3 pb-2" style="border-bottom:1px solid var(--line)"><div class="flex items-center gap-1 min-w-0 flex-1"><button class="p-2 -ms-2 shrink-0" style="color:var(--mut)" onclick="closeChat()" aria-label="Back" data-ic="left" data-s="20"></button>
   <button type="button" id="chatHead" onclick="openHeadInfo()" class="flex items-center gap-2 min-w-0 text-start" style="justify-content:flex-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex flex-col"><span class="flex items-center gap-1.5 min-w-0"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><span id="chatStatus" class="text-xs truncate" style="color:var(--mut)"></span></span><div id="chatLoc" class="hidden"></div></button></div>
-  <div class="flex items-center gap-1 shrink-0"><button type="button" onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Audio call" title="Audio call"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button><button type="button" onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Video call" title="Video call"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg></button><div id="chatCalls" class="hidden"></div><button type="button" onclick="openChatMenu()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
+  <div class="flex items-center gap-1 shrink-0"><button type="button" onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Audio call" title="Audio call"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></button><button type="button" onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Video call" title="Video call"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg></button><div id="chatCalls" class="hidden"></div><button type="button" id="chatMoreBtn" onclick="toggleChatDD(event)" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
  </div>
+ <div id="chatDD" style="display:none;position:absolute;top:62px;right:10px;z-index:30;min-width:244px;padding:6px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 16px 40px rgba(15,23,42,.22);flex-direction:column;gap:2px"><button type="button" id="ddMute" role="menuitem" class="ddItem" onclick="toggleMute()"><span class="ddIc"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg></span><span id="ddMuteTxt">Mute notifications</span></button><button type="button" id="ddTheme" role="menuitem" class="ddItem" onclick="ddTheme()"><span class="ddIc"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.7 1.6-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.4-4-7.7-9-7.7z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="8" r="1"/></svg></span><span>Theme &amp; Wallpaper</span></button><button type="button" id="ddBlock" role="menuitem" class="ddItem" onclick="ddBlock()" style="color:#E11D48"><span class="ddIc" style="background:rgba(225,29,72,.12);color:#E11D48"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></span><span id="ddBlockTxt">Block contact</span></button></div>
  <div id="chatBody" class="flex-1 min-h-0 flex flex-col"><div id="pinBar" class="items-center gap-2 px-3 py-2 text-xs" style="display:none;background:var(--card);border-bottom:1px solid var(--line)"></div><div id="msgs" class="flex-1 min-h-0 overflow-auto space-y-2 py-3"></div>
  <div id="inBar" class="flex flex-col gap-2 pt-2 pb-2 px-3"><div id="mentionBox" class="flex-col gap-0.5 rounded-xl p-1 overflow-auto" style="display:none;max-height:190px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.08)"></div>
+  <div id="replyBar"></div>
   <div class="flex items-end gap-2"><div class="inpRow flex-1 min-w-0 flex items-center gap-1"><button type="button" class="chatIcon" onclick="toggleEmoji()" aria-label="Emoji" title="Emoji">&#9786;</button><input id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()"><button type="button" class="chatIcon" onclick="openFileSheet()" aria-label="Share file" title="Share file"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg></button><button type="button" class="chatIcon" onclick="openMediaGallery()" aria-label="Camera" title="Camera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div><button id="sendBtn" type="button" class="chatMic" onclick="sendMsg()" aria-label="Send" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button><button id="voiceBtn" type="button" class="chatMic" aria-label="Hold to record a voice note" title="Hold to record, slide up to lock" onpointerdown="vhPress(event)" oncontextmenu="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
-  <div id="emojiPick" class="hidden flex flex-wrap gap-1 p-2 rounded-xl" style="background:var(--bg)"><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😀')">😀</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😂')">😂</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😍')">😍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🥰')">🥰</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😎')">😎</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤔')">🤔</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😢')">😢</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😡')">😡</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👍')">👍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙏')">🙏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🔥')">🔥</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🎉')">🎉</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('❤️')">❤️</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('💯')">💯</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😊')">😊</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👏')">👏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤝')">🤝</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('✅')">✅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙌')">🙌</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😅')">😅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😴')">😴</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤩')">🤩</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😇')">😇</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😘')">😘</button></div>
+  <div id="emojiPick" class="hidden" role="dialog" aria-label="Emoji"><div id="epTabs"></div><div id="epGrid"></div></div>
   <input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)" autocomplete="off">
   <input id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)" autocomplete="off">
 </div></div>
@@ -574,7 +593,7 @@ html.dark .vn .vn-btn:active,html.dark .vn .vn-btn:focus-visible{background:var(
 <div id="mRequests" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Message requests</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mRequests')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">People who want to message you. Accept to start a chat.</p><div id="reqList" class="space-y-2" style="overflow:auto;flex:1"></div></div></div>
 <div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Change Wallpaper / Background</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Applies to this chat only.</p><p class="text-sm font-semibold">Solid colours</p><div id="cbSolids" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Gradients</p><div id="cbGrads" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Your own image</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm" onclick="$('cbImg').click()">Choose image from your phone</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"><button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button></div></div>
 <div id="pencilPop" role="menu" style="display:none;position:fixed;right:14px;bottom:150px;z-index:90;width:180px;padding:6px;border-radius:14px;background:var(--card);box-shadow:0 10px 28px rgba(0,0,0,.16);border:1px solid var(--line);flex-direction:column;gap:0"><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-2" style="padding:8px 10px;font-size:13px;color:#111827" onclick="pencilAddMember()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/><path d="M19 8v6M16 11h6"/></svg><span class="font-medium">Add Member</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-2" style="padding:8px 10px;font-size:13px;color:#111827" onclick="pencilStickers()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 13l3 3 5-6"/></svg><span class="font-medium">Make Sticker</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center justify-between" style="padding:8px 10px;font-size:13px;color:#111827" onclick="pencilRequests()"><span class="flex items-center gap-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg><span class="font-medium">Message requests</span></span><span id="pcReqCount" class="text-[11px] font-bold px-1.5 rounded-full" style="background:#E11D48;color:#fff;min-width:18px;text-align:center"></span></button></div>
-<div id="replyBar"></div>
+
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -714,7 +733,7 @@ const NAV=[["chats","navChats","chat"],["feed","navFeed","globe"],["groups","nav
 function renderTabs(){updateBell();renderStoryBar();{const sb=$("storyBar");if(sb)sb.style.display=(S.view==="chats")?"":"none"}{const dv=$("storyDivider");if(dv)dv.style.display=(S.view==="chats")?"":"none"}paintHeader();const cur=(S.view==="family"||S.view==="profile")?"":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn,marketplace:S.mktNew||0,notifs:S.notifs.filter(x=>!x.r).length};
  $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" aria-label="${t(lk)}" title="${t(lk)}" class="tab btn relative flex items-center justify-center py-3.5 ${cur===k?"on":""}"><span class="relative">${ic(ik,28)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span><i class="bar"></i></button>`).join("");setLabels()}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","marketplace"].includes(v)?v:"chats"}catch(e){return "chats"}}
-function go(v){if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();scrollTo({top:0})}
+function go(v){if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();restoreViewScroll(v)}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-green-50 text-green-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -1149,7 +1168,7 @@ function openChatHead(){hideMentions();refreshVoiceBtn();const cc=$("chatCalls")
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
-function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);openChatHead();updatePresenceDot();renderMsgs();applyChatBg();loadReactions();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
+function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);clearReply();closeChatDD();openChatHead();renderBlockState();updatePresenceDot();renderMsgs();applyChatBg();loadReactions();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);chatMarkReadNow(chatK);closeM("mChat");document.body.classList.remove("chat-open");closeAttachBar()}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";el.style.display="none";return;
@@ -1301,7 +1320,7 @@ function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  const msg=Object.assign({me:true,from:S.user.name,pending:true,ts:new Date().toISOString()},m);
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
  sendToRecipients({msg,k,to,m})}
-function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";paintSendMic();const rp=REPLY;clearReply();push(rp?{t:v,replyTo:rp.id,replyText:rp.text}:{t:v})}
+function sendMsg(){if(isBlockedChat()){toast(BLK_MSG);return}const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";paintSendMic();const rp=REPLY;clearReply();push(rp?{t:v,replyTo:rp.id,replyText:rp.text}:{t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter"){if(mentionPick(e))return;sendMsg()}});$("msgIn").addEventListener("input",updateMentions);
 
 
@@ -1321,7 +1340,7 @@ let VHOLD=null;const VH_LOCK_PX=56;
 function vhHint(on){const h=$("recHint");if(h)h.style.display=on?"":"none"}
 function vhUnbind(){window.removeEventListener("pointermove",vhMove);window.removeEventListener("pointerup",vhRelease);window.removeEventListener("pointercancel",vhRelease);const b=$("voiceBtn");if(b)b.classList.remove("holding")}
 function vhPress(ev){
- if(rec.on||VHOLD)return;
+ if(rec.on||VHOLD||isBlockedChat())return;
  if(ev.button&&ev.button!==0)return;
  VHOLD={y:ev.clientY,t:Date.now(),up:false};
  const b=$("voiceBtn");if(b)b.classList.add("holding");
@@ -1332,7 +1351,7 @@ function vhPress(ev){
  Promise.resolve(recStart()).then(()=>{if(VHOLD&&VHOLD.up)vhFinish()});
 }
 function vhMove(ev){if(!VHOLD||VHOLD.up||!rec.on)return;if(VHOLD.y-ev.clientY>=VH_LOCK_PX)vhLock()}
-function vhLock(){if(!VHOLD)return;vhUnbind();VHOLD=null;vhHint(false);try{if(navigator.vibrate)navigator.vibrate(8)}catch(e){}toast("Recording locked. Tap send when you are done.")}
+function vhLock(){if(!VHOLD)return;vhUnbind();VHOLD=null;vhHint(false);try{if(navigator.vibrate)navigator.vibrate(8)}catch(e){}}
 function vhRelease(){if(!VHOLD)return;VHOLD.up=true;if(rec.on)vhFinish()}
 function vhFinish(){
  const h=VHOLD;vhUnbind();VHOLD=null;
@@ -3110,7 +3129,7 @@ function updatePresenceDot(){
  let d=$("chatDot");if(!d){d=document.createElement("span");d.id="chatDot";d.style.cssText="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;border:2px solid #fff";av.appendChild(d)}
  const on=chatPartnerOnline();d.style.background=on?"#22C55E":"#9CA3AF";d.setAttribute("aria-label",on?"Online":"Offline");
 }
-function toggleEmoji(){const e=$("emojiPick");if(e)e.classList.toggle("hidden")}
+function toggleEmoji(){const e=$("emojiPick");if(!e||isBlockedChat())return;const show=e.classList.contains("hidden");e.classList.toggle("hidden",!show);if(show)epRender(EP_CUR)}
 function insertEmoji(em){const i=$("msgIn");if(!i)return;i.value=(i.value||"")+em;paintSendMic();i.focus()}
 function toggleAttachBar(){const b=$("attachBar");if(!b)return;b.classList.toggle("hidden");b.style.display=b.classList.contains("hidden")?"none":"flex"}
 function closeAttachBar(){const b=$("attachBar");if(b){b.classList.add("hidden");b.style.display="none"}}
@@ -3121,7 +3140,8 @@ function forwardMeeting(){
  closeM("mCallPlus");
  const i=$("msgIn");if(i){i.value="Join my meeting: "+link;sendMsg()}
 }
-function openChatMenu(){
+function openChatMenu(){toggleChatDD()}
+function __legacyOpenChatMenu(){
  const key=chatKey();const muted=(()=>{try{return localStorage.getItem("lifeone.mute."+key)==="1"}catch(e){return false}})();
  $("chatMenuMute").textContent=muted?"Unmute notifications":"Mute notifications";
  const direct=!!(S.fam[chatK]&&S.fam[chatK].key&&chatK!=="g"&&!isGK(chatK));
@@ -3134,9 +3154,9 @@ function openChatMenu(){
  openM("mChatMenu");
 }
 function toggleMute(){
- const key=chatKey();let muted=false;
- try{muted=localStorage.getItem("lifeone.mute."+key)==="1";localStorage.setItem("lifeone.mute."+key,muted?"0":"1")}catch(e){}
- closeM("mChatMenu");toast(muted?"Notifications on":"Notifications muted");
+ const key="lifeone.mute."+chatKey();let muted=false;
+ try{muted=localStorage.getItem(key)==="1";localStorage.setItem(key,muted?"0":"1")}catch(e){}
+ closeChatDD();toast(muted?"Notifications on":"Notifications muted");
 }
 function menuSearchChat(){closeM("mChatMenu");openChatSearch()}
 function menuWallpaper(){closeM("mChatMenu");openChatBg()}
@@ -4200,15 +4220,17 @@ function msgMove(ev,i){
 function setReply(i){
  const m=(S.chats[chatK]||[])[i];if(!m)return;
  if(!isServerMsg(m)){toast("Wait until the message is sent.");return}
- REPLY={id:m.id,text:(m.v?"Voice message":m.file?"Attachment":(m.t||"")).slice(0,120)};
- paintReply();$("msgIn").focus();
+ const who=m.me?(S.user.name||"You"):(m.from||((S.fam[chatK]&&S.fam[chatK].n)||"Contact"));
+ REPLY={id:m.id,name:who,text:(m.v?"Voice message":m.file?"Attachment":(m.t||"")).slice(0,120)};
+ paintReply();const inp=$("msgIn");if(inp)inp.focus();
 }
 function paintReply(){
  const b=$("replyBar");if(!b)return;
  if(!REPLY){b.style.display="none";b.innerHTML="";return}
  b.style.display="flex";
- b.innerHTML=`<div class="min-w-0 flex-1" style="border-left:3px solid #16A34A;padding-left:8px"><span class="block text-[11px] font-semibold" style="color:#16A34A">Replying</span><span class="block truncate text-xs">${esc(REPLY.text)}</span></div><button type="button" onclick="clearReply()" aria-label="Cancel reply" class="w-7 h-7 rounded-full" style="background:var(--bg)">&times;</button>`;
+ b.innerHTML=`<div class="min-w-0 flex-1" style="border-left:3px solid #16A34A;padding-left:8px"><span class="block truncate text-[12px] font-semibold" style="color:#16A34A">${esc(REPLY.name)}</span><span class="block truncate text-xs" style="color:var(--mut)">${esc(REPLY.text)}</span></div><button type="button" onclick="clearReply()" aria-label="Cancel reply" class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center" style="background:var(--bg);color:var(--ink)">&times;</button>`;
 }
+
 function clearReply(){REPLY=null;paintReply()}
 /* story composer: typed straight onto the coloured canvas */
 function openStoryNew(){
@@ -4320,6 +4342,73 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go(savedTab())});
 
 Object.assign(T.en,{navStatus:"Status"});
+</script>
+<script>
+const EMOJI_CATS=[
+ ["Smileys","😀","😀 😃 😄 😁 😆 😅 🤣 😂 🙂 🙃 😉 😊 😇 🥰 😍 🤩 😘 😗 😚 😙 😋 😛 😜 🤪 😝 🤑 🤗 🤭 🤫 🤔 🤐 🤨 😐 😑 😶 😏 😒 🙄 😬 🤥 😌 😔 😪 🤤 😴 😷 🤒 🤕 🤢 🤮 🤧 🥵 🥶 🥴 😵 🤯 🤠 🥳 😎 🤓 🧐 😕 😟 🙁 😮 😯 😲 😳 🥺 😦 😧 😨 😰 😥 😢 😭 😱 😖 😣 😞 😓 😩 😫 😤 😡 😠 🤬 😈 👿 💀 💩 🤡 👻 👽 🤖"],
+ ["People","👋","👋 🤚 🖐 ✋ 🖖 👌 🤌 🤏 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 👍 👎 ✊ 👊 🤛 🤜 👏 🙌 👐 🤲 🤝 🙏 ✍️ 💅 🤳 💪 🦵 🦶 👂 👃 🧠 👀 👅 👄 👶 🧒 👦 👧 🧑 👨 👩 🧔 👴 👵 🙋 🙆 🙅 💁 🤷 🤦 💃 🕺 🧘 🏃 🚶"],
+ ["Animals","🐶","🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🐦 🐤 🦆 🦅 🦉 🦇 🐺 🐗 🐴 🦄 🐝 🐛 🦋 🐌 🐞 🐜 🕷 🐢 🐍 🦎 🐙 🦑 🦐 🦀 🐡 🐠 🐟 🐬 🐳 🐋 🦈 🐊 🐅 🐆 🦓 🦍 🐘 🦒 🐪 🐫 🦘 🐕 🐈 🐩 🦜 🌵 🌲 🌳 🌴 🌱 🌿 🍀 🌸 🌹 🌺 🌻 🌼 🌷 🌞 🌙 ⭐ 🔥 🌈 ❄️ 🌊"],
+ ["Food","🍎","🍏 🍎 🍐 🍊 🍋 🍌 🍉 🍇 🍓 🫐 🍒 🍑 🥭 🍍 🥥 🥝 🍅 🥑 🍆 🥦 🥬 🥒 🌽 🥕 🥔 🍠 🥐 🍞 🥖 🥨 🧀 🥚 🍳 🥞 🧇 🥓 🥩 🍗 🍖 🌭 🍔 🍟 🍕 🥪 🌮 🌯 🥗 🍝 🍜 🍲 🍛 🍣 🍱 🥟 🍤 🍙 🍚 🍘 🍥 🥠 🍡 🍧 🍨 🍦 🥧 🧁 🍰 🎂 🍮 🍭 🍬 🍫 🍿 🍩 🍪 🌰 🥜 ☕ 🍵 🥤 🧋 🍺 🍻 🥂 🍷 🥃 🍸 🍹 🍾 🧊"],
+ ["Vehicles","🚗","🚗 🚕 🚙 🚌 🚎 🚓 🚑 🚒 🚐 🚚 🚛 🚜 🛵 🚲 🛴 🛺 🚨 🚍 🚘 🚖 🚔 🚂 🚆 🚇 🚊 🚉 ✈️ 🚁 🚀 🛸 ⛵ 🚤 🚢 ⚓ 🗽 🗼 🏰 🎡 🏖 🏔 🌋 🏕 🏠 🏢 🏨 🏥 🏦 🏫"],
+ ["Activities","⚽","⚽ 🏀 🏈 ⚾ 🎾 🏐 🏉 🎱 🏓 🏸 🏒 🏑 🏏 ⛳ 🏹 🎣 🥊 🥋 🎽 🛹 🛼 🛷 ⛸ 🎿 🏂 🏋 🤸 🏆 🥇 🥈 🥉 🏅 🎫 🎪 🤹 🎭 🎨 🎬 🎤 🎧 🎼 🎹 🥁 🎷 🎺 🎸 🎻 🎲 🎯 🎳 🎮 🎰 🧩"],
+ ["Objects","📱","📱 📲 💻 ⌨️ 🖥 🖨 🖱 💽 💾 💿 📀 📷 📸 📹 🎥 📞 ☎️ 📺 📻 🎙 ⏰ ⌛ ⏳ 📡 🔋 🔌 💡 🔦 🕯 🗑 💸 💵 💴 💶 💷 💰 💳 💎 ⚖️ 🔧 🔨 🛠 🔩 ⚙️ 🧱 🧲 🔮 📿 💊 💉 🩹 🧬 🧪 🌡 🧹 🧺 🧻 🚽 🚿 🛁 🧼 🛒 🎁 🎈 🎉 🎊 🎀 📦 📩 📧 📝 📚 📖 🔖 📌 📎 ✂️ 🔑 🔒 🔓 🔐 🔍"],
+ ["Symbols","❤️","❤️ 🧡 💛 💚 💙 💜 🖤 🤍 🤎 💔 💕 💞 💓 💗 💖 💘 💝 ✅ ❌ ⭕ 🛑 ⛔ 🚫 💯 💢 ❗ ❓ ‼️ ⚠️ ♻️ ✔️ ➕ ➖ ➗ ✖️ ♾️ 💲 💱 ™️ ©️ ®️ 🔝 🔙 🔚 🔛 🔜 🔔 🔕 🎵 🎶 ➡️ ⬅️ ⬆️ ⬇️ ↗️ ↘️ ↙️ ↖️ 🔃 🔄 ▶️ ⏸ ⏹ ⏺ ⏭ ⏮ 🔀 🔁 🔂 ⏩ ⏪ 🔼 🔽 🔇 🔈 🔉 🔊 📢 📣 🔴 🟠 🟡 🟢 🔵 🟣 ⚫ ⚪ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🟥 🟧 🟨 🟩 🟦 🟪 ⬛ ⬜ 🟫"]
+];
+let EP_CUR=0;
+function epRender(ci){
+ EP_CUR=ci;
+ const tabs=$("epTabs"),grid=$("epGrid");if(!tabs||!grid)return;
+ tabs.innerHTML=EMOJI_CATS.map((c,i)=>`<button type="button" class="ep-tab${i===ci?" on":""}" title="${c[0]}" aria-label="${c[0]}" onclick="epRender(${i})">${c[1]}</button>`).join("");
+ grid.innerHTML=EMOJI_CATS[ci][2].split(" ").map(e=>`<button type="button" class="ep-em" onclick="insertEmoji('${e}')" aria-label="${e}">${e}</button>`).join("");
+ grid.scrollTop=0;
+}
+
+/* ===== chat options, blocking, theme & wallpaper, scroll memory ===== */
+const BLK_MSG="Unblock this contact to send messages.";
+function isBlockedChat(){if(chatK===undefined||chatK===null||chatK==="g"||isGK(chatK))return false;try{return localStorage.getItem("lifeone.block."+chatKey())==="1"}catch(e){return false}}
+function renderBlockState(){
+ const blocked=isBlockedChat();
+ const inp=$("msgIn");if(inp){inp.disabled=blocked;inp.placeholder=blocked?"You blocked this contact":"Type a message..."}
+ document.querySelectorAll("#chatSheet .inpRow button,#voiceBtn,#sendBtn").forEach(b=>{b.disabled=blocked;b.style.opacity=blocked?".45":""});
+}
+function toggleChatDD(ev){if(ev)ev.stopPropagation();const d=$("chatDD");if(!d)return;if(d.style.display==="flex"){closeChatDD();return}chatDDRender();d.style.display="flex"}
+function closeChatDD(){const d=$("chatDD");if(d)d.style.display="none"}
+function chatDDRender(){
+ let muted=false;try{muted=localStorage.getItem("lifeone.mute."+chatKey())==="1"}catch(e){}
+ const mt=$("ddMuteTxt");if(mt)mt.textContent=muted?"Unmute notifications":"Mute notifications";
+ const bt=$("ddBlockTxt");if(bt)bt.textContent=isBlockedChat()?"Unblock contact":"Block contact";
+ const bb=$("ddBlock");if(bb)bb.style.display=(chatK==="g"||isGK(chatK))?"none":"flex";
+}
+function ddBlock(){
+ const key="lifeone.block."+chatKey();let on=false;
+ try{on=localStorage.getItem(key)==="1";localStorage.setItem(key,on?"0":"1")}catch(e){}
+ closeChatDD();renderBlockState();toast(on?"Contact unblocked":"Contact blocked");
+}
+document.addEventListener("click",e=>{const d=$("chatDD");if(!d||d.style.display!=="flex")return;if(d.contains(e.target))return;if(e.target.closest&&e.target.closest("#chatMoreBtn"))return;closeChatDD()});
+document.body.insertAdjacentHTML("beforeend",
+ '<div id="mThemeHub" class="modal" style="z-index:92"><div class="sheet space-y-4" style="max-width:420px;max-height:88vh;overflow:auto">'+
+ '<div class="flex items-center justify-between"><b class="text-lg">Theme &amp; Wallpaper</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM(\'mThemeHub\')" aria-label="Close">&times;</button></div>'+
+ '<p class="text-xs" style="color:var(--mut)">Chat wallpaper, applied to all your chats.</p>'+
+ '<div id="thWalls" class="grid grid-cols-2 gap-3"></div>'+
+ '<button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-semibold" onclick="thCustom()">Custom image or colour</button>'+
+ '<button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="thReset()">Reset this chat to default</button>'+
+ '</div></div>');
+function ddTheme(){closeChatDD();renderThemeHub();openM("mThemeHub")}
+function renderThemeHub(){
+ const g=$("thWalls");if(!g)return;const cur=curWall();
+ g.innerHTML=Object.keys(WALLS).map(k=>`<button type="button" onclick="thPick('${k}')" aria-pressed="${k===cur}" class="relative rounded-2xl h-20 overflow-hidden text-sm font-semibold" style="background:${WALLS[k].bg||"var(--card)"};border:2px solid ${k===cur?"#16A34A":"var(--line)"};color:var(--ink)"><span class="absolute bottom-1.5 start-1.5 px-2 py-0.5 rounded-md text-xs" style="background:var(--card)">${WALLS[k].l}</span></button>`).join("");
+}
+function thPick(k){setWallpaperSynced(k);renderThemeHub()}
+function thCustom(){closeM("mThemeHub");openChatBg()}
+function thReset(){resetChatBg();renderThemeHub()}
+let SCROLL_HOLD=false,SCROLL_T=null;
+function restoreViewScroll(v){
+ let y=0;try{y=Number(localStorage.getItem("lifeone.scroll."+v)||0)}catch(e){}
+ SCROLL_HOLD=true;
+ [0,120,350,800].forEach(ms=>setTimeout(()=>window.scrollTo({top:y,behavior:"instant"}),ms));
+ setTimeout(()=>{SCROLL_HOLD=false},900);
+}
+window.addEventListener("scroll",()=>{if(SCROLL_HOLD)return;clearTimeout(SCROLL_T);SCROLL_T=setTimeout(()=>{try{localStorage.setItem("lifeone.scroll."+S.view,String(Math.round(window.scrollY||0)))}catch(e){}},150)},{passive:true});
 </script>
 </body>
 </html>

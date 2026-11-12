@@ -731,8 +731,14 @@ function renderStrip(){if(!$("strip"))return;$("strip").innerHTML=`<div class="m
 function refreshTrust(){renderTrust();renderStrip();fillCoords()}
 function hydrateIcons(){document.querySelectorAll("[data-ic]").forEach(e=>{e.innerHTML=ic(e.dataset.ic,+e.dataset.s||20)})}
 function toast(m){const e=$("toast");e.textContent=m;e.classList.remove("hidden");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.add("hidden"),2200)}
-function openM(id){$(id).classList.add("on");if(id==="mOut"){$("outT").dataset.i18n="logoutQ";$("outT").textContent=t("logoutQ");$("outBtns").classList.remove("hidden");$("inBtn").classList.add("hidden")}}
-function closeM(id){$(id).classList.remove("on");if(id==="mChat")document.body.classList.remove("chat-open");if(id==="mFeed"){FEED_OPEN=false}if(id==="mNotif"){NOTIF_OPEN=false}if(id==="mFeed"||id==="mNotif"){document.body.classList.remove("sub-page");paintHeader()}}
+const POPUP_BASE=["mChat","mFeed","mNotif"];
+const POPUP_PARENT={mMediaPrev:["mMedia"],mStoryViewers:["mStoryView"]};
+function openM(id){
+ const keep=new Set([id].concat(POPUP_PARENT[id]||[]));
+ if(!POPUP_BASE.includes(id))POPUP_BASE.forEach(b=>keep.add(b));
+ document.querySelectorAll(".modal.on").forEach(m=>{if(!keep.has(m.id))closeM(m.id)});
+ $(id).classList.add("on");if(id==="mOut"){$("outT").dataset.i18n="logoutQ";$("outT").textContent=t("logoutQ");$("outBtns").classList.remove("hidden");$("inBtn").classList.add("hidden")}}
+function closeM(id){$(id).classList.remove("on");if(id==="mChat"){document.body.classList.remove("chat-open");try{localStorage.removeItem("lifeone.openChat")}catch(e){}}if(id==="mFeed"||id==="mNotif"){try{localStorage.setItem("lifeone.screen","")}catch(e){}}if(id==="mFeed"){FEED_OPEN=false}if(id==="mNotif"){NOTIF_OPEN=false}if(id==="mFeed"||id==="mNotif"){document.body.classList.remove("sub-page");paintHeader()}}
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target!==m)return;if(m.id==="mCall")endCall();else if(m.id==="mChat")closeChat();else if(m.id!=="mOut")closeM(m.id)}));
 
 /* avatars */
@@ -766,7 +772,10 @@ const NAV=[["chats","navChats","chat"],["feed","navFeed","globe"],["groups","nav
 function renderTabs(){updateBell();renderStoryBar();{const sb=$("storyBar");if(sb)sb.style.display=(S.view==="chats")?"":"none"}{const dv=$("storyDivider");if(dv)dv.style.display=(S.view==="chats")?"":"none"}paintHeader();const cur=FEED_OPEN?"feed":NOTIF_OPEN?"notifs":((S.view==="family"||S.view==="profile")?"":S.view);const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn,marketplace:S.mktNew||0,notifs:S.notifs.filter(x=>!x.r).length};
  $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" aria-label="${t(lk)}" title="${t(lk)}" class="tab btn relative flex items-center justify-center py-3.5 ${cur===k?"on":""}"><span class="relative">${ic(ik,28)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span><i class="bar"></i></button>`).join("");setLabels()}
 function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","marketplace"].includes(v)?v:"chats"}catch(e){return "chats"}}
-function go(v){if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();restoreViewScroll(v)}
+let RESUMING=false,NAV_TOUCHED=false;
+const RESUME={screen:"",more:"",chat:""};
+try{RESUME.screen=localStorage.getItem("lifeone.screen")||"";RESUME.more=localStorage.getItem("lifeone.more")||"";RESUME.chat=localStorage.getItem("lifeone.openChat")||""}catch(e){}
+function go(v){closeSearchOverlay();const SCREEN=(v==="feed"||v==="notifs"||v==="profile");if(!RESUMING){try{localStorage.setItem("lifeone.screen",SCREEN?v:"");if(!SCREEN)localStorage.setItem("lifeone.tab",v)}catch(e){}}if(FEED_OPEN&&v!=="feed")closeM("mFeed");if(NOTIF_OPEN&&v!=="notifs")closeM("mNotif");if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}if(v==="notifs"){renderNotifs();NOTIF_OPEN=true;document.body.classList.add("sub-page");openM("mNotif");renderTabs();return}if(v==="marketplace"){S.mktNew=0;try{localStorage.setItem("lifeone.mkt.seen",String(Date.now()))}catch(e){}}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();restoreViewScroll(v)}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-green-50 text-green-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -1201,7 +1210,7 @@ function openChatHead(){hideMentions();refreshVoiceBtn();const cc=$("chatCalls")
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
-function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);clearReply();closeChatDD();openChatHead();renderBlockState();updatePresenceDot();renderMsgs();applyChatBg();loadReactions();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
+function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;try{localStorage.setItem("lifeone.openChat",k==="g"||isGK(k)?String(k):String((S.fam[k]&&S.fam[k].key)||""))}catch(e){};if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);clearReply();closeChatDD();openChatHead();renderBlockState();updatePresenceDot();renderMsgs();applyChatBg();loadReactions();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);chatMarkReadNow(chatK);closeM("mChat");document.body.classList.remove("chat-open");closeAttachBar()}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";el.style.display="none";return;
@@ -1279,7 +1288,7 @@ function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinne
   const own=!!m.me;
   const ms=tsMs(m.ts);
   const isNew=!own&&!m.read&&ms>CHAT_READ_AT;
-  const body=m.deleted?`<span class="italic" style="opacity:.75">This message was deleted</span>`:(MSG_EDIT&&MSG_EDIT.i===i)?msgEditorHTML(i):m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
+  const body=m.deleted?`<span class="italic" style="opacity:.75">This message was deleted</span>`:(MSG_EDIT&&MSG_EDIT.i===i)?msgEditorHTML(i):m.v?voiceCard(m,i):m.file?fileCard(m):(locOf(m.t)?locCard(m.t):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`);
   const bare=false;
   const rowJust=own?"justify-end":"justify-start";
   const bg=own?`background:${mine};color:#0B1220;border-radius:18px 18px 6px 18px;outline:1px solid #BBF7D0;outline-offset:-1px`:`background:#1E2633;color:#F9FAFB;border-radius:18px 18px 18px 6px;outline:1px solid rgba(255,255,255,.06);outline-offset:-1px;box-shadow:0 2px 10px rgba(15,23,42,.18)`;
@@ -2024,7 +2033,7 @@ async function attachPicked(input){const file=input.files&&input.files[0];input.
 /* ---------- home: Chats / Groups / Calls ---------- */
 let SEG="chats";
 function setSeg(k){SEG=k;try{localStorage.setItem("lifeone.seg",k)}catch(e){}renderHomePanels()}
-function previewOf(m){if(!m)return "No messages yet";const who=m.me?"You: ":"";if(m.v)return who+"Voice message";if(m.file)return who+(m.name||"File");return who+(m.t||"")}
+function previewOf(m){if(!m)return "No messages yet";const who=m.me?"You: ":"";if(m.v)return who+"Voice message";if(m.file)return who+(m.name||"File");if(locOf(m.t))return who+"📍 Location";return who+(m.t||"")}
 function renderSegBar(){[["chats","chatsTab"],["groups","groupsTab"],["calls","callsTab"]].forEach(([k,lk])=>{const b=$("seg_"+k);if(!b)return;const on=SEG===k;b.textContent=t(lk);b.setAttribute("aria-selected",on);b.style.background=on?"var(--pri)":"transparent";b.style.color=on?"#fff":"var(--mut)"})}
 function renderHomePanels(){renderChatsPanel();renderGroupsPanel();renderCallsPanel();renderTabs()}
 function setStatusFor(f){const el=$("chatStatus");if(el)el.textContent=f?(onlineNow(f)?"online":seenText(f)):""}
@@ -2196,7 +2205,7 @@ async function clearCalls(){if(!confirm(t("callsClearConfirm")))return;try{local
  renderCallsPanel()}
 
 /* ---------- More / Settings ---------- */
-function openMore(k){document.querySelectorAll("#profBody .mp").forEach(e=>{e.hidden=(e.id!=="mp_"+k)});
+function openMore(k){try{localStorage.setItem("lifeone.more",k||"")}catch(e){}document.querySelectorAll("#profBody .mp").forEach(e=>{e.hidden=(e.id!=="mp_"+k)});
  const root=$("moreRoot");if(root)root.hidden=!!k;const top=$("profHead");if(top)top.hidden=false;const bk=$("profBack"),tt=$("profTitle"),cl=$("profClose");if(bk)bk.hidden=!k;if(tt)tt.hidden=!k;if(cl)cl.hidden=!!k;
  if(!k)paintMore();if(k==="lang")renderLangList();if(k==="personal"){paintPersonal();loadAbout()}const pt=$("profTitle");if(pt)pt.textContent=t(k?({personal:"moPersonal",lang:"moLang"})[k]:"navMore");scrollTo({top:0})}
 function paintMore(){const n=S.user.name||"";const a=$("moreAv");if(a)a.innerHTML=avHTML(n||"?",52,S.user.img||"");
@@ -3275,8 +3284,16 @@ function pickExistingMedia(){closeM("mFileSheet");const a=$("attachIn");a.accept
 function openLocation(){openM("mLocation")}
 function shareLocationNow(){
  closeM("mLocation");
+ if(isBlockedChat()){toast(BLK_MSG);return}
+ if(!window.isSecureContext){toast("Location needs a secure (https) page.");return}
  if(!navigator.geolocation){toast("Location is not available on this device.");return}
- navigator.geolocation.getCurrentPosition(p=>{const i=$("msgIn");if(i){i.value="My location: https://maps.google.com/?q="+p.coords.latitude.toFixed(6)+","+p.coords.longitude.toFixed(6);sendMsg()}},()=>toast("Location permission was not given."),{enableHighAccuracy:false,timeout:15000});
+ toast("Getting your location…");
+ navigator.geolocation.getCurrentPosition(p=>{
+   const la=p.coords.latitude.toFixed(6),lo=p.coords.longitude.toFixed(6);
+   push({t:"[[loc]]"+la+","+lo});
+ },err=>{
+   toast(err&&err.code===1?"Location permission was not given.":err&&err.code===3?"Location timed out. Try again.":"Could not get your location.");
+ },{enableHighAccuracy:true,timeout:15000,maximumAge:60000});
 }
 let STKPICK=null;
 async function openStickerPick(){
@@ -4492,7 +4509,7 @@ function boot(){const step=f=>{try{f()}catch(e){console.error(e)}};
  step(()=>{document.querySelectorAll("input,textarea").forEach(noAuto);document.addEventListener("focusin",e=>{if(e.target&&e.target.matches&&e.target.matches("input,textarea"))noAuto(e.target)})});
  step(askNotifPerm);
  step(hydrateIcons);
- step(()=>go(savedTab()));
+ step(()=>{RESUMING=true;try{go(savedTab())}finally{RESUMING=false}});step(resumeState);
  step(authBoot);
  step(applyLang);
  step(renderClock);
@@ -4697,6 +4714,54 @@ async function capPublish(){
 function openCameraDirect(){const c=$("camIn");if(!c){toast("Camera is not available.");return}c.value="";c.click()}
 const __closeChatSel=closeChat;
 closeChat=function(){msgSelClear();return __closeChatSel.apply(this,arguments)};
+</script>
+<script>
+/* ===== v-fix: tab-switch cleanup, state resume, location card ===== */
+function closeSearchOverlay(){
+ const w=$("hdrSearchWrap");if(w&&w.style.display==="flex")toggleHdrSearch(false);
+ hideHdr();closePencil();
+}
+function locOf(t){
+ const m=/^\[\[loc\]\](-?\d{1,2}(?:\.\d+)?),(-?\d{1,3}(?:\.\d+)?)$/.exec(String(t||""));
+ if(!m)return null;const la=+m[1],lo=+m[2];
+ return (Math.abs(la)<=90&&Math.abs(lo)<=180)?{lat:la,lng:lo}:null;
+}
+function locCard(t){
+ const L=locOf(t);if(!L)return "";
+ const la=L.lat,lo=L.lng,d=0.004;
+ const bbox=[lo-d,la-d,lo+d,la+d].join(",");
+ const embed="https://www.openstreetmap.org/export/embed.html?bbox="+encodeURIComponent(bbox)+"&layer=mapnik&marker="+encodeURIComponent(la+","+lo);
+ const link="https://www.google.com/maps?q="+la+","+lo;
+ return '<div style="min-width:220px;max-width:260px"><iframe src="'+embed+'" title="Map preview" loading="lazy" referrerpolicy="no-referrer" style="display:block;width:100%;height:150px;border:0;border-radius:12px;background:#E5E7EB"></iframe>'
+  +'<div class="flex items-center justify-between gap-2 pt-2"><span class="text-[12px] font-semibold">📍 Location</span><a href="'+link+'" target="_blank" rel="noopener noreferrer" style="font-size:12px;font-weight:700;color:inherit;text-decoration:underline">Open in Maps</a></div>'
+  +'<span class="block text-[11px] opacity-75">'+la.toFixed(5)+', '+lo.toFixed(5)+'</span></div>';
+}
+/* any tap on the page means the user has navigated: a pending restore must not override it */
+document.addEventListener("pointerdown",()=>{NAV_TOUCHED=true},{capture:true,passive:true});
+function resumeState(){
+ if(!RESUME.screen&&!RESUME.chat)return;
+ const t0=Date.now();
+ const attempt=()=>{
+   if(NAV_TOUCHED||Date.now()-t0>25000)return;
+   if(!(sb&&S.user&&S.user.uid)){setTimeout(attempt,400);return}
+   const listsReady=(S.fam&&S.fam.length)||(S.groups&&S.groups.length);
+   if(!listsReady&&Date.now()-t0<12000){setTimeout(attempt,400);return}
+   RESUMING=true;
+   try{
+     if(RESUME.screen==="feed"&&!FEED_OPEN)go("feed");
+     else if(RESUME.screen==="notifs"&&!NOTIF_OPEN)go("notifs");
+     else if(RESUME.screen==="profile"){go("profile");if(RESUME.more)openMore(RESUME.more)}
+     else if(RESUME.chat){
+       const want=RESUME.chat;
+       if(want==="g"){if(S.plan!=="free")openChat("g")}
+       else if(isGK(want)){if(groupOf(want))openChat(want)}
+       else{const idx=S.fam.findIndex(f=>f.key===want);if(idx>=0)openChat(idx)}
+     }
+   }catch(e){console.error(e)}
+   finally{RESUMING=false}
+ };
+ setTimeout(attempt,400);
+}
 </script>
 </body>
 </html>

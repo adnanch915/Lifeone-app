@@ -231,11 +231,21 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 .qt.me{background:rgba(22,101,52,.13);color:#0B1220}.qt.th{background:rgba(255,255,255,.12);color:#F9FAFB;border-left-color:#34D399}
 .qt .qi{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;background:#16A34A;color:#fff}
 .vn-own .opacity-70,.vn-own span{color:#1F2937;opacity:1!important;font-weight:600}.vn-them .opacity-70{opacity:.95!important;color:#E5E7EB}
-.fsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.fsBtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:16px;background:transparent;border:0;color:var(--ink);font-size:12px;font-weight:600;font-family:inherit}
-.fsBtn:active{background:var(--bg)}.fsIc{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 14px rgba(15,23,42,.16)}
+.fsGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.fsBtn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 2px;border-radius:14px;background:transparent;border:0;color:var(--ink);font-size:11px;font-weight:600;font-family:inherit}
+.fsBtn:active{background:var(--bg)}.fsIc{width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 14px rgba(15,23,42,.16)}
 .cbSw{width:40px;height:40px;border-radius:50%;border:2px solid #CBD5E1;position:relative}.cbSw.sel{border-color:#16A34A;box-shadow:0 0 0 3px rgba(22,163,74,.3)}
-#cbPrev{height:150px;border-radius:16px;border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;overflow:hidden;background-size:cover;background-position:center}
+#cbPrev{height:104px;border-radius:14px;border:1px solid var(--line);padding:8px;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;overflow:hidden;background-size:cover;background-position:center}
+
+/* ---- v-final: reactions, selected message, header action bar ---- */
+#msgReactPop{animation:rxPop .34s cubic-bezier(.2,1.35,.4,1) backwards}
+@keyframes rxPop{0%{opacity:0;transform:scale(.5) translateY(12px)}100%{opacity:1;transform:none}}
+.rxB{width:40px;height:40px;border-radius:999px;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;background:transparent;animation:rxEm .46s cubic-bezier(.3,1.7,.5,1) backwards;animation-delay:var(--d,0ms);transition:transform .16s ease}
+.rxB:hover,.rxB:focus-visible{transform:scale(1.28) translateY(-4px)}
+.rxB:active{transform:scale(.88)}
+@keyframes rxEm{0%{opacity:0;transform:scale(0) translateY(16px)}65%{opacity:1;transform:scale(1.22) translateY(-3px)}100%{opacity:1;transform:none}}
+#msgs [data-bi].msg-sel{filter:brightness(1.12)}
+#msgSelHdr button:disabled{cursor:default}
 </style>
 </head>
 <body class="unauth">
@@ -451,7 +461,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
  <div id="chatBody" class="flex-1 min-h-0 flex flex-col"><div id="pinBar" class="items-center gap-2 px-3 py-2 text-xs" style="display:none;background:var(--card);border-bottom:1px solid var(--line)"></div><div id="msgs" class="flex-1 min-h-0 overflow-auto space-y-2 py-3"></div>
  <div id="inBar" class="flex flex-col gap-2 pt-2 pb-2 px-3"><div id="mentionBox" class="flex-col gap-0.5 rounded-xl p-1 overflow-auto" style="display:none;max-height:190px;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 18px rgba(0,0,0,.08)"></div>
   <div id="replyBar"></div>
-  <div class="flex items-end gap-2"><div class="inpRow flex-1 min-w-0 flex items-center gap-1"><button type="button" class="chatIcon" onclick="toggleEmoji()" aria-label="Emoji" title="Emoji">&#9786;</button><input id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()"><button type="button" class="chatIcon" onclick="openFileSheet()" aria-label="Share file" title="Share file"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg></button><button type="button" class="chatIcon" onclick="openMediaGallery()" aria-label="Camera" title="Camera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div><button id="sendBtn" type="button" class="chatMic" onclick="sendMsg()" aria-label="Send" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button><button id="voiceBtn" type="button" class="chatMic" aria-label="Hold to record a voice note" title="Hold to record, slide up to lock" onpointerdown="vhPress(event)" oncontextmenu="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+  <div class="flex items-end gap-2"><div class="inpRow flex-1 min-w-0 flex items-center gap-1"><button type="button" class="chatIcon" onclick="toggleEmoji()" aria-label="Emoji" title="Emoji">&#9786;</button><input id="msgIn" class="inp flex-1 min-w-0" placeholder="Write message" data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()"><button type="button" class="chatIcon" onclick="openFileSheet()" aria-label="Share file" title="Share file"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1l-8.5 8.5a5.5 5.5 0 0 1-7.8-7.8l8.5-8.5a3.7 3.7 0 0 1 5.2 5.2l-8.5 8.5a1.8 1.8 0 0 1-2.6-2.6l7.8-7.8"/></svg></button><button type="button" class="chatIcon" onclick="openCameraDirect()" aria-label="Camera" title="Camera"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button></div><button id="sendBtn" type="button" class="chatMic" onclick="sendMsg()" aria-label="Send" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button><button id="voiceBtn" type="button" class="chatMic" aria-label="Hold to record a voice note" title="Hold to record, slide up to lock" onpointerdown="vhPress(event)" oncontextmenu="return false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
   <div id="emojiPick" class="hidden" role="dialog" aria-label="Emoji"><div id="epTabs"></div><div id="epGrid"></div></div>
   <input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)" autocomplete="off">
   <input id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)" autocomplete="off">
@@ -586,7 +596,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 <div id="mCallPlus" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Call</b><button type="button" class="btn ghost w-full text-start py-3" onclick="forwardMeeting()">🔗 Forward Meeting Link</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(false)">📞 Voice Call</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(true)">🎥 Video Call</button></div></div>
 <div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" style="color:#E11D48" onclick="deleteChatForMe()">🗑 Delete chat</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
 <div id="mChatTheme" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Chat theme</b><p class="text-xs" style="color:var(--mut)">Colour of your messages in this chat.</p><div id="chatThemePick" class="flex gap-3 flex-wrap"></div></div></div>
-<div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet" style="max-width:360px;padding:16px 16px 12px"><div class="flex items-center justify-between mb-2"><b class="text-base">Send a file</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mFileSheet')" aria-label="Close">&times;</button></div><div class="fsGrid"><button type="button" class="fsBtn" onclick="pickDocuments()"><span class="fsIc" style="background:linear-gradient(135deg,#6366F1,#4F46E5)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>Document</button><button type="button" class="fsBtn" onclick="pickExistingMedia()"><span class="fsIc" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>Photo &amp; video</button><button type="button" class="fsBtn" onclick="pickAudioFile()"><span class="fsIc" style="background:linear-gradient(135deg,#F59E0B,#EA580C)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>Audio</button><button type="button" class="fsBtn" onclick="pickApkFile()"><span class="fsIc" style="background:linear-gradient(135deg,#22C55E,#15803D)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>APK / App</button><button type="button" class="fsBtn" onclick="pickArchiveFile()"><span class="fsIc" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 10v5M10.5 12h3"/></svg></span>ZIP / Archive</button><button type="button" class="fsBtn" onclick="closeM('mFileSheet');openLocation()"><span class="fsIc" style="background:linear-gradient(135deg,#14B8A6,#0F766E)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-11.5A7 7 0 0 0 5 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>Location</button></div><p class="text-[11px] mt-2 text-center" style="color:var(--mut)">Up to 20 MB. Only open apps from people you trust.</p></div></div>
+<div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet" style="max-width:330px;padding:12px 12px 10px;border-radius:20px"><div class="flex items-center justify-between mb-2"><b class="text-base">Send a file</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mFileSheet')" aria-label="Close">&times;</button></div><div class="fsGrid"><button type="button" class="fsBtn" onclick="pickDocuments()"><span class="fsIc" style="background:linear-gradient(135deg,#6366F1,#4F46E5)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></span>Document</button><button type="button" class="fsBtn" onclick="pickExistingMedia()"><span class="fsIc" style="background:linear-gradient(135deg,#EC4899,#DB2777)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>Photo &amp; video</button><button type="button" class="fsBtn" onclick="pickAudioFile()"><span class="fsIc" style="background:linear-gradient(135deg,#F59E0B,#EA580C)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>Audio</button><button type="button" class="fsBtn" onclick="pickApkFile()"><span class="fsIc" style="background:linear-gradient(135deg,#22C55E,#15803D)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span>APK / App</button><button type="button" class="fsBtn" onclick="pickArchiveFile()"><span class="fsIc" style="background:linear-gradient(135deg,#0EA5E9,#0369A1)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M12 10v5M10.5 12h3"/></svg></span>ZIP / Archive</button><button type="button" class="fsBtn" onclick="closeM('mFileSheet');openLocation()"><span class="fsIc" style="background:linear-gradient(135deg,#14B8A6,#0F766E)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6 7-11.5A7 7 0 0 0 5 9.5C5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>Location</button></div><p class="text-[11px] mt-2 text-center" style="color:var(--mut)">Up to 20 MB (APK and ZIP up to 100 MB). Open apps only from people you trust.</p></div></div>
 <div id="mLocation" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Share location</b><p class="text-sm" style="color:var(--mut)">This sends your current location as a map link to this chat only.</p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="shareLocationNow()">Share current location</button></div></div>
 <div id="mStickerPick" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStickerPick')" aria-label="Close">&times;</button></div><div id="stkPreview" style="min-height:40px"></div><button id="stkSendBtn" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" disabled onclick="sendPickedSticker()">Send Sticker</button><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkCreate()">＋ Create sticker</button><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="stkMedia()">🖼 Photo or video</button></div><div id="stkPickGrid" class="grid grid-cols-4 gap-2" style="overflow:auto"></div></div></div>
 <div id="mProfile" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Profile</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mProfile')" aria-label="Close">&times;</button></div><div id="ppBody" class="space-y-3"></div></div></div>
@@ -614,7 +624,7 @@ html nav #tabs>button.on svg,html.dark nav #tabs>button.on svg{color:#16A34A!imp
 <div id="mHelp" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Help &amp; support</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHelp')" aria-label="Close">&times;</button></div><details class="card p-3"><summary class="text-sm font-semibold">How do I start a chat?</summary><p class="text-sm mt-2" style="color:var(--mut)">Search a person by full name or @username and send a chat request. You can chat once they accept.</p></details><details class="card p-3"><summary class="text-sm font-semibold">How do locked chats and the vault work?</summary><p class="text-sm mt-2" style="color:var(--mut)">A passcode protects locked chats and the vault on this device. Vault files are encrypted before upload. Your original photo stays in your gallery, so delete it there yourself once it is in the vault.</p></details><details class="card p-3"><summary class="text-sm font-semibold">Is my phone number visible?</summary><p class="text-sm mt-2" style="color:var(--mut)">No. Phone numbers are never shown to other members.</p></details><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="closeM('mHelp');openUserReport()">Report a user or scam</button></div></div>
 <div id="mUserReport" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:440px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Report a user or scam</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUserReport')" aria-label="Close">&times;</button></div><label class="block text-xs" style="color:var(--mut)">What is this about?</label><select id="rpCat" class="inp w-full text-sm"><option value="scam">Scam or fraud</option><option value="harassment">Harassment</option><option value="spam">Spam</option><option value="impersonation">Impersonation</option><option value="other">Other</option><option value="support">Help request</option></select><label class="block text-xs" style="color:var(--mut)">Who? (username or name, optional)</label><input id="rpTarget" maxlength="120" class="inp w-full text-sm" placeholder="@username" autocomplete="off"><label class="block text-xs" style="color:var(--mut)">What happened?</label><textarea id="rpDesc" maxlength="2000" rows="4" class="inp w-full text-sm" placeholder="Describe it in your own words"></textarea><label class="block text-xs" style="color:var(--mut)">Evidence</label><input id="rpFiles" type="file" multiple accept="image/*,application/pdf" class="text-sm w-full" autocomplete="off"><p id="rpFilesInfo" class="text-xs" style="color:var(--mut)"></p><p id="rpErr" class="text-sm" style="color:#E11D48"></p><p id="rpOk" class="text-sm" style="color:#059669"></p><button type="button" id="rpSend" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitUserReport()">Send report</button></div></div>
 <div id="mRequests" class="modal" style="z-index:84;padding:0;align-items:stretch;justify-content:stretch"><div class="sheet" style="max-width:none;width:100%;height:100%;max-height:none;border-radius:0;padding:0;border:0;box-shadow:none;display:flex;flex-direction:column;overflow:hidden"><div class="flex items-center gap-3 px-3" style="min-height:56px;border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)"><button type="button" class="btn out w-10 h-10 rounded-full shrink-0" onclick="closeM('mRequests')" aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><b class="text-lg flex-1">Message requests</b></div><p class="text-xs px-4 pt-3" style="color:var(--mut)">People who want to message you. Confirm to start a chat, or reject the request.</p><div id="reqList" class="px-3 py-2 space-y-2" style="overflow:auto;flex:1"></div></div></div>
-<div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><div><h3 class="font-bold text-base">Change Wallpaper / Background</h3><p class="text-xs" style="color:var(--mut)">Applies to this chat only. Tap to preview, then Apply.</p></div><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><div id="cbPrev" aria-label="Live preview"><div style="align-self:flex-start;max-width:70%;padding:7px 11px;border-radius:16px 16px 16px 5px;background:#1E2633;color:#F9FAFB;font-size:13px">Hey! How does this look?<div style="font-size:10.5px;font-weight:600;color:#E5E7EB;text-align:right;margin-top:2px">10:24</div></div><div style="align-self:flex-end;max-width:70%;padding:7px 11px;border-radius:16px 16px 5px 16px;background:#D9FDD3;color:#0B1220;font-size:13px">Looks great <div style="font-size:10.5px;font-weight:600;color:#1F2937;text-align:right;margin-top:2px">10:25 <span style="color:#166534;font-weight:900">✔✔</span></div></div></div><div><p class="text-sm font-semibold">Solid colours</p><p class="text-xs mb-2" style="color:var(--mut)">One calm flat colour behind your messages.</p><div id="cbSolids" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Gradients</p><p class="text-xs mb-2" style="color:var(--mut)">A soft blend of two colours.</p><div id="cbGrads" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Your own image</p><p class="text-xs mb-2" style="color:var(--mut)">Pick a photo from your gallery. It is resized and kept on this device.</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2" onclick="$('cbImg').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Choose from gallery</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"></div><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button><button type="button" class="btn pri rounded-xl py-2.5 text-sm font-semibold" onclick="applyChatBgPending()">Apply</button></div></div></div>
+<div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><div><h3 class="font-bold text-base">Change Wallpaper / Background</h3></div><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><div id="cbPrev" aria-label="Live preview"><div style="align-self:flex-start;max-width:70%;padding:7px 11px;border-radius:16px 16px 16px 5px;background:#1E2633;color:#F9FAFB;font-size:13px">Hey! How does this look?<div style="font-size:10.5px;font-weight:600;color:#E5E7EB;text-align:right;margin-top:2px">10:24</div></div><div style="align-self:flex-end;max-width:70%;padding:7px 11px;border-radius:16px 16px 5px 16px;background:#D9FDD3;color:#0B1220;font-size:13px">Looks great <div style="font-size:10.5px;font-weight:600;color:#1F2937;text-align:right;margin-top:2px">10:25 <span style="color:#166534;font-weight:900">✔✔</span></div></div></div><div><p class="text-sm font-semibold">Solid colours</p><div id="cbSolids" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Gradients</p><div id="cbGrads" class="flex flex-wrap gap-2"></div></div><div><p class="text-sm font-semibold">Your own image</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-medium flex items-center justify-center gap-2" onclick="$('cbImg').click()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Choose from gallery</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"></div><div class="grid grid-cols-2 gap-2"><button type="button" class="btn out rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button><button type="button" class="btn pri rounded-xl py-2.5 text-sm font-semibold" onclick="applyChatBgPending()">Apply</button></div></div></div>
 <div id="pencilPop" role="menu" style="display:none;position:fixed;right:14px;bottom:150px;z-index:90;width:216px;padding:6px;border-radius:16px;background:var(--card);box-shadow:0 12px 32px rgba(15,23,42,.18);border:1px solid var(--line);flex-direction:column;gap:2px"><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-3" style="padding:10px;font-size:14px;color:var(--ink);border-radius:12px" onclick="pencilAddMember()"><span class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></span><span class="font-semibold">Add Member</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start flex items-center gap-3" style="padding:10px;font-size:14px;color:var(--ink);border-radius:12px" onclick="pencilRequests()"><span class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:var(--pri2);color:var(--pri)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="font-semibold flex-1">Message Requests</span><span id="pcReqCount" class="text-[11px] font-bold px-1.5 rounded-full" style="background:#E11D48;color:#fff;min-width:18px;text-align:center"></span></button></div>
 
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
@@ -1026,7 +1036,7 @@ function contactRow(u,mode){
   <div class="flex flex-wrap justify-end gap-1.5 shrink-0"><button onclick="chatContact('${esc(u.id)}')" class="btn pri rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("chat",13)}${t("chat")}</button><button onclick="locAct('${esc(u.id)}')" class="btn out rounded-lg px-2.5 py-1.5 text-xs inline-flex items-center gap-1">${ic("pin",13)}${t("locBtn")}</button></div></div>`}
 // Search by name, username, email or phone (both email and phone sign-ups are covered)
 let famFilter="";
-function applyFamFilter(){["chatList","famList"].forEach(id=>{const c=$(id);if(!c)return;[...c.children].forEach(ch=>{ch.style.display=!famFilter||ch.textContent.toLowerCase().includes(famFilter)?"":"none"})})}
+function applyFamFilter(){["chatList","famList"].forEach(id=>{const c=$(id);if(!c)return;[...c.children].forEach(ch=>{ch.style.display=!famFilter||((ch.querySelector("b")||ch).textContent||"").toLowerCase().includes(famFilter)?"":"none"})})}
 function famSearch(){const el=$("famRes");if(!el||!$("famQ"))return;
  famFilter=($("famQ").value||"").trim().replace(/^@/,"").toLowerCase();
  applyFamFilter();el.innerHTML="";}
@@ -1258,7 +1268,7 @@ async function toggleVoice(i){const m=S.chats[chatK]&&S.chats[chatK][i];if(!m||!
 const TK1='<svg width="13" height="9" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/></svg>';
 const TK2='<svg width="17" height="9" viewBox="0 0 20 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5.5l3 3L10 1.5"/><path d="M6 8.5l2 0 6-7"/></svg>';
 function msgTime(ts){if(!ts)return "";return new Date(ts).toLocaleTimeString(LOC[S.lang]||undefined,{hour:"numeric",minute:"2-digit"})}
-function tickHTML(m){const dk="#374151";if(m.pending)return `<span class="ms-1" style="color:${dk};font-weight:800;letter-spacing:-3px">✔</span>`;if(m.read)return `<span class="ms-1" style="color:#166534;font-weight:900;letter-spacing:-3px">✔✔</span>`;if(chatPartnerOnline())return `<span class="ms-1" style="color:${dk};font-weight:800;letter-spacing:-3px">✔✔</span>`;return `<span class="ms-1" style="color:${dk};font-weight:800">✔</span>`}
+function tickHTML(m){const dk="#0F172A",rd="#052E16";const st=(c,g)=>`<span class="ms-1" style="color:${c};font-weight:900;font-size:9.5px;line-height:1;letter-spacing:-2.5px">${g}</span>`;if(m.pending)return st(dk,"✔");if(m.read)return st(rd,"✔✔");if(chatPartnerOnline())return st(dk,"✔✔");return st(dk,"✔")}
 function syncReceipts(){if(!sb||!S.user.uid||S.airplane)return;const ids=[];for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&!m.read)ids.push(m.id);if(!ids.length)return;
  sb.from("messages").select("id,is_read").in("id",ids.slice(0,100)).then(({data,error})=>{if(error||!data)return;const rd=new Set(data.filter(r=>r.is_read===true).map(r=>r.id));let ch=false;for(const L of Object.values(S.chats))for(const m of L)if(m.me&&m.id&&rd.has(m.id)&&!m.read){m.read=true;ch=true}if(ch)renderMsgs()},()=>{})}
 function renderMsgs(keep){renderPinBar();const CLR=clearedAt();const MPINS=pinnedSet();
@@ -1998,17 +2008,17 @@ function fileCard(m){const img=/^image\//.test(m.ft||""),vid=/^video\//.test(m.f
  return `<a href="${esc(src)}"${at} target="_blank" rel="noopener" class="flex items-center gap-2.5 py-0.5" style="color:inherit;text-decoration:none"${/\.(apk|xapk|aab)$/i.test(m.name||"")?` download="${esc(m.name)}"`:""}><span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style="background:${/\.(apk|xapk|aab)$/i.test(m.name||"")?"rgba(22,163,74,.25)":"rgba(127,127,127,.18)"}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span><span class="min-w-0"><span class="block text-sm font-medium truncate" style="max-width:12rem">${esc(m.name)}</span><span class="block text-[11px] opacity-75">${fmtSize(m.size)||"Open file"}</span></span></a>`}
 async function attachPicked(input){const file=input.files&&input.files[0];input.value="";if(!file)return;
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
- if(file.size>20*1024*1024){toast("File is larger than 20 MB");return}
+ const bigArc=/\.(apk|xapk|aab|zip|rar|7z)$/i.test(file.name||"");if(file.size>(bigArc?100:20)*1024*1024){toast(bigArc?"File is larger than 100 MB":"File is larger than 20 MB");return}
  const okType=/^(image|video|audio)\//.test(file.type)||file.type==="application/pdf"||/\.(docx?|xlsx?|pptx?|txt|csv|apk|xapk|aab|zip|rar|7z|mp3|m4a|wav|aac|ogg)$/i.test(file.name);
  if(!okType){toast("This file type is not supported");return}
  if(chatK==="g"){toast("Send files in a direct chat for now");return}
  toast("Uploading…");
  const safe=file.name.replace(/[^\w.\-]+/g,"_").slice(-80);
  const path=S.user.uid+"/"+Date.now()+"_"+safe;
- const {error}=await sb.storage.from("chat-media").upload(path,file,{contentType:file.type||"application/octet-stream",cacheControl:"3600"});
+ const mime=/\.(apk|xapk|aab)$/i.test(file.name||"")?"application/vnd.android.package-archive":(file.type||"application/octet-stream");const {error}=await sb.storage.from("chat-media").upload(path,file,{contentType:mime,cacheControl:"3600"});
  if(error){console.warn("media upload:",error.message);toast("Upload failed. Check the chat-media storage bucket.");return}
  const url=path;
- push({file:1,ft:file.type||"",name:file.name,size:file.size,url});
+ push({file:1,ft:mime,name:file.name,size:file.size,url});
 }
 
 /* ---------- home: Chats / Groups / Calls ---------- */
@@ -2224,7 +2234,10 @@ function renderCallRows(L){
 Object.assign(T.en,{chatsTab:"Chats",groupsTab:"Groups",callsTab:"Calls",noChats:"No chats yet. Add a member from the Family tab to start one.",noCalls:"No calls yet. Your call history appears here."});
 
 /* ---------- chat wallpaper ---------- */
-const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(16,185,129,.14),rgba(52,211,153,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};
+function wallSvgBg(svg,size){return "url('data:image/svg+xml,"+encodeURIComponent(svg).replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29")+"') 0 0/"+size+"px "+size+"px"}
+const WALL_EMOJI_SVG="<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><g font-size='21' opacity='.2'><text x='4' y='32'>😀</text><text x='92' y='24'>🎈</text><text x='44' y='104'>🐱</text><text x='122' y='98'>⭐</text><text x='8' y='160'>🍕</text><text x='96' y='164'>✏️</text><text x='138' y='46' font-size='16'>🌈</text></g></svg>";
+const WALL_SHAPE_SVG="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g fill='#16A34A' opacity='.2'><circle cx='18' cy='18' r='4'/><circle cx='96' cy='60' r='3'/><polygon points='60,6 64.5,16 75.5,16 66.5,22.5 70,33 60,26.5 50,33 53.5,22.5 44.5,16 55.5,16'/><polygon points='20,84 34,84 27,70'/><rect x='82' y='94' width='9' height='9' rx='2' transform='rotate(20 86.5 98.5)'/><circle cx='42' cy='108' r='3'/></g><g fill='#0EA5E9' opacity='.16'><polygon points='104,22 107,30 116,30 109,35 111.5,44 104,39 96.5,44 99,35 92,30 101,30'/><circle cx='60' cy='70' r='2.5'/></g></svg>";
+const WALLS={plain:{l:"Plain / Minimal",bg:""},emojis:{l:"Emojis & Doodles",bg:wallSvgBg(WALL_EMOJI_SVG,170)},anime:{l:"Anime / Cyber",bg:"radial-gradient(circle at 85% 12%,rgba(56,189,248,.45),transparent 38%),radial-gradient(circle at 12% 88%,rgba(236,72,153,.32),transparent 42%),repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px),linear-gradient(160deg,#0B1B3A,#1E3A8A 55%,#4C1D95)"},shapes:{l:"Fun Shapes / Dots",bg:wallSvgBg(WALL_SHAPE_SVG,120)}};
 function curWall(){try{const k=localStorage.getItem("lifeone.wall");return WALLS[k]?k:"plain"}catch(e){return"plain"}}
 function applyWall(){paintWallLayer()}
 function openWall(){const g=$("wallGrid");if(!g)return;const cur=curWall();
@@ -3126,7 +3139,7 @@ async function loadServerNotifs(){
 }
 
 /* ---------- wallpaper synced with the server, and stickers ---------- */
-const WALL_KEYS=["plain","violet","ocean","dots"];
+const WALL_KEYS=["plain","emojis","anime","shapes"];
 async function loadChatTheme(){
  if(!sb||!S.user.uid)return;
  const {data}=await sb.from("chat_themes").select("wallpaper").eq("user_id",S.user.uid).maybeSingle();
@@ -3691,28 +3704,78 @@ function msgPressEnd(){
  if(ico){ico.style.opacity=0;ico.style.transform="translateY(-50%) scale(.6)";ico.classList.remove("armed")}
  if(p.lock==="x"&&p.dx>=56){try{if(navigator.vibrate)navigator.vibrate(8)}catch(e){}setReply(p.i)}
 }
-function showMsgBar(i){
- closeMsgBar();
- const m=(S.chats[chatK]||[])[i];if(!m)return;
- const b=document.querySelector(`#msgs [data-bi="${i}"]`);if(!b)return;
- const r=b.getBoundingClientRect();
- const W=Math.min(340,innerWidth-16);
- const left=Math.max(8,Math.min(innerWidth-W-8,r.left+r.width/2-W/2));
- let top=r.top-112;
- const own=!!m.me, server=isServerMsg(m);
- const editable=canEditMsg(m);
- const btn=(act,icon,label,opts={})=>`<button type="button" onclick="msgAct('${act}',${i})" ${opts.disabled?"disabled":""} aria-label="${label}" title="${label}" class="flex flex-col items-center justify-center gap-0.5" style="width:44px;height:44px;border-radius:12px;color:${opts.red?"#E11D48":"var(--ink)"};opacity:${opts.disabled?".4":"1"};background:${opts.red?"rgba(225,29,72,.08)":"transparent"}"><span style="font-size:17px;line-height:1">${icon}</span><span style="font-size:9px;opacity:.7">${label}</span></button>`;
- const bar=document.createElement("div");
- bar.id="msgBar";bar.setAttribute("role","toolbar");
- bar.style.cssText=`position:fixed;left:${left}px;top:${top}px;width:${W}px;z-index:95;display:flex;justify-content:space-between;align-items:center;padding:6px 6px;border-radius:16px;background:var(--card);box-shadow:0 10px 30px rgba(0,0,0,.18);border:1px solid var(--line);transition:opacity .15s`;
- bar.style.flexDirection="column-reverse";bar.style.gap="4px";bar.innerHTML=`<div style="display:flex;justify-content:space-around;width:100%;padding-bottom:4px;border-bottom:1px solid var(--line)">${REACT_EMOJI.map(em=>`<button type="button" onclick="reactMsg(${i},'${em}')" aria-label="React ${em}" style="font-size:22px;width:40px;height:40px;border-radius:999px">${em}</button>`).join("")}</div><div style="display:flex;justify-content:space-between;align-items:center;width:100%">`+btn("copy","📋","Copy")+btn("forward","↪","Forward",{disabled:!(m.t||m.file)})
-   +(own?btn("edit","✎","Edit",{disabled:!editable}):btn("privatereply","💬","Private Reply",{disabled:!m.sid}))
-   +btn("translate","🌐","Translate",{disabled:!m.t})+btn("pin","📌",isPinnedMsg(m)?"Unpin":"Pin",{disabled:!server})
-   +btn("star","★","Star",{disabled:!server})
-   +btn("delete","🗑","Delete",{disabled:!server&&!own,red:true})+`</div>`;
- document.body.appendChild(bar);MSG_BAR=bar;{const bh=bar.offsetHeight;let t2=r.top-bh-6;let below=false;if(t2<64){t2=r.bottom+6;below=true}bar.style.top=t2+"px";bar.style.flexDirection=below?"column":"column-reverse"}
+let MSGSEL=null,MSGSEL_KEY=null;
+const MSG_SEL_IC={close:'<path d="M6 6l12 12M18 6L6 18"/>',pin:'<path d="M12 17v5"/><path d="M9 3h6l-1 7 3 3H7l3-3z"/>',del:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',fwd:'<path d="M15 17l5-5-5-5"/><path d="M4 18v-2a6 6 0 0 1 6-6h10"/>',star:'<path d="M12 3l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.8 6.1 21l1.2-6.5L2.5 9.9 9.1 9z"/>',reply:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',tr:'<path d="M4 5h9M9 3v2M6 9c1 3 4 6 7 7M14 19l4-9 4 9M15.5 15h5"/>'};
+function msgSelIc(k,fill){return '<svg width="18" height="18" viewBox="0 0 24 24" fill="'+(fill||"none")+'" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+MSG_SEL_IC[k]+'</svg>'}
+function msgSelHdr(){
+ let h=$("msgSelHdr");if(h)return h;
+ const hd=$("chatHeader");if(!hd)return null;
+ h=document.createElement("div");h.id="msgSelHdr";h.className="flex items-center gap-1 w-full min-w-0";h.style.display="none";
+ hd.appendChild(h);return h;
 }
-function closeMsgBar(){if(MSG_BAR){MSG_BAR.remove();MSG_BAR=null}}
+function showMsgBar(i){msgSelOn(i)}
+function msgSelOn(i){
+ const m=(S.chats[chatK]||[])[i];if(!m)return;
+ closeChatDD();
+ MSGSEL=i;MSGSEL_KEY=chatK;
+ msgSelRender();
+ msgReactPop(i);
+ try{if(navigator.vibrate)navigator.vibrate(10)}catch(e){}
+}
+function msgSelClear(){MSGSEL=null;MSGSEL_KEY=null;closeMsgBar();msgSelRender()}
+function closeMsgBar(){
+ const p=$("msgReactPop");if(p)p.remove();
+ MSG_BAR=null;
+ document.querySelectorAll("#msgs [data-bi].msg-sel").forEach(e=>e.classList.remove("msg-sel"));
+}
+function msgSelRender(){
+ const hd=$("chatHeader");if(!hd)return;const h=msgSelHdr();if(!h)return;
+ const m=(MSGSEL===null||MSGSEL_KEY!==chatK)?null:((S.chats[chatK]||[])[MSGSEL]||null);
+ const on=!!m;
+ [...hd.children].forEach(c=>{if(c!==h)c.style.display=on?"none":""});
+ if(!on){h.style.display="none";h.innerHTML="";return}
+ const own=!!m.me,server=isServerMsg(m),group=isGK(chatK),starred=!!(m.starred||STARRED_IDS.has(m.id));
+ const b=(act,label,inner,o)=>{o=o||{};return `<button type="button" onclick="msgSelAct('${act}')" ${o.disabled?"disabled":""} aria-label="${label}" title="${label}" class="btn shrink-0" style="width:38px;height:38px;border-radius:999px;background:transparent;color:${o.red?"#E11D48":"var(--ink)"};opacity:${o.disabled?".35":"1"}">${inner}</button>`};
+ const parts=[
+  b("pin",isPinnedMsg(m)?"Unpin":"Pin",msgSelIc("pin"),{disabled:!server}),
+  b("delete","Delete",msgSelIc("del"),{disabled:!server&&!own,red:true}),
+  b("copy","Copy",msgSelIc("copy"),{disabled:!m.t}),
+  b("forward","Forward",msgSelIc("fwd"),{disabled:!(m.t||m.file)}),
+  b("star",starred?"Unstar":"Star",msgSelIc("star",starred?"currentColor":"none"),{disabled:!server})
+ ];
+ if(group&&!own)parts.push(b("privatereply","Private Reply",msgSelIc("reply")));
+ if(own&&canEditMsg(m))parts.push(b("edit","Edit",msgSelIc("edit")));
+ if(m.t)parts.push(b("translate","Translate",msgSelIc("tr")));
+ h.innerHTML=`<button type="button" onclick="msgSelClear()" aria-label="Cancel selection" title="Cancel" class="btn shrink-0" style="width:38px;height:38px;border-radius:999px;background:transparent;color:var(--ink)">${msgSelIc("close")}</button><span class="flex-1 min-w-0 truncate text-sm font-semibold" style="color:var(--ink);padding-left:2px">1 selected</span><div class="flex items-center shrink-0" style="overflow-x:auto;max-width:62%">${parts.join("")}</div>`;
+ h.style.display="flex";
+}
+function msgSelAct(act){const i=MSGSEL;if(i===null)return;msgSelClear();msgAct(act,i)}
+function msgReactPop(i){
+ const old=$("msgReactPop");if(old)old.remove();
+ const m=(S.chats[chatK]||[])[i];
+ const el=document.querySelector('#msgs [data-bi="'+i+'"]');
+ if(!m||!el||!isServerMsg(m))return;
+ el.classList.add("msg-sel");
+ const r=el.getBoundingClientRect();
+ const W=Math.min(282,innerWidth-16);
+ const own=!!m.me;
+ let left=own?r.right-W:r.left;
+ left=Math.max(8,Math.min(innerWidth-W-8,left));
+ let top=r.top-54;if(top<70)top=r.bottom+8;
+ const p=document.createElement("div");
+ p.id="msgReactPop";p.setAttribute("role","menu");p.setAttribute("aria-label","Reactions");
+ p.style.cssText="position:fixed;z-index:96;left:"+left+"px;top:"+top+"px;width:"+W+"px;display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 10px 30px rgba(15,23,42,.22);transform-origin:"+(own?"100% 100%":"0% 100%");
+ p.innerHTML=REACT_EMOJI.map((em,k)=>'<button type="button" class="rxB" style="--d:'+(k*50)+'ms" onclick="reactMsg('+i+',\''+em+'\')" aria-label="React '+em+'">'+em+'</button>').join("");
+ document.body.appendChild(p);
+}
+document.addEventListener("pointerdown",e=>{
+ if(MSGSEL===null)return;
+ const t=e.target;if(!t||!t.closest)return;
+ if(t.closest("#msgSelHdr,#msgReactPop"))return;
+ if(t.closest('#msgs [data-bi="'+MSGSEL+'"]'))return;
+ msgSelClear();
+},true);
+function closeMsgBarLegacy(){closeMsgBar()}
 document.addEventListener("pointerdown",e=>{if(MSG_BAR&&!MSG_BAR.contains(e.target))closeMsgBar()},true);
 function msgAct(act,i){
  closeMsgBar();
@@ -4215,7 +4278,7 @@ function reactHTML(m){
  return `<div class="flex flex-wrap gap-1 mt-1">${[...e.entries()].map(([em,v])=>`<span class="text-xs px-1.5 py-0.5 rounded-full" style="background:var(--card);border:1px solid ${v.mine?"#16A34A":"var(--line)"}">${em} ${v.n}</span>`).join("")}</div>`;
 }
 async function reactMsg(i,em){
- closeMsgBar();
+ msgSelClear();
  const m=(S.chats[chatK]||[])[i];if(!m)return;
  if(!isServerMsg(m)){toast("This message is still sending.");return}
  const mine=REACTS.get(m.id)&&REACTS.get(m.id).get(em)&&REACTS.get(m.id).get(em).mine;
@@ -4464,7 +4527,7 @@ const BLK_MSG="Unblock this contact to send messages.";
 function isBlockedChat(){if(chatK===undefined||chatK===null||chatK==="g"||isGK(chatK))return false;try{return localStorage.getItem("lifeone.block."+chatKey())==="1"}catch(e){return false}}
 function renderBlockState(){
  const blocked=isBlockedChat();
- const inp=$("msgIn");if(inp){inp.disabled=blocked;inp.placeholder=blocked?"You blocked this contact":"Type a message..."}
+ const inp=$("msgIn");if(inp){inp.disabled=blocked;inp.placeholder=blocked?"You blocked this contact":"Write message"}
  document.querySelectorAll("#chatSheet .inpRow button,#voiceBtn,#sendBtn").forEach(b=>{b.disabled=blocked;b.style.opacity=blocked?".45":""});
 }
 function toggleChatDD(ev){if(ev)ev.stopPropagation();const d=$("chatDD");if(!d)return;if(d.style.display==="flex"){closeChatDD();return}chatDDRender();d.style.display="flex"}
@@ -4484,8 +4547,7 @@ document.addEventListener("click",e=>{const d=$("chatDD");if(!d||d.style.display
 document.body.insertAdjacentHTML("beforeend",
  '<div id="mThemeHub" class="modal" style="z-index:92"><div class="sheet space-y-4" style="max-width:420px;max-height:88vh;overflow:auto">'+
  '<div class="flex items-center justify-between"><b class="text-lg">Theme &amp; Wallpaper</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM(\'mThemeHub\')" aria-label="Close">&times;</button></div>'+
- '<p class="text-xs" style="color:var(--mut)">Chat wallpaper, applied to all your chats.</p>'+
- '<div id="thWalls" class="grid grid-cols-2 gap-3"></div>'+
+  '<div id="thWalls" class="grid grid-cols-2 gap-3"></div>'+
  '<button type="button" class="btn out w-full rounded-xl py-2.5 text-sm font-semibold" onclick="thCustom()">Custom image or colour</button>'+
  '<button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="thReset()">Reset this chat to default</button>'+
  '</div></div>');
@@ -4629,6 +4691,12 @@ async function capPublish(){
  }catch(e){st.textContent="That file could not be read."}
  finally{btn.disabled=false;btn.textContent="Publish"}
 }
+</script>
+<script>
+/* ===== v-final: direct camera, selection cleared when leaving a chat ===== */
+function openCameraDirect(){const c=$("camIn");if(!c){toast("Camera is not available.");return}c.value="";c.click()}
+const __closeChatSel=closeChat;
+closeChat=function(){msgSelClear();return __closeChatSel.apply(this,arguments)};
 </script>
 </body>
 </html>

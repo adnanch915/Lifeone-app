@@ -124,39 +124,34 @@ html.dark #profScreen,html.dark #profScreen *:not(.pri):not([style*="background"
 @keyframes recBlink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes recWave{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
 .rec{animation:recBlink 1.1s ease-in-out infinite}
-.rec-wave span{display:block;width:3px;height:100%;min-height:3px;border-radius:2px;background:currentColor;transition:height .09s linear}
+.rec-wave span{display:block;width:3px;height:100%;border-radius:2px;background:currentColor;transform-origin:center;animation:recWave .9s ease-in-out infinite}
 .rec-wave.paused span{animation-play-state:paused}
 .glass{background:var(--card);border:1px solid var(--line);border-radius:18px}
 body.chat-open nav{display:none!important}
 .chatTool{flex:none;padding:8px 12px;border-radius:999px;background:var(--bg);font-size:13px;font-weight:600;white-space:nowrap;border:1px solid var(--line)}
 .chatIcon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg);flex:none;font-size:18px}
 .chatMic{width:44px;height:44px;border-radius:50%;background:#0084FF;color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
-#callDrop{opacity:0;transform:translateY(-6px) scale(.97);transform-origin:top right;transition:opacity .16s ease,transform .16s ease;pointer-events:none}#callDrop.open{opacity:1;transform:none;pointer-events:auto}
-#mCall{padding:0}#mCall .sheet{max-width:none;width:100%;height:100dvh;max-height:100dvh;border-radius:0;border:0;display:flex;flex-direction:column;justify-content:space-between;align-items:center;background:linear-gradient(180deg,#0B1220 0%,#1B2740 100%)!important;color:#fff;padding:calc(env(safe-area-inset-top,0px) + 28px) 24px calc(env(safe-area-inset-bottom,0px) + 28px)}
-#mCall .sheet p,#mCall .sheet h3,#mCall .sheet span,#mCall .sheet div{color:#fff}
-#mCall #callState{color:#6EE7B7!important}#mCall #callNote,#mCall #callType{color:rgba(255,255,255,.65)!important}
-#mCall .btn.out{background:rgba(255,255,255,.12);border-color:transparent;color:#fff}#mCall .btn.out:hover{background:rgba(255,255,255,.2)}
-#mCall .sheet>div:last-child{width:100%;max-width:360px}
-#callDrop,#chatDrop{opacity:0;transform:translateY(-6px) scale(.97);transform-origin:top right;transition:opacity .16s ease,transform .16s ease;pointer-events:none}
-#callDrop.open,#chatDrop.open{opacity:1;transform:none;pointer-events:auto}
+.rxBtn{width:38px;height:38px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card);border:1px solid var(--line);flex:none}
+#stCanvas:empty::before{content:attr(data-placeholder);opacity:.65}
+#replyBar{display:none;align-items:center;gap:10px;padding:6px 8px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
 </style>
 </head>
 <body class="unauth">
-<header class="sticky top-0 z-40 bg-white" style="border-bottom:1px solid var(--line)"><div class="max-w-3xl mx-auto flex items-center gap-2 px-2 py-2.5"><div id="hdrSearchWrap" class="relative flex-1 min-w-0"><input name="hdrSearch" id="hdrSearch" type="search" data-ph="hdrSearchPh" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="inp text-sm w-full" style="padding:.55rem 1rem;border-radius:999px" oninput="hdrSearchRun(this.value)" onfocus="hdrSearchRun(this.value)" aria-label="Search people, groups, chats"><div id="hdrRes" hidden class="card p-2 space-y-1" style="position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:60vh;overflow:auto;z-index:70"></div></div></div></header>
+<header class="sticky top-0 z-40 bg-white" style="border-bottom:1px solid var(--line)"><div class="max-w-3xl mx-auto flex items-center gap-2 px-2 py-2.5"><div id="hdrSearchWrap" class="relative flex-1 min-w-0"><input id="hdrSearch" type="search" data-ph="hdrSearchPh" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="inp text-sm w-full" style="padding:.55rem 1rem;border-radius:999px" oninput="hdrSearchRun(this.value)" onfocus="hdrSearchRun(this.value)" aria-label="Search people, groups, chats"><div id="hdrRes" hidden class="card p-2 space-y-1" style="position:absolute;top:calc(100% + 6px);left:0;right:0;max-height:60vh;overflow:auto;z-index:70"></div></div></div></header>
 <div id="storyBar" class="max-w-3xl mx-auto px-3 pt-2 pb-2"><div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold tracking-wide" style="color:var(--mut)">Story</span></div><div id="storyRow" class="flex gap-3 overflow-x-auto" style="scrollbar-width:none"></div></div>
 <div id="airBanner" hidden class="px-4 py-2 text-xs font-medium text-center" style="background:var(--pri2);color:var(--acc)" data-lbl="airOn"></div>
 
 <main class="max-w-3xl mx-auto px-4 pt-3 pb-28">
  <section id="tab-chats" class="tab-content space-y-3">
-   <div class="card px-3 py-2 flex items-center gap-2"><span class="shrink-0" style="color:var(--mut)" data-ic="search" data-s="16"></span><input name="chatsQ" id="chatsQ" type="search" autocomplete="off" autocorrect="off" spellcheck="false" data-ph="chatsQph" class="flex-1 min-w-0 bg-transparent outline-none text-sm" oninput="renderChatsPanel()" aria-label="Filter chats"></div>
+   <div class="card px-3 py-2 flex items-center gap-2"><span class="shrink-0" style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="chatsQ" type="search" autocomplete="off" autocorrect="off" spellcheck="false" data-ph="chatsQph" class="flex-1 min-w-0 bg-transparent outline-none text-sm" oninput="renderChatsPanel()" aria-label="Filter chats"></div>
    <div id="chats_list" class="space-y-2"></div>
 </section>
-<section id="tab-status" class="tab-content space-y-3"><div class="card p-4 flex items-center gap-3"><div id="myStatusAv" class="shrink-0"></div><div class="flex-1 min-w-0"><b class="block">My status</b><span class="text-xs" style="color:var(--mut)">Share a photo with your contacts.</span></div><button type="button" onclick="$('statusIn').click()" class="btn pri w-10 h-10 rounded-full shrink-0" aria-label="Add status" title="Add status">+</button></div><input name="statusIn" autocomplete="off" id="statusIn" type="file" accept="image/*" class="hidden" onchange="postStatus(this)"><div id="status_list" class="space-y-2"></div></section>
+<section id="tab-status" class="tab-content space-y-3"><div class="card p-4 flex items-center gap-3"><div id="myStatusAv" class="shrink-0"></div><div class="flex-1 min-w-0"><b class="block">My status</b><span class="text-xs" style="color:var(--mut)">Share a photo with your contacts.</span></div><button type="button" onclick="$('statusIn').click()" class="btn pri w-10 h-10 rounded-full shrink-0" aria-label="Add status" title="Add status">+</button></div><input id="statusIn" type="file" accept="image/*" class="hidden" onchange="postStatus(this)" autocomplete="off"><div id="status_list" class="space-y-2"></div></section>
 <section id="tab-groups" class="tab-content space-y-3">
  <div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-lbl="navGroups"></h1><button class="btn pri rounded-full ps-3 pe-4 py-2 text-sm font-medium" onclick="openNewGroup()"><span data-ic="plus" data-s="16"></span><span data-lbl="newGroup"></span></button></div>
- <input name="field_4" type="search" autocomplete="off" autocorrect="off" spellcheck="false" class="inp text-sm" placeholder="Search channels" oninput="filterGroups(this.value)" aria-label="Search channels"><div id="groups_list" class="space-y-2"></div>
+ <input type="search" autocomplete="off" autocorrect="off" spellcheck="false" class="inp text-sm" placeholder="Search groups" oninput="filterGroups(this.value)" aria-label="Search groups"><div id="groups_list" class="space-y-2"></div>
 </section>
-<section id="tab-marketplace" class="tab-content space-y-3"><div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-i18n="navMarket"></h1><div class="flex gap-2 shrink-0"><button type="button" onclick="openMyListings()" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">My listings</button><button type="button" onclick="openSell()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium">+ Sell</button></div></div><input name="mktQ" id="mktQ" type="search" autocomplete="off" autocorrect="off" spellcheck="false" class="inp w-full text-sm" placeholder="Search listings" oninput="mktSearchInput(this.value)" aria-label="Search listings"><div id="mktCats" class="flex gap-2 overflow-x-auto" style="scrollbar-width:none"></div><div id="mktGrid" class="grid grid-cols-2 gap-3"></div><button id="mktMore" type="button" class="btn out w-full py-2.5 rounded-xl text-sm hidden" onclick="loadMarket(false)">Load more</button></section>
+<section id="tab-marketplace" class="tab-content space-y-3"><div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-i18n="navMarket"></h1><div class="flex gap-2 shrink-0"><button type="button" onclick="openMyListings()" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">My listings</button><button type="button" onclick="openSell()" class="btn pri rounded-full px-3 py-1.5 text-xs font-medium">+ Sell</button></div></div><input id="mktQ" type="search" autocomplete="off" autocorrect="off" spellcheck="false" class="inp w-full text-sm" placeholder="Search listings" oninput="mktSearchInput(this.value)" aria-label="Search listings"><div id="mktCats" class="flex gap-2 overflow-x-auto" style="scrollbar-width:none"></div><div id="mktGrid" class="grid grid-cols-2 gap-3"></div><button id="mktMore" type="button" class="btn out w-full py-2.5 rounded-xl text-sm hidden" onclick="loadMarket(false)">Load more</button></section>
 <section id="tab-calls" class="tab-content space-y-3">
  <div class="flex items-center justify-between gap-3"><h1 class="text-xl font-bold" data-lbl="navCalls"></h1><button onclick="clearCalls()" class="btn out rounded-xl px-3 py-1.5 text-xs" data-lbl="clearCalls"></button></div>
  <div id="calls_list" class="space-y-2"></div>
@@ -198,31 +193,13 @@ body.chat-open nav{display:none!important}
   <div id="famList" class="space-y-3"></div>
  </section>
 
-<section id="tab-feed" class="tab-content space-y-3"><h1 class="text-xl font-bold" data-lbl="navFeed"></h1>
-<div class="flex items-center gap-2" style="position:relative">
-  <button type="button" id="feedLeftBtn" onclick="toggleFeedMenu('L')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Feed filter" aria-haspopup="true">&#9662;</button>
-  <input name="feedQ" id="feedQ" type="search" autocomplete="off" class="inp flex-1 min-w-0 text-sm" placeholder="Search by full name or @username" oninput="feedSearch(this.value)" aria-label="Search people">
-  <button type="button" id="feedRightBtn" onclick="toggleFeedMenu('R')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Actions" aria-haspopup="true">&#9662;</button>
-  <div id="feedMenuL" class="hidden card p-1" style="position:absolute;left:0;top:44px;width:170px;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="setFeedMode('following')">Following</button>
-    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="setFeedMode('foryou')">For You</button>
-  </div>
-  <div id="feedMenuR" class="hidden card p-1" style="position:absolute;right:0;top:44px;width:170px;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="menuUpload()">Upload Post</button>
-    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="menuViewProfile()">View Profile</button>
-  </div>
- </div>
- <div id="feedSearchRes" class="hidden card p-2 space-y-1"></div>
- <div class="flex items-center justify-between"><b id="feedModeLbl" class="text-sm">For You</b></div>
- <div id="feedList" class="space-y-3" style="overflow:auto;flex:1"></div>
-</section>
-<button id="fabAdd" type="button" onclick="openFabMenu()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="New" title="New"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+<button id="fabAdd" onclick="openPencil()" class="fixed end-4 bottom-20 z-40 w-14 h-14 rounded-full pri shadow-xl flex items-center justify-center" aria-label="Create" title="Create"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg><span id="fabBadge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#E11D48;color:#fff;font-size:11px;font-weight:700;line-height:20px;text-align:center">0</span></button>
 
  
 </main>
 
 
-<nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)"><div class="max-w-3xl mx-auto flex items-stretch"><div id="tabs" class="grid grid-cols-5 flex-1 min-w-0"></div><button id="menuBtn" type="button" onclick="openMenu()" class="tab btn flex-col gap-0.5 py-2 px-3 text-xs shrink-0" aria-label="Menu" title="Menu"><span class="flex items-center justify-center" style="height:24px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span data-i18n="menuLbl">Menu</span></button></div></nav>
+<nav class="fixed bottom-0 inset-x-0 z-40 bg-white" style="border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)"><div class="max-w-3xl mx-auto flex items-stretch"><div id="tabs" class="grid grid-cols-4 flex-1 min-w-0"></div><button id="menuBtn" type="button" onclick="openMenu()" class="tab btn flex-col gap-0.5 py-2 px-3 text-xs shrink-0" aria-label="Menu" title="Menu"><span class="flex items-center justify-center" style="height:24px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span data-i18n="menuLbl">Menu</span></button></div></nav>
 
 <!-- Full-screen profile & settings -->
 <div id="profScreen" class="hidden fixed inset-0 overflow-y-auto" style="z-index:55;background:var(--bg)">
@@ -261,15 +238,15 @@ body.chat-open nav{display:none!important}
  <div class="flex justify-center pt-2"><div class="relative" style="width:72px;height:72px">
   <div class="av big" style="width:72px;height:72px"></div>
   <label for="file" class="absolute bottom-0 end-0 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow-md" style="background:var(--pri);color:#fff" aria-label="Change photo" title="Change photo"><span data-ic="camera" data-s="15"></span></label>
-  <input name="file" autocomplete="off" id="file" type="file" accept="image/*" class="hidden">
+  <input id="file" type="file" accept="image/*" class="hidden" autocomplete="off">
  </div></div>
  <div class="card p-5 space-y-4">
-  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input name="pName" id="pName" class="inp mt-1" autocomplete="name"></label>
-  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input name="pUser" autocomplete="off" id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input name="pEmail" autocomplete="off" id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></label>
-  <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input name="pLoc" autocomplete="off" id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed"></div>
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="name"></span><input id="pName" class="inp mt-1" autocomplete="name"></label>
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblUser"></span><input id="pUser" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed" autocomplete="off"></label>
+  <label class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="pEmail" type="email" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed" autocomplete="off"></label>
+  <div class="text-sm"><span style="color:var(--mut)" data-i18n="loc"></span><input id="pLoc" class="inp mt-1" readonly tabindex="-1" style="background:#F1F5F9;cursor:not-allowed" autocomplete="off"></div>
   <div class="text-sm"><span style="color:var(--mut)" data-lbl="moPhone"></span>
-   <div class="flex gap-2 mt-1"><input name="pCC" autocomplete="off" type="hidden" id="pCC" value="+92"><button type="button" id="pCCBtn" onclick="openCC('p')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input name="pPhone" id="pPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div>
+   <div class="flex gap-2 mt-1"><input type="hidden" id="pCC" value="+92" autocomplete="off"><button type="button" id="pCCBtn" onclick="openCC('p')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="pPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div>
    <p class="text-[11px] mt-1.5" style="color:var(--mut)" data-lbl="phoneHint"></p></div>
   <button id="saveP" type="button" class="btn pri w-full rounded-xl py-2.5 text-sm font-medium" data-i18n="save"></button>
  </div>
@@ -296,7 +273,7 @@ body.chat-open nav{display:none!important}
 <div id="mInv" class="modal"><div class="sheet space-y-4">
  <div class="flex items-center justify-between"><h3 class="font-bold text-lg" data-i18n="inviteTitle"></h3><button onclick="closeM('mInv')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
  <p class="text-sm" style="color:var(--mut)" data-lbl="invHint"></p>
- <input name="invName" autocomplete="off" id="invName" type="hidden"><input name="invTo" autocomplete="off" id="invTo" type="hidden">
+ <input id="invName" type="hidden" autocomplete="off"><input id="invTo" type="hidden" autocomplete="off">
  <textarea id="invMsg" readonly rows="4" class="inp text-sm resize-none"></textarea>
  <div class="grid grid-cols-2 gap-2">
   <button onclick="inviteCopy()" class="btn out py-2.5 rounded-xl text-sm" data-i18n="copy"></button>
@@ -314,7 +291,7 @@ body.chat-open nav{display:none!important}
 </div></div>
 <div id="mNewGrp" class="modal"><div class="sheet space-y-3" style="max-width:440px">
  <div class="flex items-center justify-between gap-3"><h3 class="font-bold text-lg" data-lbl="grpNew"></h3><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mNewGrp')" aria-label="Close">&times;</button></div>
- <input name="ngName" id="ngName" class="inp" maxlength="80" autocomplete="off" placeholder="Channel name"><div class="flex items-center gap-3"><label class="btn out w-14 h-14 rounded-full overflow-hidden shrink-0 cursor-pointer" style="padding:0" aria-label="Channel photo"><img id="ngAvPrev" alt="" class="hidden w-full h-full object-cover"><span id="ngAvIc" class="text-xl">+</span><input name="ngAvFile" id="ngAvFile" type="file" accept="image/*" class="hidden" onchange="ngAvPick(this)"></label><span class="flex-1 min-w-0 text-xs" style="color:var(--mut)">Channel photo (optional)</span></div><textarea name="ngBio" id="ngBio" class="inp w-full text-sm" rows="2" maxlength="240" placeholder="Channel bio (optional)" autocomplete="off"></textarea>
+ <input id="ngName" class="inp" maxlength="80" autocomplete="off">
  <p class="text-xs" style="color:var(--mut)" data-lbl="grpPickHint"></p>
  <div id="ngList" class="space-y-1 overflow-auto" style="max-height:44vh"></div>
  <p id="ngErr" class="text-xs text-rose-600" hidden></p>
@@ -324,7 +301,7 @@ body.chat-open nav{display:none!important}
  <h3 class="font-bold text-lg text-rose-600" data-lbl="grpDelTitle"></h3>
  <p id="delGrpText" class="text-sm" style="color:var(--mut)"></p>
  <p id="delGrpName" class="text-sm font-semibold"></p>
- <input name="delGrpIn" id="delGrpIn" class="inp" autocomplete="off" oninput="delGrpCheck()" aria-label="Type the group name to confirm">
+ <input id="delGrpIn" class="inp" autocomplete="off" oninput="delGrpCheck()" aria-label="Type the group name to confirm">
  <div class="flex gap-2"><button type="button" class="btn out flex-1 rounded-xl py-2.5 text-sm" onclick="closeM('mDelGrp')" data-lbl="grpCancel"></button><button id="delGrpGo" type="button" disabled class="btn flex-1 rounded-xl py-2.5 text-sm font-semibold text-white disabled:opacity-50" style="background:#E11D48" onclick="grpDeleteConfirm()" data-lbl="grpDelBtn"></button></div>
 </div></div>
 <div id="mGrp" class="modal"><div class="sheet space-y-3" style="max-width:440px">
@@ -338,7 +315,7 @@ body.chat-open nav{display:none!important}
 <div id="mNotif" class="modal"><div class="sheet">
  <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-lg" data-i18n="notif"></h3>
   <button class="text-sm" style="color:var(--acc)" onclick="readAll()" data-i18n="readAll"></button></div>
- <div id="srvNotifList" class="space-y-2 mb-3"></div><div id="reqList" class="space-y-2 mb-3"></div><ul id="nList" class="space-y-2"></ul>
+ <div id="srvNotifList" class="space-y-2 mb-3"></div><ul id="nList" class="space-y-2"></ul>
  <button class="btn out w-full py-2.5 rounded-xl mt-3" onclick="closeM('mNotif')" data-i18n="close"></button>
 </div></div>
 
@@ -357,15 +334,15 @@ body.chat-open nav{display:none!important}
   <button id="bSpk" onclick="cSpk()" class="btn out flex-col py-3 rounded-2xl text-[11px]"><span data-ic="speaker"></span><span data-i18n="speaker"></span></button>
   <button id="bVid" onclick="cVid()" class="btn out flex-col py-3 rounded-2xl text-[11px]"><span data-ic="video"></span><span data-i18n="video"></span></button>
   <button id="bFlip" onclick="cFlip()" class="btn out flex-col py-3 rounded-2xl text-[11px] hidden"><span data-ic="flip"></span><span data-i18n="flip"></span></button>
-  <button onclick="endCall()" aria-label="End call" class="btn flex-col rounded-full text-[11px] bg-rose-500 text-white" style="width:68px;height:68px;padding:0;justify-self:center"><span data-ic="phone"></span><span data-i18n="end"></span></button>
+  <button onclick="endCall()" class="btn flex-col py-3 rounded-2xl text-[11px] bg-rose-500 text-white"><span data-ic="phone"></span><span data-i18n="end"></span></button>
  </div>
 </div></div>
 
 <div id="mChat" class="modal" style="padding:0"><div class="sheet flex flex-col" style="height:100dvh;max-height:100dvh;max-width:none;width:100%;border-radius:0;border:0">
- <div class="flex items-center gap-1 pb-2" style="border-bottom:1px solid var(--line)">
+ <div class="flex justify-between items-center pb-2" style="border-bottom:1px solid var(--line)">
   <button class="p-2 -ms-2" style="color:var(--mut)" onclick="closeChat()" aria-label="Back" data-ic="left" data-s="20"></button>
-  <button type="button" id="chatHead" onclick="openHeadInfo()" class="flex flex-1 items-center gap-2 min-w-0 text-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex flex-col"><span class="flex items-center gap-1.5 min-w-0"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><span id="chatStatus" class="text-xs truncate" style="color:var(--mut)"></span></span><div id="chatLoc" class="hidden"></div></button>
-  <div class="flex items-center gap-1 shrink-0 ms-auto"><button type="button" id="callPlusBtn" onclick="openCallPlus()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Call options" title="Call"><span style="font-size:13px;font-weight:700">📞+</span></button><div id="chatCalls" class="hidden"></div><button type="button" onclick="openChatMenu()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
+  <button type="button" id="chatHead" onclick="openHeadInfo()" class="flex items-center gap-2 min-w-0 text-start" style="justify-content:flex-start" aria-label="View profile"><div id="chatAv"></div><span class="min-w-0 flex flex-col"><span class="flex items-center gap-1.5 min-w-0"><span id="chatName" class="font-bold truncate"></span><span id="chatBlue" class="shrink-0"></span></span><span id="chatStatus" class="text-xs truncate" style="color:var(--mut)"></span></span><div id="chatLoc" class="hidden"></div></button>
+  <div class="flex items-center gap-1 shrink-0"><button type="button" id="callPlusBtn" onclick="openCallPlus()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Call options" title="Call"><span style="font-size:13px;font-weight:700">📞+</span></button><div id="chatCalls" class="hidden"></div><button type="button" onclick="openChatMenu()" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="More options" title="More"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg></button></div>
  </div>
  <div id="msgs" class="flex-1 overflow-auto space-y-2 py-3"></div>
  <div id="inBar" class="flex flex-col gap-2 pt-2 pb-1">
@@ -377,22 +354,22 @@ body.chat-open nav{display:none!important}
     <button type="button" class="chatTool" onclick="$('camIn').click()" aria-label="Camera">📷 Camera</button>
   </div>
   <div class="flex items-center gap-2">
-    <input name="msgIn" id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="on" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()">
+    <input id="msgIn" class="inp flex-1 min-w-0" placeholder="Type a message..." data-kbd="1" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" enterkeyhint="send" oninput="paintSendMic()">
     <button type="button" class="chatIcon" onclick="toggleEmoji()" aria-label="Emoji">☺</button>
     <button type="button" class="chatIcon" onclick="toggleAttachBar()" aria-label="Attach">＋</button>
     <button id="sendBtn" type="button" class="chatMic" onclick="sendMsg()" aria-label="Send" style="display:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg></button>
     <button id="voiceBtn" type="button" class="chatMic" onclick="recStart()" aria-label="Voice recorder"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   </div>
   <div id="emojiPick" class="hidden flex flex-wrap gap-1 p-2 rounded-xl" style="background:var(--bg)"><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😀')">😀</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😂')">😂</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😍')">😍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🥰')">🥰</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😎')">😎</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤔')">🤔</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😢')">😢</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😡')">😡</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👍')">👍</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙏')">🙏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🔥')">🔥</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🎉')">🎉</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('❤️')">❤️</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('💯')">💯</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😊')">😊</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('👏')">👏</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤝')">🤝</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('✅')">✅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🙌')">🙌</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😅')">😅</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😴')">😴</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('🤩')">🤩</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😇')">😇</button><button type="button" class="text-xl" style="width:36px;height:36px" onclick="insertEmoji('😘')">😘</button></div>
-  <input name="attachIn" autocomplete="off" id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)">
-  <input name="camIn" autocomplete="off" id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)">
+  <input id="attachIn" type="file" accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt" class="hidden" onchange="attachPicked(this)" autocomplete="off">
+  <input id="camIn" type="file" accept="image/*" capture="environment" class="hidden" onchange="attachPicked(this)" autocomplete="off">
 </div>
  <div id="recBar" class="hidden items-center gap-2 pt-2"><button type="button" class="btn out w-11 h-11 rounded-xl shrink-0" onclick="recStop(false)" aria-label="Delete recording" title="Delete"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button><div class="flex-1 min-w-0 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-rose-50 text-rose-600"><i class="rec w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0"></i><b id="recT" class="font-mono text-sm shrink-0">0:00</b><span id="recWave" class="rec-wave flex items-center gap-0.5 h-5 flex-1 min-w-0 overflow-hidden"><span style="animation-delay:0.00s"></span><span style="animation-delay:0.12s"></span><span style="animation-delay:0.24s"></span><span style="animation-delay:0.36s"></span><span style="animation-delay:0.48s"></span><span style="animation-delay:0.60s"></span><span style="animation-delay:0.72s"></span><span style="animation-delay:0.84s"></span><span style="animation-delay:0.96s"></span></span><button type="button" id="recPauseBtn" onclick="recToggle()" class="btn out w-8 h-8 rounded-full shrink-0" aria-label="Pause" title="Pause"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg></button></div><button type="button" class="btn pri w-11 h-11 rounded-xl shrink-0" onclick="recStop(true)" aria-label="Send voice note" title="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
 </div></div>
 
 <div id="mPw" class="modal"><div class="sheet space-y-3">
  <h3 class="font-bold text-lg" data-i18n="pw"></h3>
- <input name="pw1" autocomplete="new-password" id="pw1" type="password" class="inp" data-ph="oldPw"><input name="pw2" autocomplete="new-password" id="pw2" type="password" class="inp" data-ph="newPw">
+ <input id="pw1" type="password" class="inp" data-ph="oldPw" autocomplete="off"><input id="pw2" type="password" class="inp" data-ph="newPw" autocomplete="off">
  <p id="pwErr" class="text-sm text-rose-600"></p>
  <div class="flex gap-2"><button class="btn out flex-1 py-2.5 rounded-xl" onclick="closeM('mPw')" data-i18n="cancel"></button>
  <button class="btn pri flex-1 py-2.5 rounded-xl" onclick="changePw()" data-i18n="save"></button></div>
@@ -431,9 +408,9 @@ body.chat-open nav{display:none!important}
     </div>
     <label id="suEmailBox" class="block text-sm"><span style="color:var(--mut)" data-i18n="email"></span><input id="suEmail" name="email" type="email" class="inp mt-1" autocomplete="email" inputmode="email"></label>
     <div id="suPhoneBox" class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
-     <div class="flex gap-2 mt-1"><input name="suCC" autocomplete="off" type="hidden" id="suCC" value="+92"><button type="button" id="suCCBtn" onclick="openCC('su')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input name="suPhone" id="suPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input autocomplete="new-password" id="suPass" name="new-password" type="password" class="inp mt-1"></label>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input autocomplete="new-password" id="suPass2" name="confirm-password" type="password" class="inp mt-1"></label>
+     <div class="flex gap-2 mt-1"><input type="hidden" id="suCC" value="+92" autocomplete="off"><button type="button" id="suCCBtn" onclick="openCC('su')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="suPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="suPass" name="new-password" type="password" class="inp mt-1" autocomplete="new-password"></label>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass2"></span><input id="suPass2" name="confirm-password" type="password" class="inp mt-1" autocomplete="new-password"></label>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="createAcc"></button>
    </form>
    <form id="formLogin" class="card p-5 space-y-3" method="post" action="#" novalidate onsubmit="event.preventDefault();logIn();return false" style="display:none">
@@ -443,8 +420,8 @@ body.chat-open nav{display:none!important}
     </div>
     <label id="liEmailBox" class="block text-sm"><span style="color:var(--mut)" data-i18n="idLbl"></span><input id="auth-username" name="username" type="text" class="inp mt-1" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></label>
     <div id="liPhoneBox" class="text-sm"><span style="color:var(--mut)" data-i18n="lblMobile"></span>
-     <div class="flex gap-2 mt-1"><input name="liCC" autocomplete="off" type="hidden" id="liCC" value="+92"><button type="button" id="liCCBtn" onclick="openCC('li')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input name="liPhone" id="liPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
-    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input autocomplete="new-password" id="auth-password" name="password" type="password" class="inp mt-1" required></label>
+     <div class="flex gap-2 mt-1"><input type="hidden" id="liCC" value="+92" autocomplete="off"><button type="button" id="liCCBtn" onclick="openCC('li')" class="btn out rounded-xl px-3 shrink-0 gap-1.5" style="min-width:6.75rem" aria-haspopup="dialog" aria-label="Country code"></button><input id="liPhone" type="tel" inputmode="tel" class="inp" autocomplete="tel-national" oninput="phoneInput(this)"></div></div>
+    <label class="block text-sm"><span style="color:var(--mut)" data-i18n="lblPass"></span><input id="auth-password" name="password" type="password" class="inp mt-1" autocomplete="current-password" required></label>
     <div class="flex justify-end"><button type="button" onclick="openForgot()" class="text-xs" style="color:var(--acc)" data-i18n="forgot"></button></div>
     <button type="submit" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" data-i18n="logInBtn"></button><button type="button" onclick="loginGoogle()" class="btn out w-full py-2.5 rounded-xl text-sm font-medium mt-2" data-i18n="googleBtn"></button>
    </form>
@@ -467,7 +444,7 @@ body.chat-open nav{display:none!important}
  </form></div></div>
 <div id="mCC" class="modal" style="z-index:90"><div class="sheet" style="max-width:420px;padding:0;display:flex;flex-direction:column;max-height:80vh">
  <div class="flex items-center justify-between px-5 pt-5 pb-3"><h3 class="font-bold text-lg" data-i18n="ccTitle"></h3><button type="button" onclick="closeM('mCC')" class="btn out w-8 h-8 rounded-full" aria-label="Close" data-ic="x" data-s="14"></button></div>
- <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input name="ccQ" id="ccQ" oninput="renderCC()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="ccSearch" autocomplete="off" autocapitalize="none"></div></div>
+ <div class="px-5 pb-3"><div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)"><span style="color:var(--mut)" data-ic="search" data-s="16"></span><input id="ccQ" oninput="renderCC()" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="ccSearch" autocomplete="off" autocapitalize="none"></div></div>
  <ul id="ccList" class="flex-1 overflow-y-auto px-2 pb-4" style="min-height:14rem"></ul>
 </div></div>
 <div id="mSearch" class="modal" style="z-index:70"><div class="sheet" style="max-width:440px;padding:0;display:flex;flex-direction:column;max-height:80vh">
@@ -483,7 +460,7 @@ body.chat-open nav{display:none!important}
     <span id="cpUsage" class="text-[11px]" style="color:var(--mut)"></span>
    </div>
    <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--line)">
-    <input name="cpIn" autocomplete="off" id="cpIn" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="cpPh">
+    <input id="cpIn" class="flex-1 min-w-0 outline-none bg-transparent text-sm" data-ph="cpPh" autocomplete="off">
     <button id="cpMic" onclick="cpVoice()" class="btn out w-8 h-8 rounded-lg shrink-0" aria-label="Voice input"></button>
     <button onclick="cpRun()" class="btn pri w-8 h-8 rounded-lg shrink-0" aria-label="Ask" data-ic="send" data-s="15"></button>
    </div>
@@ -530,53 +507,48 @@ body.chat-open nav{display:none!important}
    <button type="button" class="btn w-full rounded-xl py-2.5 text-sm font-medium" style="background:#E11D48;color:#fff" onclick="closeMenu();openM('mOut')">Log out</button>
  </div>
 </aside></div>
-<div id="mUser" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:380px"><h3 class="font-bold text-lg">Choose your username</h3><p class="text-sm" style="color:var(--mut)">This is how people find you in search. 3 to 20 letters, numbers, dots or underscores.</p><input name="usrNew" id="usrNew" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="inp w-full" placeholder="e.g. adnan_dev" maxlength="20"><p id="usrErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveUsername()">Save username</button></div></div>
+<div id="mUser" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:380px"><h3 class="font-bold text-lg">Choose your username</h3><p class="text-sm" style="color:var(--mut)">This is how people find you in search. 3 to 20 letters, numbers, dots or underscores.</p><input id="usrNew" type="text" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" class="inp w-full" placeholder="e.g. adnan_dev" maxlength="20"><p id="usrErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveUsername()">Save username</button></div></div>
 <div id="mProduct" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:460px;max-height:88vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">Listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mProduct')" aria-label="Close">&times;</button></div><div id="mProductBody" class="space-y-3"></div></div></div>
-<div id="mSell" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b id="sellTitle" class="text-base">New listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mSell')" aria-label="Close">&times;</button></div><p id="sellInfo" class="text-xs" style="color:var(--mut)"></p><div class="space-y-2"><div id="sellThumbs" class="flex gap-2 flex-wrap items-center"></div><button id="sellPick" type="button" class="btn out w-full py-2 rounded-xl text-sm" onclick="$('sell_files').click()">Add photos (up to 6)</button><input name="sell_files" autocomplete="off" id="sell_files" type="file" accept="image/*" multiple class="hidden" onchange="pickSellPhotos(this)"></div><input name="sell_title" autocomplete="off" id="sell_title" class="inp w-full text-sm" maxlength="100" placeholder="Title"><div class="grid grid-cols-2 gap-2"><input name="sell_price" autocomplete="off" id="sell_price" class="inp text-sm" type="number" inputmode="numeric" min="0" placeholder="Price (PKR)"><select id="sell_cat" class="inp text-sm"><option value="Electronics">Electronics</option><option value="Home">Home</option><option value="Fashion">Fashion</option><option value="Vehicles">Vehicles</option><option value="Services">Services</option><option value="Other">Other</option></select></div><div class="grid grid-cols-2 gap-2"><select id="sell_cond" class="inp text-sm"><option value="">Condition</option><option value="new">New</option><option value="like_new">Like new</option><option value="used">Used</option></select><input name="sell_city" autocomplete="off" id="sell_city" class="inp text-sm" maxlength="80" placeholder="City"></div><textarea id="sell_desc" class="inp w-full text-sm" rows="4" maxlength="2000" placeholder="Description"></textarea><label class="flex items-center gap-2 text-sm"><input name="sell_phone" autocomplete="off" id="sell_phone" type="checkbox"> Show my phone number on this listing</label><p id="sellErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button id="sellSave" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveSell()">Save listing</button></div></div>
+<div id="mSell" class="modal" style="z-index:83"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b id="sellTitle" class="text-base">New listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mSell')" aria-label="Close">&times;</button></div><p id="sellInfo" class="text-xs" style="color:var(--mut)"></p><div class="space-y-2"><div id="sellThumbs" class="flex gap-2 flex-wrap items-center"></div><button id="sellPick" type="button" class="btn out w-full py-2 rounded-xl text-sm" onclick="$('sell_files').click()">Add photos (up to 6)</button><input id="sell_files" type="file" accept="image/*" multiple class="hidden" onchange="pickSellPhotos(this)" autocomplete="off"></div><input id="sell_title" class="inp w-full text-sm" maxlength="100" placeholder="Title" autocomplete="off"><div class="grid grid-cols-2 gap-2"><input id="sell_price" class="inp text-sm" type="number" inputmode="numeric" min="0" placeholder="Price (PKR)" autocomplete="off"><select id="sell_cat" class="inp text-sm"><option value="Electronics">Electronics</option><option value="Home">Home</option><option value="Fashion">Fashion</option><option value="Vehicles">Vehicles</option><option value="Services">Services</option><option value="Other">Other</option></select></div><div class="grid grid-cols-2 gap-2"><select id="sell_cond" class="inp text-sm"><option value="">Condition</option><option value="new">New</option><option value="like_new">Like new</option><option value="used">Used</option></select><input id="sell_city" class="inp text-sm" maxlength="80" placeholder="City" autocomplete="off"></div><textarea id="sell_desc" class="inp w-full text-sm" rows="4" maxlength="2000" placeholder="Description"></textarea><label class="flex items-center gap-2 text-sm"><input id="sell_phone" type="checkbox" autocomplete="off"> Show my phone number on this listing</label><p id="sellErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button id="sellSave" type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveSell()">Save listing</button></div></div>
 <div id="mMyList" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">My listings</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mMyList')" aria-label="Close">&times;</button></div><div id="myListBody" class="space-y-3"></div></div></div>
-<div id="mReport" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:420px"><div class="flex items-center justify-between gap-3"><b class="text-base">Report listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mReport')" aria-label="Close">&times;</button></div><input name="rep_pid" autocomplete="off" id="rep_pid" type="hidden"><select id="rep_reason" class="inp w-full text-sm"></select><textarea id="rep_details" class="inp w-full text-sm" rows="3" maxlength="500" placeholder="Details (optional)"></textarea><p id="repErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitReport()">Send report</button></div></div>
+<div id="mReport" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:420px"><div class="flex items-center justify-between gap-3"><b class="text-base">Report listing</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mReport')" aria-label="Close">&times;</button></div><input id="rep_pid" type="hidden" autocomplete="off"><select id="rep_reason" class="inp w-full text-sm"></select><textarea id="rep_details" class="inp w-full text-sm" rows="3" maxlength="500" placeholder="Details (optional)"></textarea><p id="repErr" class="text-sm" style="color:#E11D48" aria-live="polite"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitReport()">Send report</button></div></div>
 <div id="mAdmin" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between gap-3"><b class="text-base">Moderation</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mAdmin')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Open reports, oldest first. Visible to admins only.</p><div id="adminBody" class="space-y-3"></div></div></div>
 <div id="mHub" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between gap-2"><div class="min-w-0"><b id="hubName" class="block truncate text-base"></b><span id="hubMode" class="text-xs" style="color:var(--mut)"></span></div><div class="flex gap-2 shrink-0"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="openHubChat()">Chat</button><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHub')" aria-label="Close">&times;</button></div></div><p id="hubNote" class="text-xs" style="color:var(--mut)"></p><div id="hubComposer" class="card p-3 space-y-2"></div><div id="hubList" class="space-y-3" style="overflow:auto;flex:1"></div></div></div>
 <div id="mStoryView" class="modal" style="z-index:86"><div style="width:100%;max-width:420px;height:min(82vh,660px);position:relative;background:#000;border-radius:18px;overflow:hidden;color:#fff;display:flex;flex-direction:column"><div id="stvBars" style="display:flex;gap:4px;padding:10px"></div><div id="stvTop" style="display:flex;align-items:center;gap:10px;padding:0 12px 8px"></div><div id="stvBody" style="flex:1;display:flex;align-items:center;justify-content:center;padding:14px;font-size:22px;font-weight:700;text-align:center"></div><button type="button" aria-label="Previous story" onclick="stvPrev()" style="position:absolute;left:0;top:80px;bottom:0;width:35%"></button><button type="button" aria-label="Next story" onclick="stvNext()" style="position:absolute;right:0;top:80px;bottom:0;width:35%"></button><button type="button" aria-label="Close story" onclick="closeStv()" style="position:absolute;right:10px;top:8px;color:#fff;font-size:24px;z-index:2">&times;</button></div></div>
-<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:0;overflow:hidden">
- <div class="flex items-center justify-between px-4 pt-4 pb-2"><b class="text-lg">New story</b><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div>
- <div class="flex items-center justify-around px-2 pb-3" role="toolbar" aria-label="Story tools">
-  <button type="button" onclick="stTool('text')" aria-label="Text" class="btn out w-12 h-12 rounded-2xl flex-col text-[11px]"><b style="font-size:17px">Aa</b></button>
-  <button type="button" onclick="stTool('layout')" aria-label="Layout" class="btn out w-12 h-12 rounded-2xl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
-  <button type="button" onclick="$('stNewFile').click()" aria-label="Gallery" class="btn out w-12 h-12 rounded-2xl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></button>
-  <button type="button" onclick="$('stCam').click()" aria-label="Camera" class="btn out w-12 h-12 rounded-2xl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>
+<div id="mStoryNew" class="modal" style="z-index:84"><div class="sheet" style="max-width:420px;padding:12px"><div class="flex justify-end items-center gap-2 mb-2"><button type="button" id="stAa" onclick="storyCycleFont()" aria-label="Change font" class="btn out rounded-full px-3 py-1.5 text-sm font-bold">Aa</button><input id="stNewFile" type="file" accept="image/*" class="hidden" onchange="storyPickPhoto(this)" autocomplete="off"><button type="button" onclick="closeM('mStoryNew')" class="btn out w-8 h-8 rounded-full" aria-label="Close">&times;</button></div><div id="stCanvas" contenteditable="true" role="textbox" aria-label="Story text" data-placeholder="Type your story" autocomplete="off" spellcheck="false" style="min-height:340px;border-radius:18px;padding:24px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-size:26px;font-weight:700;background:linear-gradient(135deg,#0084FF,#7C3AED);outline:none;white-space:pre-wrap;word-break:break-word"></div><div id="stSwatches" class="flex items-center gap-2 mt-3 flex-wrap"></div><p id="stNewErr" class="text-sm mt-2" style="color:#E11D48"></p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm mt-2">Share story</button></div></div>
+<div id="mFeed" class="modal" style="z-index:80"><div class="sheet" style="max-width:520px;max-height:94vh;display:flex;flex-direction:column;gap:10px">
+ <div class="flex items-center gap-2" style="position:relative">
+  <button type="button" id="feedLeftBtn" onclick="toggleFeedMenu('L')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Feed filter" aria-haspopup="true">&#9662;</button>
+  <input id="feedQ" type="search" autocomplete="off" class="inp flex-1 min-w-0 text-sm" placeholder="Search by full name or @username" oninput="feedSearch(this.value)" aria-label="Search people">
+  <button type="button" id="feedRightBtn" onclick="toggleFeedMenu('R')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="Actions" aria-haspopup="true">&#9662;</button>
+  <div id="feedMenuL" class="hidden card p-1" style="position:absolute;left:0;top:44px;width:170px;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="setFeedMode('following')">Following</button>
+    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="setFeedMode('foryou')">For You</button>
+  </div>
+  <div id="feedMenuR" class="hidden card p-1" style="position:absolute;right:0;top:44px;width:170px;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="menuUpload()">Upload Post</button>
+    <button type="button" class="btn ghost w-full text-start rounded-xl px-3 py-2.5 text-sm" onclick="menuViewProfile()">View Profile</button>
+  </div>
  </div>
- <div id="stPreview" class="mx-4 rounded-2xl flex items-center justify-center text-center p-6 text-white font-semibold" style="min-height:240px;background:#0084FF;background-size:cover;background-position:center"><span id="stPreviewTxt" style="font-size:20px;word-break:break-word"></span></div>
- <div id="stLayoutRow" class="hidden gap-2 px-4 pt-3 overflow-x-auto" style="scrollbar-width:none">
-  <button type="button" onclick="stSetBg('#0084FF')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#0084FF" aria-label="Blue"></button>
-  <button type="button" onclick="stSetBg('#7C3AED')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#7C3AED" aria-label="Violet"></button>
-  <button type="button" onclick="stSetBg('#E11D48')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#E11D48" aria-label="Rose"></button>
-  <button type="button" onclick="stSetBg('#059669')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#059669" aria-label="Green"></button>
-  <button type="button" onclick="stSetBg('#D97706')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#D97706" aria-label="Amber"></button>
-  <button type="button" onclick="stSetBg('#0F172A')" class="w-8 h-8 rounded-full shrink-0 border-2 border-white" style="background:#0F172A" aria-label="Night"></button>
- </div>
- <div class="px-4 pt-3"><input name="stNewText" id="stNewText" autocomplete="off" maxlength="200" class="inp w-full text-sm" placeholder="Write a story" oninput="stTextInput(this.value)"></div>
- <input name="stNewFile" autocomplete="off" id="stNewFile" type="file" accept="image/*" class="hidden" onchange="stPickFile(this)">
- <input name="stCam" autocomplete="off" id="stCam" type="file" accept="image/*" capture="environment" class="hidden" onchange="stPickFile(this)">
- <div class="px-4 pt-3"><b class="text-xs" style="color:var(--mut)">Recents</b><div id="stRecents" class="flex gap-2 overflow-x-auto pt-2" style="scrollbar-width:none"></div></div>
- <p id="stNewErr" class="px-4 pt-2 text-sm" style="color:#E11D48"></p>
- <div class="p-4 space-y-2"><p class="text-xs" style="color:var(--mut)">Only your chat partners can see this. It disappears after 24 hours.</p><button type="button" onclick="postStory()" class="btn pri w-full py-2.5 rounded-xl text-sm">Share story</button></div>
+ <div id="feedSearchRes" class="hidden card p-2 space-y-1"></div>
+ <div class="flex items-center justify-between"><b id="feedModeLbl" class="text-sm">For You</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mFeed')" aria-label="Close">&times;</button></div>
+ <div id="feedList" class="space-y-3" style="overflow:auto;flex:1"></div>
 </div></div>
-<div id="mUpload" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Upload post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUpload')" aria-label="Close">&times;</button></div><div class="flex gap-2"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedPhoto').click()">Photo</button><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedVideo').click()">Video</button></div><input name="feedPhoto" autocomplete="off" id="feedPhoto" type="file" accept="image/*" class="hidden" onchange="feedPick(this,'photo')"><input name="feedVideo" autocomplete="off" id="feedVideo" type="file" accept="video/*" class="hidden" onchange="feedPick(this,'video')"><textarea id="feedText" rows="3" maxlength="500" class="inp w-full text-sm" placeholder="Caption. Use #hashtags and @mentions." oninput="feedTagsPreview()"></textarea><div id="feedTags" class="flex flex-wrap gap-1 text-xs" style="color:var(--mut)"></div><input name="feedLoc" autocomplete="off" id="feedLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)"><button type="button" class="btn ghost w-full py-2.5 rounded-xl text-sm" onclick="feedPostText()">Post text only</button><p id="feedStatus" class="text-xs" style="color:var(--mut)"></p></div></div>
-<div id="mComments" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:460px;max-height:80vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Comments</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mComments')" aria-label="Close">&times;</button></div><div id="cmtPost" data-pid="" hidden></div><div id="cmtList" class="space-y-2" style="overflow:auto;flex:1"></div><input name="cmtText" autocomplete="off" id="cmtText" maxlength="500" class="inp w-full text-sm" placeholder="Write a comment"><p id="cmtErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="sendComment()">Post comment</button></div></div>
-<div id="mChannels" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Channels</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChannels')" aria-label="Close">&times;</button></div><div class="card p-3 space-y-2"><b class="text-sm">Create a channel</b><input name="chnName" autocomplete="off" id="chnName" maxlength="60" class="inp w-full text-sm" placeholder="Channel name"><textarea id="chnAbout" maxlength="200" rows="2" class="inp w-full text-sm" placeholder="What will you broadcast?"></textarea><p id="chnErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2 rounded-xl text-sm" onclick="createChannel()">Create channel</button></div><div id="chnLists" style="overflow:auto;flex:1"></div></div></div>
+<div id="mUpload" class="modal" style="z-index:82"><div class="sheet space-y-3" style="max-width:480px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Upload post</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUpload')" aria-label="Close">&times;</button></div><div class="flex gap-2"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedPhoto').click()">Photo</button><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('feedVideo').click()">Video</button></div><input id="feedPhoto" type="file" accept="image/*" class="hidden" onchange="feedPick(this,'photo')" autocomplete="off"><input id="feedVideo" type="file" accept="video/*" class="hidden" onchange="feedPick(this,'video')" autocomplete="off"><textarea id="feedText" rows="3" maxlength="500" class="inp w-full text-sm" placeholder="Caption. Use #hashtags and @mentions." oninput="feedTagsPreview()"></textarea><div id="feedTags" class="flex flex-wrap gap-1 text-xs" style="color:var(--mut)"></div><input id="feedLoc" maxlength="100" class="inp w-full text-sm" placeholder="Add location (optional)" autocomplete="off"><button type="button" class="btn ghost w-full py-2.5 rounded-xl text-sm" onclick="feedPostText()">Post text only</button><p id="feedStatus" class="text-xs" style="color:var(--mut)"></p></div></div>
+<div id="mComments" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:460px;max-height:80vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Comments</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mComments')" aria-label="Close">&times;</button></div><div id="cmtPost" data-pid="" hidden></div><div id="cmtList" class="space-y-2" style="overflow:auto;flex:1"></div><input id="cmtText" maxlength="500" class="inp w-full text-sm" placeholder="Write a comment" autocomplete="off"><p id="cmtErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="sendComment()">Post comment</button></div></div>
+<div id="mChannels" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Channels</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChannels')" aria-label="Close">&times;</button></div><div class="card p-3 space-y-2"><b class="text-sm">Create a channel</b><input id="chnName" maxlength="60" class="inp w-full text-sm" placeholder="Channel name" autocomplete="off"><textarea id="chnAbout" maxlength="200" rows="2" class="inp w-full text-sm" placeholder="What will you broadcast?"></textarea><p id="chnErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2 rounded-xl text-sm" onclick="createChannel()">Create channel</button></div><div id="chnLists" style="overflow:auto;flex:1"></div></div></div>
 <div id="mChanView" class="modal" style="z-index:85"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column">
  <div class="flex items-center justify-between gap-2"><div class="min-w-0"><b id="chvName" class="block truncate text-base"></b><span id="chvAbout" class="text-xs" style="color:var(--mut)"></span></div>
    <div class="flex gap-2 shrink-0"><span id="chvAction"></span><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChanView')" aria-label="Close">&times;</button></div></div>
  <div class="flex items-center justify-between gap-2"><button type="button" id="chvMembers" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="openMembers()">Members</button><button type="button" id="chvAdmin" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" style="display:none" onclick="openChanAdmin()">Admin panel</button></div>
  <div id="chvPosts" class="space-y-2" style="overflow:auto;flex:1"></div>
  <div id="chvComposer" class="card p-3 space-y-2" style="display:none"><textarea id="chvText" maxlength="2000" rows="2" class="inp w-full text-sm" placeholder="Post to the channel"></textarea>
-   <div class="flex items-center gap-2 flex-wrap"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('chvPhoto').click()">Photo</button><input name="chvPhoto" autocomplete="off" id="chvPhoto" type="file" accept="image/*" class="hidden" onchange="chanPostPhoto(this)"><button type="button" id="chvVoiceBtn" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="chanVoiceToggle()">Voice note</button><span id="chvStatus" class="text-xs flex-1 min-w-0 truncate" style="color:var(--mut)"></span><button type="button" class="btn pri rounded-full px-4 py-1.5 text-xs font-medium" onclick="chanPostText()">Post</button></div>
+   <div class="flex items-center gap-2 flex-wrap"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('chvPhoto').click()">Photo</button><input id="chvPhoto" type="file" accept="image/*" class="hidden" onchange="chanPostPhoto(this)" autocomplete="off"><button type="button" id="chvVoiceBtn" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="chanVoiceToggle()">Voice note</button><span id="chvStatus" class="text-xs flex-1 min-w-0 truncate" style="color:var(--mut)"></span><button type="button" class="btn pri rounded-full px-4 py-1.5 text-xs font-medium" onclick="chanPostText()">Post</button></div>
    <p id="chvErr" class="text-sm" style="color:#E11D48"></p></div>
 </div></div>
-<div id="mStyle" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Themes &amp; stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStyle')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Chat wallpaper</p><div id="wallPick" class="flex gap-2 flex-wrap"></div><p class="text-xs" style="color:var(--mut)">Stickers (made from a photo, private to you)</p><input name="stkFile" autocomplete="off" id="stkFile" type="file" accept="image/*" class="text-sm" onchange="stickerPick(this)"><p id="stkStatus" class="text-xs" style="color:var(--mut)"></p><div id="stkGrid" class="grid grid-cols-3 gap-2" style="overflow:auto"></div></div></div>
-<div id="callDrop" role="menu" style="display:none;position:fixed;z-index:88;width:200px;max-width:calc(100vw - 16px);padding:6px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.18)"><button type="button" role="menuitem" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium" style="color:var(--ink)" onclick="closeCallDrop();chatCall(false)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><span>Voice Call</span></button><button type="button" role="menuitem" class="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-medium" style="color:var(--ink)" onclick="closeCallDrop();chatCall(true)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg><span>Video Call</span></button></div><div id="mFab" class="modal" style="z-index:85"><div class="sheet space-y-2" style="max-width:380px"><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mFab');openSearchModal()">Add Member</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mFab');openStyle()">Sticker Maker</button><div class="pt-2"><div class="flex items-center justify-between px-1 pb-1"><b class="text-sm">Pending requests</b><b id="fabReqBadge" style="display:none;background:#E11D48;color:#fff;min-width:20px;height:20px;padding:0 6px;border-radius:999px;font-size:11px;align-items:center;justify-content:center"></b></div><div id="fabReq" class="space-y-2" style="max-height:40vh;overflow:auto"></div></div></div></div>
-<div id="chatDrop" role="menu" style="display:none;position:fixed;z-index:88;width:230px;max-width:calc(100vw - 16px);padding:6px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 32px rgba(0,0,0,.18)"><button id="chatDropMute" type="button" role="menuitem" class="w-full rounded-xl px-3 py-2.5 text-sm font-medium text-start" style="color:var(--ink)" onclick="closeChatDrop();toggleMute()">Mute notifications</button><button type="button" role="menuitem" class="w-full rounded-xl px-3 py-2.5 text-sm font-medium text-start" style="color:var(--ink)" onclick="closeChatDrop();menuTheme()">Set Custom Theme</button><button id="chatDropBlock" type="button" role="menuitem" class="w-full rounded-xl px-3 py-2.5 text-sm font-medium text-start" style="color:#E11D48" onclick="closeChatDrop();toggleBlock()">Block user</button></div>
+<div id="mStyle" class="modal" style="z-index:80"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Themes &amp; stickers</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStyle')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Chat wallpaper</p><div id="wallPick" class="flex gap-2 flex-wrap"></div><p class="text-xs" style="color:var(--mut)">Stickers (made from a photo, private to you)</p><input id="stkFile" type="file" accept="image/*" class="text-sm" onchange="stickerPick(this)" autocomplete="off"><p id="stkStatus" class="text-xs" style="color:var(--mut)"></p><div id="stkGrid" class="grid grid-cols-3 gap-2" style="overflow:auto"></div></div></div>
+<div id="mCallPlus" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Call</b><button type="button" class="btn ghost w-full text-start py-3" onclick="forwardMeeting()">🔗 Forward Meeting Link</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(false)">📞 Voice Call</button><button type="button" class="btn ghost w-full text-start py-3" onclick="closeM('mCallPlus');chatCall(true)">🎥 Video Call</button></div></div>
+<div id="mChatMenu" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Chat options</b><button type="button" class="btn ghost w-full text-start py-3" onclick="menuSearchChat()">🔍 Search Chat</button><div id="cmDirect" class="space-y-2"><button type="button" id="cmPin" class="btn ghost w-full text-start py-3" onclick="togglePinChat()">Pin chat</button><button type="button" id="cmFav" class="btn ghost w-full text-start py-3" onclick="toggleFavChat()">Add to favorites</button><button type="button" id="cmLock" class="btn ghost w-full text-start py-3" onclick="toggleLockChat()">Lock chat</button></div><button type="button" id="chatMenuMute" class="btn ghost w-full text-start py-3" onclick="toggleMute()">Mute notifications</button><button type="button" class="btn ghost w-full text-start py-3" onclick="menuWallpaper()">🖼 Change Wallpaper / Background</button></div></div>
 <div id="mChatTheme" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Chat theme</b><p class="text-xs" style="color:var(--mut)">Colour of your messages in this chat.</p><div id="chatThemePick" class="flex gap-3 flex-wrap"></div></div></div>
 <div id="mFileSheet" class="modal" style="z-index:86"><div class="sheet space-y-2" style="max-width:380px"><b class="text-base">Send a file</b><button type="button" class="btn ghost w-full text-start py-3" onclick="pickDocuments()">📄 Documents (PDF, DOCX)</button><button type="button" class="btn ghost w-full text-start py-3" onclick="pickExistingMedia()">🖼 Existing Media</button><button type="button" class="btn ghost w-full text-start py-3" style="opacity:.6" onclick="sendBlocked()">📦 Send APK / App (not allowed)</button></div></div>
 <div id="mLocation" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Share location</b><p class="text-sm" style="color:var(--mut)">This sends your current location as a map link to this chat only.</p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="shareLocationNow()">Share current location</button></div></div>
@@ -588,15 +560,15 @@ body.chat-open nav{display:none!important}
 <div id="mMembers" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><div><b class="text-base">Members</b><span id="memCount" class="block text-xs" style="color:var(--mut)"></span></div><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mMembers')" aria-label="Close">&times;</button></div><div id="memList" class="space-y-1" style="overflow:auto;flex:1"></div><p class="text-xs" style="color:var(--mut)">Phone numbers and private details are never shown. Members cannot message each other.</p></div></div>
 <div id="mMemberAct" class="modal" style="z-index:88"><div class="sheet space-y-2" style="max-width:380px"><div class="flex items-center justify-between"><b id="mmTitle" class="text-base"></b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mMemberAct')" aria-label="Close">&times;</button></div><div id="mmActions" class="space-y-2"></div></div></div>
 <div id="mPerms" class="modal" style="z-index:89"><div class="sheet space-y-3" style="max-width:380px"><b class="text-base">Admin permissions</b><p class="text-xs" style="color:var(--mut)">Choose what this admin can do. You can change this later.</p><div id="permList" class="space-y-2"></div><p id="permErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="savePerms()">Save</button></div></div>
-<div id="mChanAdmin" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Admin panel</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChanAdmin')" aria-label="Close">&times;</button></div><div id="adInfo" class="card p-3 space-y-2"><b class="text-sm">Channel info</b><input name="adName" autocomplete="off" id="adName" maxlength="60" class="inp w-full text-sm" placeholder="Channel name"><textarea id="adAbout" maxlength="200" rows="2" class="inp w-full text-sm" placeholder="About"></textarea><button type="button" id="adSave" class="btn pri w-full py-2 rounded-xl text-sm" onclick="saveChanInfo()">Save info</button></div><div id="adCall" class="card p-3 space-y-2"><b class="text-sm">Live session</b><div class="flex gap-2"><button type="button" id="adAudio" class="btn out flex-1 rounded-xl py-2 text-sm" onclick="startLiveSession('audio')">Start audio</button><button type="button" id="adVideo" class="btn out flex-1 rounded-xl py-2 text-sm" onclick="startLiveSession('video')">Start video</button></div><p id="adCallMsg" class="text-xs" style="color:var(--mut)"></p></div><button type="button" class="btn ghost w-full py-2 rounded-xl text-sm" onclick="closeM('mChanAdmin');openMembers()">Manage members</button></div></div>
-<div id="mForward" class="modal" style="z-index:92"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Forward message</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mForward')" aria-label="Close">&times;</button></div><p id="fwdText" class="text-sm p-2 rounded-xl" style="background:var(--bg);max-height:60px;overflow:hidden"></p><input name="fwdQ" id="fwdQ" type="search" autocomplete="off" class="inp w-full text-sm" placeholder="Search chats or type an exact @username" oninput="renderFwdList(this.value)"><div id="fwdList" style="overflow:auto;flex:1"></div><p id="fwdErr" class="text-sm" style="color:#E11D48"></p></div></div>
+<div id="mChanAdmin" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:480px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Admin panel</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChanAdmin')" aria-label="Close">&times;</button></div><div id="adInfo" class="card p-3 space-y-2"><b class="text-sm">Channel info</b><input id="adName" maxlength="60" class="inp w-full text-sm" placeholder="Channel name" autocomplete="off"><textarea id="adAbout" maxlength="200" rows="2" class="inp w-full text-sm" placeholder="About"></textarea><button type="button" id="adSave" class="btn pri w-full py-2 rounded-xl text-sm" onclick="saveChanInfo()">Save info</button></div><div id="adCall" class="card p-3 space-y-2"><b class="text-sm">Live session</b><div class="flex gap-2"><button type="button" id="adAudio" class="btn out flex-1 rounded-xl py-2 text-sm" onclick="startLiveSession('audio')">Start audio</button><button type="button" id="adVideo" class="btn out flex-1 rounded-xl py-2 text-sm" onclick="startLiveSession('video')">Start video</button></div><p id="adCallMsg" class="text-xs" style="color:var(--mut)"></p></div><button type="button" class="btn ghost w-full py-2 rounded-xl text-sm" onclick="closeM('mChanAdmin');openMembers()">Manage members</button></div></div>
+<div id="mForward" class="modal" style="z-index:92"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Forward message</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mForward')" aria-label="Close">&times;</button></div><p id="fwdText" class="text-sm p-2 rounded-xl" style="background:var(--bg);max-height:60px;overflow:hidden"></p><input id="fwdQ" type="search" autocomplete="off" class="inp w-full text-sm" placeholder="Search chats or type an exact @username" oninput="renderFwdList(this.value)"><div id="fwdList" style="overflow:auto;flex:1"></div><p id="fwdErr" class="text-sm" style="color:#E11D48"></p></div></div>
 <div id="mTranslate" class="modal" style="z-index:92"><div class="sheet space-y-3" style="max-width:420px"><div class="flex items-center justify-between"><b class="text-base">Translate</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mTranslate')" aria-label="Close">&times;</button></div><p id="trSrc" class="text-sm p-2 rounded-xl" style="background:var(--bg)"></p><select id="trLang" class="inp w-full text-sm"></select><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="doTranslate()">Translate</button><p id="trOut" class="text-sm whitespace-pre-wrap" style="color:var(--ink)"></p></div></div>
 <div id="mStarred" class="modal" style="z-index:90"><div class="sheet space-y-3" style="max-width:460px;max-height:90vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Starred messages</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mStarred')" aria-label="Close">&times;</button></div><div id="starBody" class="space-y-2" style="overflow:auto;flex:1"></div></div></div>
-<div id="mAuth" class="modal" style="z-index:98"><div class="sheet space-y-3" style="max-width:360px"><b id="authTitle" class="text-base"></b><p id="authDesc" class="text-sm" style="color:var(--mut)"></p><input name="authPin" autocomplete="new-password" id="authPin" type="password" inputmode="numeric" maxlength="8" class="inp w-full text-center text-lg tracking-widest" placeholder="Passcode" onkeydown="if(event.key==='Enter')authSubmit()"><input name="authPin2" autocomplete="new-password" id="authPin2" type="password" inputmode="numeric" maxlength="8" class="inp w-full text-center text-lg tracking-widest" placeholder="Confirm passcode" style="display:none"><p id="pinErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="authSubmit()">Continue</button><button type="button" id="authBio" class="btn ghost w-full py-2.5 rounded-xl text-sm" style="display:none" onclick="bioUnlock()">Use fingerprint / Face ID</button><button type="button" class="btn ghost w-full py-2 text-sm" onclick="closeM('mAuth')">Cancel</button></div></div>
+<div id="mAuth" class="modal" style="z-index:98"><div class="sheet space-y-3" style="max-width:360px"><b id="authTitle" class="text-base"></b><p id="authDesc" class="text-sm" style="color:var(--mut)"></p><input id="authPin" type="password" inputmode="numeric" autocomplete="off" maxlength="8" class="inp w-full text-center text-lg tracking-widest" placeholder="Passcode" onkeydown="if(event.key==='Enter')authSubmit()"><input id="authPin2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" class="inp w-full text-center text-lg tracking-widest" placeholder="Confirm passcode" style="display:none"><p id="pinErr" class="text-sm" style="color:#E11D48"></p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="authSubmit()">Continue</button><button type="button" id="authBio" class="btn ghost w-full py-2.5 rounded-xl text-sm" style="display:none" onclick="bioUnlock()">Use fingerprint / Face ID</button><button type="button" class="btn ghost w-full py-2 text-sm" onclick="closeM('mAuth')">Cancel</button></div></div>
 <div id="mPinLimit" class="modal" style="z-index:96"><div class="sheet space-y-3" style="max-width:340px"><b class="text-base">Pin limit reached</b><p class="text-sm" style="color:var(--mut)">You can pin up to 3 chats. To pin this one, unpin another chat first.</p><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm" onclick="closeM('mPinLimit')">OK</button></div></div>
 <div id="mFavs" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Favorite chats</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mFavs')" aria-label="Close">&times;</button></div><div id="favBody" class="space-y-1" style="overflow:auto;flex:1"></div></div></div>
 <div id="mLocked" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Locked chats</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mLocked')" aria-label="Close">&times;</button></div><div id="lockBody" class="space-y-1" style="overflow:auto;flex:1"></div></div></div>
-<div id="mVault" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Secure media vault</b><div class="flex gap-2"><button type="button" class="btn pri w-9 h-9 rounded-full text-lg" onclick="$('vaultIn').click()" aria-label="Add to vault">+</button><button type="button" class="btn out w-9 h-9 rounded-full" onclick="closeM('mVault')" aria-label="Close">&times;</button></div></div><input name="vaultIn" autocomplete="off" id="vaultIn" type="file" multiple accept="image/*,video/*,application/pdf" class="hidden" onchange="vaultAdd(this)"><p class="text-xs" style="color:var(--mut)">Files are encrypted on this device before they are saved. Your original photo or video stays in your phone gallery: this app cannot remove it from there, so delete the original yourself once it is safe in the vault.</p><div class="flex items-center justify-between gap-2"><p id="vaultStatus" class="text-xs" style="color:var(--mut)"></p><button type="button" class="btn out rounded-full px-3 py-1 text-xs" onclick="vaultBioSetup()">Set up fingerprint / Face ID</button></div><div id="vaultGrid" class="grid grid-cols-2 gap-2" style="overflow:auto;flex:1"></div></div></div>
+<div id="mVault" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Secure media vault</b><div class="flex gap-2"><button type="button" class="btn pri w-9 h-9 rounded-full text-lg" onclick="$('vaultIn').click()" aria-label="Add to vault">+</button><button type="button" class="btn out w-9 h-9 rounded-full" onclick="closeM('mVault')" aria-label="Close">&times;</button></div></div><input id="vaultIn" type="file" multiple accept="image/*,video/*,application/pdf" class="hidden" onchange="vaultAdd(this)" autocomplete="off"><p class="text-xs" style="color:var(--mut)">Files are encrypted on this device before they are saved. Your original photo or video stays in your phone gallery: this app cannot remove it from there, so delete the original yourself once it is safe in the vault.</p><div class="flex items-center justify-between gap-2"><p id="vaultStatus" class="text-xs" style="color:var(--mut)"></p><button type="button" class="btn out rounded-full px-3 py-1 text-xs" onclick="vaultBioSetup()">Set up fingerprint / Face ID</button></div><div id="vaultGrid" class="grid grid-cols-2 gap-2" style="overflow:auto;flex:1"></div></div></div>
 <div id="mVaultView" class="modal" style="z-index:97"><div class="sheet space-y-3" style="max-width:520px;max-height:92vh;display:flex;flex-direction:column"><div class="flex items-center justify-between gap-2"><b id="vwTitle" class="text-sm truncate"></b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mVaultView')" aria-label="Close">&times;</button></div><div id="vwBody" style="overflow:auto"></div><div class="flex gap-2"><button type="button" id="vwRestore" class="btn out flex-1 rounded-xl py-2 text-sm">Restore to device</button><button type="button" id="vwDelete" class="btn ghost flex-1 rounded-xl py-2 text-sm" style="color:#E11D48">Delete</button></div></div></div>
 <div id="liveInd" onclick="openLive()" role="button" aria-label="You are sharing your location" style="display:none;position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:60;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#22C55E;color:#fff;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.15)"><span style="width:8px;height:8px;border-radius:50%;background:#fff"></span>Sharing location</div>
 <div id="mAbout" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:380px"><div class="flex items-center justify-between"><b class="text-base">About LifeOne</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mAbout')" aria-label="Close">&times;</button></div><p class="text-sm">Version <b id="abVer"></b></p><p class="text-sm" style="color:var(--mut)">A private messaging app. Your phone number is never shown to other members.</p></div></div>
@@ -604,7 +576,11 @@ body.chat-open nav{display:none!important}
 <div id="mLive" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Live location</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mLive')" aria-label="Close">&times;</button></div><p class="text-sm" style="color:var(--mut)">Your precise location is shared with your chat partners only, and stops automatically when the time runs out.</p><p id="lvStatus" class="text-sm font-semibold"></p><div class="grid grid-cols-3 gap-2"><button type="button" class="btn out rounded-xl py-2 text-sm" onclick="startLive(15)">15 min</button><button type="button" class="btn out rounded-xl py-2 text-sm" onclick="startLive(60)">1 hour</button><button type="button" class="btn out rounded-xl py-2 text-sm" onclick="startLive(480)">8 hours</button></div><button type="button" id="lvStop" class="btn w-full rounded-xl py-2.5 text-sm font-medium" style="background:#E11D48;color:#fff" onclick="stopLive()">Stop sharing</button><b class="text-sm">Shared with you</b><div id="lvPartners" style="max-height:40vh;overflow:auto"></div></div></div>
 <div id="mLang" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px"><div class="flex items-center justify-between"><b class="text-base">Language, country &amp; profession</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mLang')" aria-label="Close">&times;</button></div><label class="block text-xs" style="color:var(--mut)">Language</label><select id="lgLang" class="inp w-full text-sm" onchange="lgLangChanged(this.value)"></select><label class="block text-xs" style="color:var(--mut)">Country</label><select id="lgCountry" class="inp w-full text-sm" onchange="paintLangPreview()"></select><label class="block text-xs" style="color:var(--mut)">Profession</label><select id="lgProf" class="inp w-full text-sm" onchange="paintLangPreview()"></select><div id="lgPreview" class="card p-3 flex items-center gap-3"></div><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="saveLangPrefs()">Save</button></div></div>
 <div id="mHelp" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Help &amp; support</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mHelp')" aria-label="Close">&times;</button></div><details class="card p-3"><summary class="text-sm font-semibold">How do I start a chat?</summary><p class="text-sm mt-2" style="color:var(--mut)">Search a person by full name or @username and send a chat request. You can chat once they accept.</p></details><details class="card p-3"><summary class="text-sm font-semibold">How do locked chats and the vault work?</summary><p class="text-sm mt-2" style="color:var(--mut)">A passcode protects locked chats and the vault on this device. Vault files are encrypted before upload. Your original photo stays in your gallery, so delete it there yourself once it is in the vault.</p></details><details class="card p-3"><summary class="text-sm font-semibold">Is my phone number visible?</summary><p class="text-sm mt-2" style="color:var(--mut)">No. Phone numbers are never shown to other members.</p></details><button type="button" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="closeM('mHelp');openUserReport()">Report a user or scam</button></div></div>
-<div id="mUserReport" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:440px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Report a user or scam</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUserReport')" aria-label="Close">&times;</button></div><label class="block text-xs" style="color:var(--mut)">What is this about?</label><select id="rpCat" class="inp w-full text-sm"><option value="scam">Scam or fraud</option><option value="harassment">Harassment</option><option value="spam">Spam</option><option value="impersonation">Impersonation</option><option value="other">Other</option><option value="support">Help request</option></select><label class="block text-xs" style="color:var(--mut)">Who? (username or name, optional)</label><input name="rpTarget" autocomplete="off" id="rpTarget" maxlength="120" class="inp w-full text-sm" placeholder="@username"><label class="block text-xs" style="color:var(--mut)">What happened?</label><textarea id="rpDesc" maxlength="2000" rows="4" class="inp w-full text-sm" placeholder="Describe it in your own words"></textarea><label class="block text-xs" style="color:var(--mut)">Evidence</label><input name="rpFiles" autocomplete="off" id="rpFiles" type="file" multiple accept="image/*,application/pdf" class="text-sm w-full"><p id="rpFilesInfo" class="text-xs" style="color:var(--mut)"></p><p id="rpErr" class="text-sm" style="color:#E11D48"></p><p id="rpOk" class="text-sm" style="color:#059669"></p><button type="button" id="rpSend" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitUserReport()">Send report</button></div></div>
+<div id="mUserReport" class="modal" style="z-index:87"><div class="sheet space-y-3" style="max-width:440px;max-height:92vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Report a user or scam</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mUserReport')" aria-label="Close">&times;</button></div><label class="block text-xs" style="color:var(--mut)">What is this about?</label><select id="rpCat" class="inp w-full text-sm"><option value="scam">Scam or fraud</option><option value="harassment">Harassment</option><option value="spam">Spam</option><option value="impersonation">Impersonation</option><option value="other">Other</option><option value="support">Help request</option></select><label class="block text-xs" style="color:var(--mut)">Who? (username or name, optional)</label><input id="rpTarget" maxlength="120" class="inp w-full text-sm" placeholder="@username" autocomplete="off"><label class="block text-xs" style="color:var(--mut)">What happened?</label><textarea id="rpDesc" maxlength="2000" rows="4" class="inp w-full text-sm" placeholder="Describe it in your own words"></textarea><label class="block text-xs" style="color:var(--mut)">Evidence</label><input id="rpFiles" type="file" multiple accept="image/*,application/pdf" class="text-sm w-full" autocomplete="off"><p id="rpFilesInfo" class="text-xs" style="color:var(--mut)"></p><p id="rpErr" class="text-sm" style="color:#E11D48"></p><p id="rpOk" class="text-sm" style="color:#059669"></p><button type="button" id="rpSend" class="btn pri w-full py-2.5 rounded-xl text-sm font-medium" onclick="submitUserReport()">Send report</button></div></div>
+<div id="mRequests" class="modal" style="z-index:84"><div class="sheet space-y-3" style="max-width:420px;max-height:88vh;display:flex;flex-direction:column"><div class="flex items-center justify-between"><b class="text-base">Message requests</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mRequests')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">People who want to message you. Accept to start a chat.</p><div id="reqList" class="space-y-2" style="overflow:auto;flex:1"></div></div></div>
+<div id="mChatBg" class="modal" style="z-index:86"><div class="sheet space-y-3" style="max-width:420px;max-height:90vh;overflow:auto"><div class="flex items-center justify-between"><b class="text-base">Change Wallpaper / Background</b><button type="button" class="btn out w-8 h-8 rounded-full" onclick="closeM('mChatBg')" aria-label="Close">&times;</button></div><p class="text-xs" style="color:var(--mut)">Applies to this chat only.</p><p class="text-sm font-semibold">Solid colours</p><div id="cbSolids" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Gradients</p><div id="cbGrads" class="flex flex-wrap gap-2"></div><p class="text-sm font-semibold">Your own image</p><button type="button" class="btn out w-full rounded-xl py-2.5 text-sm" onclick="$('cbImg').click()">Choose image from your phone</button><input id="cbImg" type="file" accept="image/*" class="hidden" onchange="setChatBgImage(this)"><button type="button" class="btn ghost w-full rounded-xl py-2.5 text-sm" onclick="resetChatBg()">Reset to default</button></div></div>
+<div id="pencilPop" role="menu" style="display:none;position:fixed;right:16px;bottom:150px;z-index:90;min-width:230px;padding:8px;border-radius:16px;background:var(--card);box-shadow:0 12px 32px rgba(0,0,0,.18);border:1px solid var(--line);flex-direction:column;gap:2px"><button type="button" role="menuitem" class="btn ghost w-full text-start py-3 flex items-center gap-3" onclick="pencilAddMember()"><span style="font-size:17px">👤</span><span class="text-sm font-semibold">Add Member</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start py-3 flex items-center gap-3" onclick="pencilStickers()"><span style="font-size:17px">🖼</span><span class="text-sm font-semibold">Make Sticker</span></button><button type="button" role="menuitem" class="btn ghost w-full text-start py-3 flex items-center justify-between" onclick="pencilRequests()"><span class="flex items-center gap-3"><span style="font-size:17px">📨</span><span class="text-sm font-semibold">Message requests</span></span><span id="pcReqCount" class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:#E11D48;color:#fff"></span></button></div>
+<div id="replyBar"></div>
 <div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[95] px-4 py-2 rounded-full text-sm bg-slate-900 text-white hidden"></div>
 
 <script>
@@ -735,17 +711,16 @@ function setLang(v){if(!T[v])return;S.lang=v;try{localStorage.setItem("lifeone.l
  applyLang();setTimeout(()=>{setLabels();renderTabs();renderHomePanels();renderLangList()},0)}
 function initLang(){try{const v=localStorage.getItem("lifeone.lang");if(v&&T[v])S.lang=v}catch(e){}}
 function renderLangList(){const el=$("langList");if(!el)return;
- el.innerHTML='<input name="langQ" id="langQ" type="search" placeholder="Search language" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderLangItems()" class="inp w-full mb-3"><div id="langItems" class="space-y-1"></div>';renderLangItems()}
+ el.innerHTML='<input id="langQ" type="search" placeholder="Search language" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="renderLangItems()" class="inp w-full mb-3"><div id="langItems" class="space-y-1"></div>';renderLangItems()}
 function renderLangItems(){const el=$("langItems");if(!el)return;const q=(($("langQ")||{}).value||"").trim().toLowerCase();
  const tick='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>';
  const rows=LANGS.filter(l=>!q||l.n.toLowerCase().includes(q)||l.c.includes(q));
  el.innerHTML=rows.length?rows.map(l=>{const on=S.lang===l.c;return `<button type="button" onclick="setLang('${l.c}')" class="w-full flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-start btn" aria-pressed="${on}"><span class="flex items-center gap-3 min-w-0"><span class="text-xl leading-none" aria-hidden="true">${l.f}</span><span class="font-medium truncate">${l.n}</span></span>${on?tick:""}</button>`}).join(""):`<p class="text-sm text-center py-6" style="color:var(--mut)">No language found</p>`}
-const ICON_EXTRA={feed:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>'};
-const NAV=[["chats","navChats","chat"],["feed","navFeed","feed"],["groups","navGroups","family"],["marketplace","navMarket","briefcase"],["calls","navCalls","phone"]];
+const NAV=[["chats","navChats","chat"],["groups","navGroups","family"],["feed","navFeed","globe"],["marketplace","navMarket","briefcase"],["calls","navCalls","phone"]];
 function renderTabs(){updateBell();renderStoryBar();{const sb=$("storyBar");if(sb)sb.style.display=(S.view==="chats")?"":"none"}const cur=(S.view==="family"||S.view==="profile")?"":S.view;const grpUn=S.groups.reduce((a,g)=>a+(g.un||0),0);const badge={chats:unreadCount(),groups:grpUn};
- $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${cur===k?"on":""}"><span class="relative">${ICON_EXTRA[ik]||ic(ik,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(lk)}<i class="bar"></i></button>`).join("");setLabels()}
-function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","feed","groups","calls"].includes(v)?v:"chats"}catch(e){return "chats"}}
-function go(v){if(v==="profile"){openProfScreen();return}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();if(v==="feed")openFeed();{const hs=$("hdrSearchWrap");if(hs)hs.style.display=(v==="chats"||v==="groups"||v==="feed"||v==="marketplace")?"none":""}renderTabs();scrollTo({top:0})}
+ $("tabs").innerHTML=NAV.map(([k,lk,ik])=>`<button onclick="go('${k}')" class="tab btn relative flex-col gap-0.5 py-2 text-xs ${cur===k?"on":""}"><span class="relative">${ic(ik,24)}${badge[k]?`<b class="absolute -top-1.5 -end-3 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[10px] flex items-center justify-center">${badge[k]}</b>`:""}</span>${t(lk)}<i class="bar"></i></button>`).join("");setLabels()}
+function savedTab(){try{const v=localStorage.getItem("lifeone.tab");if(v==="home")return "chats";return ["chats","groups","calls"].includes(v)?v:"chats"}catch(e){return "chats"}}
+function go(v){if(v==="profile"){openProfScreen();return}if(v==="feed"){openFeed();return}S.view=v;try{localStorage.setItem("lifeone.tab",v)}catch(e){};const fb=$("fabAdd");if(fb)fb.style.display=v==="chats"?"":"none";const ai=$("aiFab");if(ai)ai.style.display=v==="chats"?"":"none";document.querySelectorAll(".tab-content").forEach(e=>e.classList.toggle("active",e.id==="tab-"+v));if(v==="profile")openMore(null);if(v==="status")renderStatus();if(v==="marketplace")renderMarketplace();renderTabs();scrollTo({top:0})}
 
 /* tasks */
 const CI={Health:"heart",Work:"briefcase",Finance:"wallet",Personal:"profile"},CC={Health:"bg-rose-50 text-rose-600",Work:"bg-blue-50 text-blue-600",Finance:"bg-emerald-50 text-emerald-600",Personal:"bg-amber-50 text-amber-600"};
@@ -1136,7 +1111,7 @@ async function startCall(i,video){logCall(i,video);
  const f=S.fam[i];
  if(call.pc||call.stream)endCall(true);
  call={pc:null,stream:null,timer:null,sec:0,video,mute:false,facing:"user",peer:f,mediaErr:false};
- $("callName").textContent=f.n;$("callAv").innerHTML=$("callAv2").innerHTML=avHTML(f.n,168,f.img);
+ $("callName").textContent=f.n;$("callAv").innerHTML=$("callAv2").innerHTML=avHTML(f.n,84,f.img);
  $("callType").textContent=callKind(f);$("callState").textContent=t("calling");$("callTime").textContent="00:00";$("callNote").textContent="";
  $("icMute").innerHTML=ic("mic");$("bMute").classList.replace("pri","out");$("bSpk").classList.replace("pri","out");
  showVid();openM("mCall");
@@ -1180,7 +1155,7 @@ function openChatHead(){refreshVoiceBtn();const cc=$("chatCalls");
  if(cc)cc.innerHTML=`<button onclick="chatCall(false)" class="btn out w-9 h-9 rounded-full" aria-label="${t("voiceCall")}" title="${t("voiceCall")}">${callIc("phone",16,canCall(false))}</button><button onclick="chatCall(true)" class="btn out w-9 h-9 rounded-full" aria-label="${t("videoCall")}" title="${t("videoCall")}">${callIc("video",16,canCall(true))}</button>`}
 function callIc(n,s,ok){if(ok)return ic(n,s);return `<span class="relative inline-flex">${ic(n,s)}<span class="absolute -end-1.5 -bottom-1.5 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center" style="color:var(--mut)">${ic("lock",9)}</span></span>`}
 function chatCall(video,i){const k=(i===undefined)?chatK:i;if(!canCall(video)){openPlans(t("premFeat"));return}startCall(k,video)}
-function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);openChatHead();updatePresenceDot();renderMsgs();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
+function openChat(k){const grp=isGK(k);if((k==="g"||grp)&&S.plan==="free"){openPlans(t("groupLocked"));return}if(grp&&!groupOf(k)){toast(t("grpGone"));return}chatK=k;if(!S.chats[k])S.chats[k]=[];if(k==="g")S.gun=0;else if(grp){const g=groupOf(k);if(g)g.un=0}else{S.fam[k].un=0;markRead(S.fam[k].key)}CHAT_READ_AT=chatReadAt(k);openChatHead();updatePresenceDot();renderMsgs();applyChatBg();loadReactions();openM("mChat");document.body.classList.add("chat-open");renderTabs();renderFam()}
 function closeChat(){if(rec.on)recStop(false);chatMarkReadNow(chatK);closeM("mChat");document.body.classList.remove("chat-open");closeAttachBar()}
 const dur=s=>(s/60|0)+":"+String(s%60).padStart(2,"0");
 function renderChatList(){const el=$("chatList");if(!el)return;el.innerHTML="";el.style.display="none";return;
@@ -1215,7 +1190,7 @@ function audioLength(a){return new Promise(res=>{
 function voiceState(m,i){
  const on=!!audioPlayer&&audioIdx===i&&audioChat===chatK;
  if(!on)return {pct:0,cur:0,total:m.d||0};
- const a=audioPlayer,real=isFinite(a.duration)&&a.duration>0?a.duration:0,total=real||m.d||0;
+ const a=audioPlayer,recorded=Number(m.d)>0?Number(m.d):0,real=isFinite(a.duration)&&a.duration>0?a.duration:0,total=recorded||real||0;
  const cur=Math.min(a.currentTime||0,total||Infinity);
  return {pct:total>0?Math.min(100,cur/total*100):0,cur:cur,total:total};
 }
@@ -1257,12 +1232,12 @@ function renderMsgs(keep){
   const ms=tsMs(m.ts);
   const isNew=!own&&!m.read&&ms>CHAT_READ_AT;
   const body=m.deleted?`<span class="italic" style="opacity:.75">This message was deleted</span>`:(MSG_EDIT&&MSG_EDIT.i===i)?msgEditorHTML(i):m.v?voiceCard(m,i):m.file?fileCard(m):`<span class="whitespace-pre-wrap break-words">${esc(m.t)}</span>`;
-  const bg=own?`background:${mine};color:#fff;border-radius:18px 18px 6px 18px`:`background:#E4E6EB;color:#111827;border-radius:18px 18px 18px 6px`;
+  const bg=own?`background:${mine};color:#fff;border-radius:18px 18px 6px 18px;outline:1.5px solid #15803D;outline-offset:-1px`:`background:#F3F4F6;color:#111827;border-radius:18px 18px 18px 6px;outline:1.5px solid #1F2937;outline-offset:-1px`;
   const glow=isNew?"box-shadow:0 0 0 2px #22C55E,0 0 12px rgba(34,197,94,.55)":"";
-  const badge=isNew?`<span class="inline-flex items-center mb-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style="background:#22C55E">NEW</span>`:"";
+  const badge=isNew?`<span style="position:absolute;top:-8px;left:10px;padding:1px 7px;border-radius:999px;font-size:9px;font-weight:700;line-height:14px;color:#fff;background:#22C55E;box-shadow:0 1px 3px rgba(0,0,0,.2)">NEW</span>`:"";
   const group=!own&&chatK==="g"?`<p class="text-[11px] mb-0.5 px-1 font-medium" style="color:#0084FF">${esc(m.from||"")}</p>`:"";
   const star=(m.starred||STARRED_IDS.has(m.id))?"★ ":"";
-  return `<div class="flex ${own?"justify-end":"justify-start"} px-2"><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed" style="${bg};${glow};user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11px] leading-none" style="opacity:.85">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${rxChip(m)}${delChoiceHTML(m,i)}</div></div>`;
+  return `<div class="flex ${own?"justify-end":"justify-start"} px-2"><div class="max-w-[80%] min-w-0">${group}<div data-bi="${i}" onpointerdown="msgPress(event,${i})" onpointerup="msgPressEnd()" onpointerleave="msgPressEnd()" onpointercancel="msgPressEnd()" oncontextmenu="return false" class="px-3.5 pt-2 pb-1.5 text-[15px] leading-relaxed" onpointermove="msgMove(event,${i})" style="${bg};${glow};position:relative;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none">${badge}${quoteHTML(m)}${body}<div class="flex items-center justify-end gap-1 mt-1 text-[11px] leading-none" style="opacity:.85">${(m.edited||m.editedByAdmin)?`<span>${m.editedByAdmin?"(Edited by Admin)":"(Edited)"}</span>`:""}${star}${msgTime(m.ts)}${own?tickHTML(m):""}</div></div>${reactHTML(m)}${delChoiceHTML(m,i)}</div></div>`;
  }).join("");
  if(keep)el.scrollTop=y;else el.scrollTop=1e5;saveUserData();
 }
@@ -1302,7 +1277,7 @@ async function insertRow(row){
 // Sends one outgoing message (direct, or a group message to every member)
 async function sendToRecipients(it){const {msg,k,to,m}=it;
  if(S.airplane){msg.pending=true;if(!outbox.includes(it))outbox.push(it);renderMsgs();return}
- const body={sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:(m.t||null)};
+ const body={sender_id:S.user.uid,sender_name:S.user.name,content:m.v?null:(m.t||null)};if(m.replyTo)body.reply_to_id=m.replyTo;
  if(m.v){body.voice_url=m.url;body.voice_dur=m.d}
  if(m.file){body.media_url=m.url;body.media_type=m.ft;body.media_name=m.name}
  let res;
@@ -1327,7 +1302,7 @@ function push(m){const k=chatK,f=k==="g"?null:S.fam[k];
  const msg=Object.assign({me:true,from:S.user.name,pending:true,ts:new Date().toISOString()},m);
  if(!S.chats[k])S.chats[k]=[];S.chats[k].push(msg);renderMsgs();
  sendToRecipients({msg,k,to,m})}
-function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;if(S.fam[chatK]&&S.fam[chatK].key&&BLOCKS.has(S.fam[chatK].key)){toast("Unblock this user to send messages");return}$("msgIn").value="";paintSendMic();push({t:v})}
+function sendMsg(){const v=$("msgIn").value.trim();if(!v)return;$("msgIn").value="";paintSendMic();const rp=REPLY;clearReply();push(rp?{t:v,replyTo:rp.id,replyText:rp.text}:{t:v})}
 $("msgIn").addEventListener("keydown",e=>{if(e.key==="Enter")sendMsg()});
 
 
@@ -1354,7 +1329,7 @@ async function recStart(){if(rec.on)return;if(voiceLeft()<=0&&!isTopK(chatK)){op
  const cur={on:true,mr:mr,stream:stream,chunks:[],sec:0,timer:null};
  mr.ondataavailable=e=>{if(e.data&&e.data.size)cur.chunks.push(e.data)};
  try{mr.start(250)}catch(e){stream.getTracks().forEach(x=>x.stop());toast(t("micUnsupported"));return}
- rec=cur;buildWave();startWave(cur);if(!isTopK(chatK))voiceUse();refreshVoiceBtn();
+ rec=cur;if(!isTopK(chatK))voiceUse();refreshVoiceBtn();
  $("inBar").classList.add("hidden");$("recBar").classList.remove("hidden");$("recBar").classList.add("flex");$("recT").textContent="0:00";{const pb=$("recPauseBtn"),wv=$("recWave");if(wv)wv.classList.remove("paused");if(pb)pb.innerHTML=PAUSE_IC;}
  rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000)}
 function blobToDataURL(blob){return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>res(null);fr.readAsDataURL(blob)})}
@@ -1363,15 +1338,7 @@ const PLAY_IC='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColo
 function recToggle(){if(!rec.on||!rec.mr)return;const b=$("recPauseBtn"),w=$("recWave");
  if(rec.mr.state==="recording"){rec.mr.pause();clearInterval(rec.timer);rec.timer=null;if(w)w.classList.add("paused");if(b){b.innerHTML=PLAY_IC;b.setAttribute("aria-label","Resume");b.title="Resume"}}
  else if(rec.mr.state==="paused"){rec.mr.resume();rec.timer=setInterval(()=>{rec.sec++;$("recT").textContent=dur(rec.sec)},1000);if(w)w.classList.remove("paused");if(b){b.innerHTML=PAUSE_IC;b.setAttribute("aria-label","Pause");b.title="Pause"}}}
-function buildWave(){const w=$("recWave");if(!w)return;w.innerHTML=Array.from({length:32},()=>'<span style="height:15%"></span>').join("")}
-function startWave(cur){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC||!cur.stream)return;const ctx=new AC();const an=ctx.createAnalyser();an.fftSize=512;ctx.createMediaStreamSource(cur.stream).connect(an);cur.actx=ctx;
- const buf=new Uint8Array(an.fftSize);const hist=new Array(32).fill(0.15);let lvl=0;
- const tick=()=>{if(rec!==cur||!rec.on)return;let level=0;
-   if(cur.mr&&cur.mr.state==="recording"){an.getByteTimeDomainData(buf);let sq=0;for(const v of buf){const x=(v-128)/128;sq+=x*x}level=Math.min(1,Math.sqrt(sq/buf.length)*4)}
-   lvl=lvl*0.5+level*0.5;hist.push(lvl);hist.shift();
-   const bars=$("recWave")?$("recWave").children:[];for(let i=0;i<bars.length;i++)bars[i].style.height=Math.max(15,Math.min(100,hist[i]*100))+"%";
-   requestAnimationFrame(tick)};requestAnimationFrame(tick)}catch(e){}}
-function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=Math.max(1,r.sec);if(r.actx)r.actx.close().catch(()=>{});rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
+function recStop(send){if(!rec.on)return;clearInterval(rec.timer);const r=rec,d=Math.max(1,r.sec);rec={on:false,mr:null,stream:null,chunks:[],sec:0,timer:null};
  $("recBar").classList.add("hidden");$("recBar").classList.remove("flex");$("inBar").classList.remove("hidden");
  const finish=async()=>{
   if(!send)return;
@@ -1748,7 +1715,7 @@ async function ensureContacts(ids){const need=[...new Set(ids)].filter(id=>id&&i
 function chatKeyOf(r){if(r.group_id)return "G:"+r.group_id;if(r.audience&&r.audience.length)return"g";
  const other=r.sender_id===S.user.uid?r.receiver_id:r.sender_id;const i=S.fam.findIndex(f=>f.key===other);return i<0?null:i}
 function rowToMsg(r){const mine=r.sender_id===S.user.uid;
- return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true,sid:r.sender_id,edited:!!r.edited_at,editedByAdmin:!!r.edited_by_admin,deleted:!!r.deleted_for_everyone},r.media_url?{file:1,ft:r.media_type||"",name:r.media_name||"File",url:r.media_url}:r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
+ return Object.assign({me:mine,from:mine?S.user.name:(r.sender_name||"").split(" ")[0],id:r.id,ts:r.created_at,read:r.is_read===true,sid:r.sender_id,edited:!!r.edited_at,editedByAdmin:!!r.edited_by_admin,deleted:!!r.deleted_for_everyone,replyTo:r.reply_to_id||null},r.media_url?{file:1,ft:r.media_type||"",name:r.media_name||"File",url:r.media_url}:r.voice_url?{v:1,d:r.voice_dur||1,url:r.voice_url}:{t:r.content||""})}
 let lastMsgTs=null;
 function readMap(){return store.get("lifeone.read."+S.user.uid,{})}
 function lastTsOf(key){const idx=S.fam.findIndex(f=>f.key===key);const L=idx>=0?(S.chats[idx]||[]):[];let best="";for(const m of L){if(m.ts&&m.ts>best)best=m.ts}return best||new Date().toISOString()}
@@ -1759,7 +1726,7 @@ async function loadMessages(){if(!sb||!S.user.uid)return;const me=S.user.uid;awa
  if(error||!data)return;
  await ensureContacts(data.filter(r=>!(r.audience&&r.audience.length)).map(r=>r.sender_id===me?r.receiver_id:r.sender_id));
  S.chats={g:[]};const un={};const lr=readMap();
- data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;if(hiddenFor(k,r.created_at))return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
+ data.forEach(r=>{const k=chatKeyOf(r);if(k===null)return;(S.chats[k]=S.chats[k]||[]).push(rowToMsg(r));
   if(r.sender_id!==me&&r.receiver_id===me&&r.is_read===false&&!(r.audience&&r.audience.length)&&!(lr[S.fam[k].key]&&r.created_at<=lr[S.fam[k].key]))un[k]=(un[k]||0)+1});
  S.fam.forEach((f,i)=>{f.un=un[i]||0});
  lastMsgTs=data.length?data[data.length-1].created_at:new Date(Date.now()-60000).toISOString();
@@ -1837,7 +1804,7 @@ window.addEventListener("online",()=>{flushOutbox();if(S.authed)startRealtime()}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&S.authed){pollMsgs();if(!rtJoined)startRealtime()}});
 
 Object.assign(T.en,{connected:"In Call",end:"End Call",calling:"Calling…",groupLocked:"Family Group Chat is available on Pro and Pro Plus. Upgrade to join.",grpOn:"Family group chat",voiceCall:"Voice call",videoCall:"Video call",voiceMsg:"Voice message",noMsgs:"No messages yet",audioErr:"Tap play again to start the voice note.",micNo:"Microphone is not available. Allow microphone access and try again.",locSettingT:"Personal live location sharing"});
-Object.assign(T.en,{searchMember:"Search Member",msHint:"Type a name, @username or mobile number to find registered LifeOne users.",msNone:"No registered LifeOne user matches this search.",msPh:"Name, @username or mobile number",noContactsChat:"No connected contacts yet. Search for a member to start chatting.",refConnected:"Connected with {n} from the referral link.",locBadgeOn:"Live Location: Enabled",locBadgeOff:"Live Location: Disabled"});
+Object.assign(T.en,{navFeed:"Feed",searchMember:"Search Member",msHint:"Type a name, @username or mobile number to find registered LifeOne users.",msNone:"No registered LifeOne user matches this search.",msPh:"Name, @username or mobile number",noContactsChat:"No connected contacts yet. Search for a member to start chatting.",refConnected:"Connected with {n} from the referral link.",locBadgeOn:"Live Location: Enabled",locBadgeOff:"Live Location: Disabled"});
 Object.assign(T.en,{storeFull:"Device storage is full. Some changes could not be saved.",noContacts:"No registered LifeOne users yet. Invite someone to get started.",openMap:"Open in Live Map",lText:"Text chat only (no voice or video calls)",lArea:"City-level location after mutual accept",lLive:"Real live GPS location sharing",lPrecise:"Full-precision live GPS location",lSmart:"AI Assistant: missing tasks, payment counts, support",lAI:"Advanced AI: task tracking, billing summaries, automated issue resolving",lMap:"Open in Live Map navigation",aiMissing:"Missing tasks",aiPay:"Payment count",aiSupport:"Quick support",aiLockT:"Available on Pro and Pro Plus",aiLockD:"Upgrade to use task checks, payment counts and support queries.",aiMissingT:"Missing tasks",aiMissingN:"{n} tasks are still open.",aiPayT:"Payments recorded",aiPayN:"{n} payment entries are recorded. Open Money for details.",aiSupT:"Quick support",aiSupPro:"Ask about billing or account issues. Full support is on Pro Plus.",aiSupPlus:"Your request is routed to the priority helpline."});
 Object.assign(T.en,{tabUp:"Sign Up",tabIn:"Log In",createAcc:"Create account",logInBtn:"Log in",lblUser:"Username",lblMobile:"Mobile number",lblPass:"Password",lblId:"Email or username",forgot:"Forgot password?",errUser:"Username: 3 to 20 letters, numbers, dot or underscore.",errUserTaken:"This username is already taken.",errPass:"Password must be at least 8 characters.",errLoginReq:"Enter your email or username and password.",errLogin:"Incorrect email, username or password.",errHasAcc:"An account with this email already exists. Log in instead.",checkEmail:"Account created. Check your email to confirm, then log in.",resetSent:"Password reset link sent to your email.",feat1t:"Multi-Currency Expense Engine",feat1d:"Track PKR, USD, AED and SAR in one place.",feat2t:"AI Task Planner",feat2d:"Daily routines, challenges and goal tracking.",feat3t:"Live Family Chat",feat3d:"Instant messages and family location links.",feat4t:"100% Secure Hub",feat4d:"Your data is protected by row-level security.",verified:"Email verified",notVerified:"Email not verified",phoneSaved:"Mobile saved",phoneMissing:"No mobile number",lblEmail:"Email",lblPhoneP:"Mobile",username:"Username"});
 Object.assign(T.en,{lblPass2:"Confirm password",errMatch:"Passwords do not match",errDevice:"This browser cannot protect your password. Please use a current browser.",resetLocal:"Password reset is not available in this version."});
@@ -1987,39 +1954,18 @@ function previewOf(m){if(!m)return "No messages yet";const who=m.me?"You: ":"";i
 function renderSegBar(){[["chats","chatsTab"],["groups","groupsTab"],["calls","callsTab"]].forEach(([k,lk])=>{const b=$("seg_"+k);if(!b)return;const on=SEG===k;b.textContent=t(lk);b.setAttribute("aria-selected",on);b.style.background=on?"var(--pri)":"transparent";b.style.color=on?"#fff":"var(--mut)"})}
 function renderHomePanels(){renderChatsPanel();renderGroupsPanel();renderCallsPanel();renderTabs()}
 function setStatusFor(f){const el=$("chatStatus");if(el)el.textContent=f?(onlineNow(f)?"online":seenText(f)):""}
-
-let CHAT_PT=null, CHAT_LONG_AT=0, CHAT_BAR=null;
-function chatHideKey(f){return f.key||f.n}
-let RX=new Map(), HIDE=new Map();
-function getHide(f){const k=chatHideKey(f);if(HIDE.has(k))return HIDE.get(k);try{const v=Date.parse(localStorage.getItem("lifeone.hide."+k)||"");return v||0}catch(e){return 0}}
-function hiddenFor(k,ts){if(typeof k!=="number"||!S.fam[k])return false;const h=getHide(S.fam[k]);return !!h&&Date.parse(ts)<=h}
-function isChatHidden(f,last){const h=getHide(f);if(!h)return false;const lt=last&&last.ts?Date.parse(last.ts)||0:0;return lt<=h}
-function chatPressStart(i){clearTimeout(CHAT_PT);CHAT_PT=setTimeout(()=>{CHAT_PT=null;CHAT_LONG_AT=Date.now();showChatBar(i)},450)}
-function chatPressEnd(){clearTimeout(CHAT_PT);CHAT_PT=null}
-document.addEventListener("click",e=>{if(Date.now()-CHAT_LONG_AT<600){e.stopPropagation();e.preventDefault()}},true);
-function closeChatBar(){if(CHAT_BAR){CHAT_BAR.remove();CHAT_BAR=null}}
-function showChatBar(i){closeChatBar();const f=S.fam[i];if(!f)return;const pinned=!!(f.key&&PINS.includes(f.key));
- const bar=document.createElement("div");bar.id="chatBar";bar.setAttribute("role","toolbar");
- bar.style.cssText="position:fixed;top:0;left:0;right:0;z-index:95;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 10px;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.12)";
- bar.innerHTML=`<b class="flex-1 min-w-0 truncate text-sm">${esc(f.n)}</b><button type="button" onclick="chatBarPin(${i})" class="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold" style="color:var(--ink);background:var(--bg)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 6 3 4H7l3-4z"/></svg>${pinned?"Unpin":"Pin"}</button><button type="button" onclick="chatBarDelete(${i})" class="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold" style="color:#E11D48;background:rgba(225,29,72,.08)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>Delete</button>`;
- document.body.appendChild(bar);CHAT_BAR=bar}
-function chatBarPin(i){closeChatBar();chatK=i;togglePinChat()}
-function chatBarDelete(i){closeChatBar();const f=S.fam[i];if(!f)return;if(!confirm("Delete this chat? Its messages are cleared, and a new message starts a fresh conversation."))return;const now=Date.now();const k=chatHideKey(f);HIDE.set(k,now);if(S.chats[i])S.chats[i]=S.chats[i].filter(m=>!m.ts||Date.parse(m.ts)>now);try{localStorage.setItem("lifeone.hide."+k,String(now))}catch(e){}
-renderChatsPanel();toast("Chat deleted");persistHide(k,now)}
-async function persistHide(k,now){if(!sb||!S.user.uid)return;const {error}=await sb.from("chat_hides").upsert({user_id:S.user.uid,chat_key:k,hidden_at:new Date(now).toISOString()},{onConflict:"user_id,chat_key"});if(error)console.warn("chat_hides:",error.message)}
-document.addEventListener("pointerdown",e=>{if(CHAT_BAR&&!CHAT_BAR.contains(e.target))closeChatBar()},true);
 function renderChatsPanel(){const el=$("chats_list");if(!el)return;const q=((($("chatsQ")||{}).value)||(($("famQ")||{}).value)||"").trim().toLowerCase();
  if(!S.fam.length){el.innerHTML=emptyBox(t("noChats"));return}
- const rows=S.fam.map((f,i)=>{const L=S.chats[i]||[];const last=L[L.length-1];return {f,i,last,ts:last&&last.ts?Date.parse(last.ts)||0:0}}).filter(r=>!isChatHidden(r.f,r.last)).filter(r=>!q||r.f.n.toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts);
- el.innerHTML=rows.length?rows.map(({f,i,last})=>`<button onclick="openChat(${i})" onpointerdown="chatPressStart(${i})" onpointerup="chatPressEnd()" onpointerleave="chatPressEnd()" onpointercancel="chatPressEnd()" oncontextmenu="return false" class="w-full px-3 py-2.5 flex items-center gap-3 text-start btn" style="justify-content:flex-start"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2"><b class="truncate text-[15px]">${esc(f.n)}</b><span class="text-[11px] shrink-0" style="color:var(--mut)">${last&&last.ts?msgTime(last.ts):""}</span></div><div class="flex items-center justify-between gap-2 mt-0.5"><span class="text-sm truncate" style="color:var(--mut)">${esc(previewOf(last))}</span>${f.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shrink-0" style="background:var(--pri)">${f.un}</b>`:""}</div></div></button>`).join(""):emptyBox(t("noChats"))
+ const rows=S.fam.map((f,i)=>{const L=S.chats[i]||[];const last=L[L.length-1];return {f,i,last,ts:last&&last.ts?Date.parse(last.ts)||0:0}}).filter(r=>!q||r.f.n.toLowerCase().includes(q)).sort((a,b)=>b.ts-a.ts);
+ el.innerHTML=rows.length?rows.map(({f,i,last})=>`<button onclick="openChat(${i})" class="w-full px-3 py-2.5 flex items-center gap-3 text-start btn" style="justify-content:flex-start"><div class="relative shrink-0">${avHTML(f.n,48,f.img)}${presDot(f)}</div><div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2"><b class="truncate text-[15px]">${esc(f.n)}</b><span class="text-[11px] shrink-0" style="color:var(--mut)">${last&&last.ts?msgTime(last.ts):""}</span></div><div class="flex items-center justify-between gap-2 mt-0.5"><span class="text-sm truncate" style="color:var(--mut)">${esc(previewOf(last))}</span>${f.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shrink-0" style="background:var(--pri)">${f.un}</b>`:""}</div></div></button>`).join(""):emptyBox(t("noChats"))
  const sc=$("srch_chats");if(sc)sc.innerHTML=el.innerHTML.replace(/openChat\((\d+)\)/g,"pickChat($1)")}
 function statusKey(){return "lifeone.status."+(S.user.uid||"")}
 function renderStatus(){const av=$("myStatusAv");if(av)av.innerHTML=avHTML(S.user.name||"Me",56,S.user.img||"");const el=$("status_list");if(!el)return;const items=store.get(statusKey(),[]);
  el.innerHTML=items.length?items.map(s=>`<div class="card p-2 flex items-center gap-3"><img src="${s}" alt="" class="w-16 h-16 rounded-xl object-cover"><span class="text-sm" style="color:var(--mut)">My status</span></div>`).join(""):emptyBox("No status updates yet")}
 function postStatus(el){const f=el.files&&el.files[0];el.value="";if(!f)return;const r=new FileReader();r.onload=()=>{const items=store.get(statusKey(),[]);items.unshift(r.result);store.set(statusKey(),items.slice(0,10));renderStatus();toast("Status posted")};r.readAsDataURL(f)}
-function renderGroupsPanel(){const el=$("groups_list");if(!el)return;ensureGroupDetails();
+function renderGroupsPanel(){const el=$("groups_list");if(!el)return;
  if(!S.groups.length){el.innerHTML=emptyBox(t("grpEmpty"));return}
- el.innerHTML=S.groups.map(g=>{const k=gkey(g.id);return `<div class="card p-3 flex items-center gap-3"><button onclick="openHub('${g.id}')" class="flex-1 min-w-0 flex items-center gap-3 text-start btn"><div class="shrink-0">${avHTML(g.name,46,(GDET.get(g.id)||{}).avatar||"")}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(g.name)}</b><span class="text-xs" style="color:var(--mut)">${g.members.length} ${t("members")} · ${g.role==="admin"?t("grpAdmin"):t("grpMember")}</span></div>${g.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center" style="background:var(--pri)">${g.un}</b>`:""}</button><button onclick="openGroupInfo('${k}')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("grpInfo")}">${ic("more",15)}</button></div>`}).join("")}
+ el.innerHTML=S.groups.map(g=>{const k=gkey(g.id);return `<div class="card p-3 flex items-center gap-3"><button onclick="openHub('${g.id}')" class="flex-1 min-w-0 flex items-center gap-3 text-start btn"><div class="shrink-0">${avHTML(g.name,46,"")}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(g.name)}</b><span class="text-xs" style="color:var(--mut)">${g.members.length} ${t("members")} · ${g.role==="admin"?t("grpAdmin"):t("grpMember")}</span></div>${g.un?`<b class="min-w-[20px] h-5 px-1.5 rounded-full text-white text-[11px] font-bold flex items-center justify-center" style="background:var(--pri)">${g.un}</b>`:""}</button><button onclick="openGroupInfo('${k}')" class="btn out w-9 h-9 rounded-full shrink-0" aria-label="${t("grpInfo")}">${ic("more",15)}</button></div>`}).join("")}
 
 /* ---------- groups: keys, lookup, data load ---------- */
 const gkey=id=>"G:"+id;
@@ -2054,7 +2000,7 @@ function renderGroupInfo(g){const me=S.user.uid,admin=g.role==="admin";
  const rows=g.members.map(m=>{const isMe=m.id===me;
   const acts=admin&&!isMe?`<div class="flex gap-1.5 shrink-0"><button class="btn out rounded-lg px-2 py-1 text-[11px]" onclick="grpRole('${g.id}','${m.id}','${m.role==="admin"?"member":"admin"}')">${m.role==="admin"?t("grpDemote"):t("grpMakeAdmin")}</button><button class="btn out rounded-lg px-2 py-1 text-[11px] text-rose-600" onclick="grpRemove('${g.id}','${m.id}')">${t("grpRemove")}</button></div>`:"";
   return `<div class="flex items-center gap-3 py-2">${avHTML(m.name,36,m.avatar)}<div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${esc(m.name)}${isMe?" ("+esc(t("grpYou"))+")":""}</p><p class="text-[11px]" style="color:var(--mut)">${m.role==="admin"?t("grpAdmin"):t("grpMember")}</p></div>${acts}</div>`}).join("");
- const rename=admin?`<div class="flex gap-2"><input name="grpNameIn" autocomplete="off" id="grpNameIn" class="inp" maxlength="80" value="${esc(g.name)}"><button class="btn pri rounded-xl px-3 text-sm" onclick="grpRename('${g.id}')">${t("grpSave")}</button></div>`:"";
+ const rename=admin?`<div class="flex gap-2"><input id="grpNameIn" class="inp" maxlength="80" value="${esc(g.name)}" autocomplete="off"><button class="btn pri rounded-xl px-3 text-sm" onclick="grpRename('${g.id}')">${t("grpSave")}</button></div>`:"";
  const add=admin?`<button class="btn out w-full rounded-xl py-2.5 text-sm" onclick="grpPickAdd('${g.id}')">${ic("plus",16)}${t("grpAddMember")}</button><div id="grpAddList" class="space-y-1"></div>`:"";
  const del=admin?`<button class="btn out w-full rounded-xl py-2.5 text-sm text-rose-600" onclick="grpDelete('${g.id}')">${t("grpDelete")}</button>`:"";
  $("grpBody").innerHTML=rename+`<div class="divide-y" style="border-color:var(--line)">${rows}</div>`+add+
@@ -2089,23 +2035,10 @@ async function grpDeleteConfirm(){const g=groupById(delGrpId);if(!g||$("delGrpIn
 
 /* ---------- create group ---------- */
 function openNewGroup(){if(S.plan==="free"){openPlans(t("groupLocked"));return}
- $("ngName").value="";$("ngBio").value="";ngAvReset();$("ngErr").hidden=true;
+ $("ngName").value="";$("ngErr").hidden=true;
  const contacts=S.fam.filter(f=>f.key);
- $("ngList").innerHTML=contacts.length?contacts.map(f=>`<label class="flex items-center gap-3 py-2 px-1 rounded-xl cursor-pointer">${avHTML(f.n,36,f.img)}<span class="flex-1 min-w-0 text-sm font-medium truncate">${esc(f.n)}</span><span class="text-[11px] flex items-center gap-1" style="color:var(--mut)">Admin<input name="ng_admin_${esc(f.key)}" autocomplete="off" type="checkbox" value="${esc(f.key)}" class="ng-admin w-4 h-4"></span><input name="ng_pick_${esc(f.key)}" autocomplete="off" type="checkbox" value="${esc(f.key)}" class="ng-pick w-5 h-5 accent-emerald-600"></label>`).join(""):emptyBox(t("grpNoContacts"));
+ $("ngList").innerHTML=contacts.length?contacts.map(f=>`<label class="flex items-center gap-3 py-2 px-1 rounded-xl cursor-pointer">${avHTML(f.n,36,f.img)}<span class="flex-1 min-w-0 text-sm font-medium truncate">${esc(f.n)}</span><input type="checkbox" value="${esc(f.key)}" class="ng-pick w-5 h-5 accent-emerald-600" autocomplete="off"></label>`).join(""):emptyBox(t("grpNoContacts"));
  openM("mNewGrp")}
-let GDET=new Map(), NG_AV="", GDET_BUSY=false;
-function ngAvReset(){NG_AV="";const i=$("ngAvPrev"),c=$("ngAvIc"),f=$("ngAvFile");if(i){i.classList.add("hidden");i.src=""}if(c)c.classList.remove("hidden");if(f)f.value=""}
-async function ngAvPick(input){const f=input.files&&input.files[0];if(!f)return;try{const blob=await compressImage(f);const url=await blobToDataURL(blob);if(!url)return;NG_AV=url;const i=$("ngAvPrev"),c=$("ngAvIc");if(i){i.src=url;i.classList.remove("hidden")}if(c)c.classList.add("hidden")}catch(e){toast("That photo could not be read.")}}
-async function saveChannelExtras(gid){const bio=(($("ngBio")||{}).value||"").trim();const avatar=NG_AV||"";
- const admins=[...document.querySelectorAll(".ng-admin:checked")].map(x=>x.value);
- GDET.set(gid,{avatar:avatar,bio:bio});
- if(sb&&(bio||avatar)){const {error}=await sb.from("group_details").upsert({group_id:gid,bio:bio||null,avatar_url:avatar||null},{onConflict:"group_id"});if(error)console.warn("group_details:",error.message)}
- if(sb&&admins.length){const {error}=await sb.from("group_members").update({role:"admin"}).eq("group_id",gid).in("user_id",admins);if(error)console.warn("group admins:",error.message)}
- NG_AV="";}
-function ensureGroupDetails(){const need=S.groups.map(g=>g.id).filter(id=>!GDET.has(id));if(!need.length||GDET_BUSY||!sb)return;GDET_BUSY=true;loadGroupDetails(need).finally(()=>{GDET_BUSY=false})}
-async function loadGroupDetails(ids){const {data,error}=await sb.from("group_details").select("group_id,avatar_url,bio").in("group_id",ids);
- ids.forEach(id=>{if(!GDET.has(id))GDET.set(id,{avatar:"",bio:""})});
- if(!error&&data)data.forEach(x=>GDET.set(x.group_id,{avatar:x.avatar_url||"",bio:x.bio||""}));renderGroupsPanel()}
 async function createGroup(){const name=(($("ngName").value)||"").trim();const picks=[...document.querySelectorAll(".ng-pick:checked")].map(i=>i.value);
  const err=m=>{const e=$("ngErr");e.textContent=m;e.hidden=false};
  if(!name){err(t("grpNeedName"));return}
@@ -2116,7 +2049,7 @@ async function createGroup(){const name=(($("ngName").value)||"").trim();const p
   // One server-side transaction: the group and its members are created together or not at all.
   const {data,error}=await sb.rpc("create_group",{p_name:name,p_members:picks});
   if(error||!data)throw error||new Error("no group id returned");
-  if((($("ngKind")||{}).value)==="public"){try{await sb.rpc("set_group_kind",{p_group:data,p_kind:"public"})}catch(e){console.warn("group kind:",e.message||e)}}await saveChannelExtras(data);await loadGroups();closeM("mNewGrp");toast(t("grpCreated"));openChat(gkey(data));
+  if((($("ngKind")||{}).value)==="public"){try{await sb.rpc("set_group_kind",{p_group:data,p_kind:"public"})}catch(e){console.warn("group kind:",e.message||e)}}await loadGroups();closeM("mNewGrp");toast(t("grpCreated"));openChat(gkey(data));
  }catch(e){console.warn("create group:",e.message||e);err(t("grpFail"))}
  finally{btn.disabled=false}
 }
@@ -2141,8 +2074,8 @@ function logCall(i,video){const f=S.fam[i];if(!f)return;const L=loadCalls();L.un
 function renderCallsPanel(){const el=$("calls_list");if(!el)return;const L=loadCalls();
  if(!L.length){el.innerHTML=emptyBox(t("noCalls"));return}
  el.innerHTML=L.map(c=>{const i=S.fam.findIndex(f=>f.key===c.k),ok=i>=0;
-  return `<div class="card p-3 flex items-center gap-3"><div class="shrink-0 relative">${avHTML(c.n,44,ok?S.fam[i].img:"")}<span class="absolute -bottom-0.5 -end-0.5 w-5 h-5 rounded-full flex items-center justify-center" style="background:${c.v?"#7C3AED":"#10B981"};color:#fff;border:2px solid var(--card)">${ic(c.v?"video":"phone",10)}</span></div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(c.n)}</b><span class="text-xs inline-flex items-center gap-1" style="color:var(--mut)">${ic(c.v?"video":"phone",12)}${c.v?"Video":"Voice"} · ${new Date(c.ts).toLocaleString(LOC[S.lang]||undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</span></div>${ok?`<button onclick="chatCall(${c.v?"true":"false"},${i})" class="btn out w-10 h-10 rounded-full shrink-0" aria-label="Call back">${ic(c.v?"video":"phone",16)}</button>`:""}</div>`}).join("")}
-Object.assign(T.en,{chatsTab:"Chats",groupsTab:"Channels",callsTab:"Calls",noChats:"No chats yet. Add a member from the Family tab to start one.",noCalls:"No calls yet. Your call history appears here."});
+  return `<div class="card p-3 flex items-center gap-3"><div class="shrink-0">${avHTML(c.n,44,ok?S.fam[i].img:"")}</div><div class="flex-1 min-w-0"><b class="block truncate text-[15px]">${esc(c.n)}</b><span class="text-xs inline-flex items-center gap-1" style="color:var(--mut)">${ic(c.v?"video":"phone",12)}${c.v?"Video":"Voice"} · ${new Date(c.ts).toLocaleString(LOC[S.lang]||undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</span></div>${ok?`<button onclick="chatCall(${c.v?"true":"false"},${i})" class="btn out w-10 h-10 rounded-full shrink-0" aria-label="Call back">${ic(c.v?"video":"phone",16)}</button>`:""}</div>`}).join("")}
+Object.assign(T.en,{chatsTab:"Chats",groupsTab:"Groups",callsTab:"Calls",noChats:"No chats yet. Add a member from the Family tab to start one.",noCalls:"No calls yet. Your call history appears here."});
 
 /* ---------- chat wallpaper ---------- */
 const WALLS={plain:{l:"Plain",bg:""},violet:{l:"Violet",bg:"linear-gradient(160deg,rgba(16,185,129,.14),rgba(52,211,153,.08))"},ocean:{l:"Ocean",bg:"linear-gradient(160deg,#0E7490,#1E3A8A)"},dots:{l:"Dots",bg:"radial-gradient(rgba(127,127,127,.28) 1px,transparent 1px) 0 0/16px 16px"}};
@@ -2154,9 +2087,9 @@ function openWall(){const g=$("wallGrid");if(!g)return;const cur=curWall();
 function setWall(k){try{localStorage.setItem("lifeone.wall",k)}catch(e){}applyWall();closeM("mWall")}
 
 Object.assign(T.en,{welcomeTitle:"Welcome to LifeOne",chipSecure:"Secure messaging",chipAdv:"Advanced tools",errConfirmReq:"Please confirm your password.",tagline:"Enjoy with LifeOne",viaEmail:"Email",viaPhone:"Phone number",idLbl:"Email or username",moPhone:"Phone number (WhatsApp)",phoneHint:"Used for WhatsApp and phone sign-in.",phoneSaveFail:"Phone number could not be saved. Check your connection and try again.",invHint:"Share this link so people can join LifeOne.",moFamily:"Family and live location",moAbout:"About",aboutPh:"Write a short status or about message",aboutHint:"Shown on your profile to people you chat with. Up to 160 characters.",saveAbout:"Save About",aboutSaved:"About saved",aboutFail:"About could not be saved. Check your connection, and run the About database migration if this continues.",airOn:"Airplane mode is on. New messages are paused until you turn it off.",airOnToast:"Airplane mode on. Messages are paused.",airOffToast:"Airplane mode off. Syncing messages.",grpDelTitle:"Delete group?",grpDelText:"Deleting this group removes it for all {n} members and deletes every message in it. This cannot be undone. Type the group name to confirm.",grpDelBtn:"Delete group",grpCancel:"Cancel",navChats:"Chats",navGroups:"Channels",navCalls:"Calls",navMore:"More",back:"Back",
- newGroup:"New channel",grpNew:"New channel",grpName:"Group name",grpPickHint:"Choose members from your contacts.",grpCreate:"Create group",
+ newGroup:"New group",grpNew:"New group",grpName:"Group name",grpPickHint:"Choose members from your contacts.",grpCreate:"Create group",
  grpNeedName:"Enter a group name.",grpNeedMember:"Choose at least one member.",grpNoContacts:"No contacts to add yet. Connect with people first.",
- grpEmpty:"No channels yet. Tap New channel to create one.",grpCreated:"Group created",grpFail:"Something went wrong. Check your connection and try again.",
+ grpEmpty:"No groups yet. Tap New group to create one.",grpCreated:"Group created",grpFail:"Something went wrong. Check your connection and try again.",
  grpGone:"This group is no longer available.",grpAdmin:"Admin",grpMember:"Member",grpYou:"You",grpMakeAdmin:"Make admin",grpDemote:"Remove admin",
  grpRemove:"Remove",grpAddMember:"Add member",grpAdd:"Add",grpAdded:"Member added",grpSave:"Save",grpSaved:"Saved",grpRemoved:"Member removed",
  grpLeave:"Leave group",grpLeft:"You left the group",grpDelete:"Delete group",grpDeleted:"Group deleted",grpInfo:"Group info",
@@ -2265,7 +2198,7 @@ function renderGlobalResults(q,people,_unused){
  const cRows=cIdx.map(({f,i})=>row(avHTML(f.n,40,f.img),esc(f.n),t("contact"),`<button type="button" onclick="goFromSearch('chat','${i}')" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">Open</button>`));
  const mRows=[];
  S.fam.forEach((f,i)=>{(S.chats[i]||[]).forEach(m=>{if(mRows.length>=8||!m||!m.t)return;if(m.t.toLowerCase().includes(q)){const snip=m.t.length>60?m.t.slice(0,60)+"…":m.t;mRows.push(row(avHTML(f.n,40,f.img),esc(f.n),esc(snip),`<button type="button" onclick="goFromSearch('chat','${i}')" class="btn out rounded-full px-3 py-1.5 text-xs font-medium">Open</button>`))}})});
- const html=sec("People",pRows)+sec("Channels",gRows)+sec("Chats",cRows)+sec("Messages",mRows);
+ const html=sec("People",pRows)+sec("Groups",gRows)+sec("Chats",cRows)+sec("Messages",mRows);
  box.innerHTML=html||`<p class="text-sm p-2" style="color:var(--mut)">No results for this search.</p>`;
  box.hidden=false;
 }
@@ -2682,13 +2615,13 @@ function hubComposerRender(){
  const el=$("hubComposer");if(!el)return;
  if(!hubCanPost()){el.style.display="none";el.innerHTML="";return}
  el.style.display="";
- el.innerHTML=`<textarea id="hubText" rows="2" maxlength="2000" class="inp w-full text-sm" placeholder="${HUB.kind==="public"?"Share something with the group":"Post an update to members"}"></textarea><div class="flex items-center gap-2 flex-wrap"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('hubFile').click()">Photo</button><input name="hubFile" autocomplete="off" id="hubFile" type="file" accept="image/*" class="hidden" onchange="hubPhoto(this)"><button id="hubRecBtn" type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="hubRecToggle()">Voice note</button><span id="hubStatus" class="text-xs flex-1 min-w-0 truncate" style="color:var(--mut)"></span><button type="button" class="btn pri rounded-full px-4 py-1.5 text-xs font-medium" onclick="hubPostText()">Post</button></div>`;
+ el.innerHTML=`<textarea id="hubText" rows="2" maxlength="2000" class="inp w-full text-sm" placeholder="${HUB.kind==="public"?"Share something with the group":"Post an update to members"}"></textarea><div class="flex items-center gap-2 flex-wrap"><button type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="$('hubFile').click()">Photo</button><input id="hubFile" type="file" accept="image/*" class="hidden" onchange="hubPhoto(this)" autocomplete="off"><button id="hubRecBtn" type="button" class="btn out rounded-full px-3 py-1.5 text-xs font-medium" onclick="hubRecToggle()">Voice note</button><span id="hubStatus" class="text-xs flex-1 min-w-0 truncate" style="color:var(--mut)"></span><button type="button" class="btn pri rounded-full px-4 py-1.5 text-xs font-medium" onclick="hubPostText()">Post</button></div>`;
 }
 function hubStatus(m){const e=$("hubStatus");if(e)e.textContent=m||""}
 async function hubLoad(){
  const list=$("hubList");if(!list||!HUB.gid)return;
  const {data:posts,error}=await sb.from("group_posts").select("id,author_id,body,media_path,media_type,voice_path,created_at,author:profiles!group_posts_author_id_fkey(full_name,username,avatar_url)").eq("group_id",HUB.gid).order("created_at",{ascending:false}).limit(50);
- if(error){list.innerHTML=emptyBox("Nothing to show yet.");return}
+ if(error){list.innerHTML=emptyBox("Feed is not set up yet. Run groups_dual_mode.sql in Supabase.");return}
  HUB.posts=posts||[];
  const ids=HUB.posts.map(p=>p.id);
  HUB.reacts=[];HUB.comments=[];
@@ -2706,7 +2639,7 @@ function hubCard(p){
  const media=p.media_path?`<img data-sb="group-media" data-sp="${esc(p.media_path)}" src="${esc(signUrl("group-media",p.media_path))}" alt="" loading="lazy" class="rounded-xl w-full" style="max-height:300px;object-fit:cover;background:var(--line)">`:"";
  const voice=p.voice_path?(()=>{const bars=hubWave(p.id).map(h=>`<span style="display:inline-block;width:3px;height:${h}px;border-radius:2px;background:var(--pri);opacity:.85"></span>`).join("");return `<div class="rounded-2xl p-3 space-y-2" style="background:var(--line)"><div class="flex items-end gap-[2px] h-10" aria-hidden="true">${bars}</div><audio controls preload="none" data-sb="group-media" data-sp="${esc(p.voice_path)}" src="${esc(signUrl("group-media",p.voice_path))}" class="w-full" style="height:34px"></audio></div>`})():"";
  const cmts=HUB.kind==="public"?HUB.comments.filter(c=>c.post_id===p.id):[];
- const cmtHtml=HUB.kind==="public"?`<div class="space-y-1 pt-1">${cmts.map(c=>`<p class="text-xs"><b>${esc((c.author&&(c.author.full_name||c.author.username))||"Member")}</b> ${esc(c.body)}</p>`).join("")}<div class="flex gap-2 pt-1"><input name="cmt_${esc(p.id)}" autocomplete="off" id="cmt_${esc(p.id)}" class="inp flex-1 min-w-0 text-xs" maxlength="500" placeholder="Comment"><button type="button" class="btn out rounded-full px-3 text-xs" onclick="hubComment('${esc(p.id)}')">Send</button></div></div>`:"";
+ const cmtHtml=HUB.kind==="public"?`<div class="space-y-1 pt-1">${cmts.map(c=>`<p class="text-xs"><b>${esc((c.author&&(c.author.full_name||c.author.username))||"Member")}</b> ${esc(c.body)}</p>`).join("")}<div class="flex gap-2 pt-1"><input id="cmt_${esc(p.id)}" class="inp flex-1 min-w-0 text-xs" maxlength="500" placeholder="Comment" autocomplete="off"><button type="button" class="btn out rounded-full px-3 text-xs" onclick="hubComment('${esc(p.id)}')">Send</button></div></div>`:"";
  return `<article class="card p-3 space-y-2" style="border-radius:18px"><div class="flex items-center gap-2"><div class="shrink-0">${avHTML(name,36,a.avatar_url||"")}</div><div class="min-w-0 flex-1"><b class="block truncate text-sm">${esc(name)}</b>${a.username?`<span class="block truncate text-xs" style="color:var(--mut)">@${esc(a.username)}</span>`:""}</div><span class="text-[11px] shrink-0" style="color:var(--mut)">${msgTime(p.created_at)}</span></div>${p.body?`<p class="text-sm whitespace-pre-wrap break-words">${esc(p.body)}</p>`:""}${media}${voice}<div class="flex gap-1.5 flex-wrap pt-1">${badges}</div>${cmtHtml}</article>`;
 }
 function hubFillSigned(){/* signed URLs are filled by flushSigns2 through data-sb/data-sp */}
@@ -2799,7 +2732,7 @@ async function startChat(u){
 }
 function renderRequests(){
  const el=$("reqList");if(!el)return;
- const items=[...REL.inc.entries()];
+ const items=[...REL.inc.entries()];paintRequestBadge(items.length);
  el.innerHTML=items.map(([id,r])=>{const f=r.from||{};const name=f.full_name||f.username||"Someone";
    return `<div class="card p-3 flex items-center gap-3">${avHTML(name,40,f.avatar_url||"")}<div class="flex-1 min-w-0"><b class="block truncate text-sm">${esc(name)}</b><span class="block truncate text-xs" style="color:var(--mut)">${f.username?"@"+esc(f.username)+" · ":""}wants to start a chat</span></div><button type="button" class="btn sm ok" onclick="respondRequest('${esc(r.id)}','accepted')">Accept</button><button type="button" class="btn sm ghost" onclick="respondRequest('${esc(r.id)}','declined')">Decline</button></div>`}).join("");
 }
@@ -2813,43 +2746,16 @@ async function respondRequest(rid,status){
 /* ---------- stories (chat partners only, 24 hours) ---------- */
 async function loadStories(){
  if(!sb||!S.user.uid)return;
- const {data,error}=await sb.from("stories").select("id,owner_id,kind,body,bg,media_path,created_at,owner:profiles!stories_owner_id_fkey(full_name,username,avatar_url)").gt("expires_at",new Date().toISOString()).order("created_at",{ascending:true});
+ const SEL="id,owner_id,kind,body,bg,media_path,created_at,font,owner:profiles!stories_owner_id_fkey(full_name,username,avatar_url)";
+ const SEL0="id,owner_id,kind,body,bg,media_path,created_at,owner:profiles!stories_owner_id_fkey(full_name,username,avatar_url)";
+ let {data,error}=await sb.from("stories").select(SEL).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:true});
+ if(error&&/font/i.test(String(error.message||""))){({data,error}=await sb.from("stories").select(SEL0).gt("expires_at",new Date().toISOString()).order("created_at",{ascending:true}))}
  if(error)return;
  STORIES=data||[];
  renderStoryBar();
 }
-let STBG="#0084FF", STRECENT=null;
-function openStoryNew(){STBG="#0084FF";STRECENT=null;$("stNewText").value="";$("stNewFile").value="";$("stCam").value="";$("stNewErr").textContent="";$("stLayoutRow").classList.add("hidden");$("stLayoutRow").classList.remove("flex");stPaint();stRenderRecents();openM("mStoryNew")}
-function stPaint(){const pv=$("stPreview"),tx=$("stPreviewTxt");const txt=($("stNewText").value||"").trim();pv.style.background=STBG;tx.textContent=txt||"Write a story"}
-function stTextInput(v){stPaint()}
-function stSetBg(c){STBG=c;stPaint()}
-function stTool(n){if(n==="text"){$("stNewText").focus();return}if(n==="layout"){const r=$("stLayoutRow");const on=r.classList.toggle("hidden");r.classList.toggle("flex",!on)}}
-function stPickFile(input){const f=input.files&&input.files[0];if(!f)return;if(input!==$("stNewFile")){const dt=new DataTransfer();dt.items.add(f);$("stNewFile").files=dt.files}
- const r=new FileReader();r.onload=()=>{const pv=$("stPreview");pv.style.backgroundImage="url("+r.result+")";$("stPreviewTxt").textContent=""};r.readAsDataURL(f)}
-function stRecentsGet(){return store.get("lifeone.st.recent",[])}
-function stRenderRecents(){const el=$("stRecents");if(!el)return;const items=stRecentsGet();el.innerHTML=items.length?items.map((u,i)=>`<button type="button" onclick="stUseRecent(${i})" class="shrink-0 w-16 h-16 rounded-xl overflow-hidden" style="background:url(${u}) center/cover" aria-label="Recent photo ${i+1}"></button>`).join(""):'<span class="text-xs" style="color:var(--mut)">Photos you share appear here.</span>'}
-async function stUseRecent(i){const u=stRecentsGet()[i];if(!u)return;const b=await (await fetch(u)).blob();const f=new File([b],"recent.jpg",{type:"image/jpeg"});const dt=new DataTransfer();dt.items.add(f);$("stNewFile").files=dt.files;stPickFile($("stNewFile"))}
-async function stAddRecent(file){try{const b=await compressImage(file);const u=await blobToDataURL(b);if(!u)return;const L=[u].concat(stRecentsGet()).slice(0,8);store.set("lifeone.st.recent",L)}catch(e){}}
-async function postStory(){
- const text=($("stNewText").value||"").trim();const f=$("stNewFile").files[0];
- const err=$("stNewErr");
- if(!sb||!S.user.uid){err.textContent=t("sbOff");return}
- if(!f&&!text){err.textContent="Write something or add a photo.";return}
- try{
-  if(f){
-   const blob=await compressImage(f);
-   const path=S.user.uid+"/"+Date.now()+"_s.jpg";
-   const {error:uerr}=await sb.storage.from("stories-media").upload(path,blob,{contentType:"image/jpeg",cacheControl:"3600"});
-   if(uerr){err.textContent="Photo upload failed.";return}
-   const {error}=await sb.from("stories").insert({owner_id:S.user.uid,kind:"image",media_path:path});
-   if(error){err.textContent="Could not share the story.";return}
-  }else{
-   const {error}=await sb.from("stories").insert({owner_id:S.user.uid,kind:"text",body:text,bg:STBG});
-   if(error){err.textContent="Could not share the story.";return}
-  }
-  if(f)stAddRecent(f);closeM("mStoryNew");toast("Story shared");await loadStories();
- }catch(e){err.textContent="That photo could not be read."}
-}
+
+
 let STV={items:[],i:0,timer:null,owner:null};
 function storyOwnersOrder(){
  const ids=[];
@@ -2876,8 +2782,8 @@ function drawStv(){
  const o=STV.owner||{};
  $("stvBars").innerHTML=STV.items.map((_,j)=>`<div style="flex:1;height:3px;background:rgba(255,255,255,.35);border-radius:3px;overflow:hidden"><i style="display:block;height:100%;width:${j<STV.i?100:0}%;background:#fff;${j===STV.i?"transition:width 5s linear":""}" data-bar="${j}"></i></div>`).join("");
  $("stvTop").innerHTML=`${avHTML(o.full_name||o.username||"",34,o.avatar_url||"")}<div style="flex:1;min-width:0"><b class="block truncate">${esc(o.full_name||o.username||"")}</b><span style="font-size:12px;opacity:.7">${STV.i+1} of ${STV.items.length}</span></div>`;
- $("stvBody").style.background=it.kind==="text"?`linear-gradient(135deg,${it.bg||"#0084FF"},#7C3AED)`:"#111";
- $("stvBody").innerHTML=it.kind==="image"?`<img data-sb="stories-media" data-sp="${esc(it.media_path)}" src="${esc(signUrl("stories-media",it.media_path))}" alt="" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:12px">`:esc(it.body||"");
+ $("stvBody").style.background=it.kind==="text"?storyBgCss(it.bg):"#111";$("stvBody").style.fontFamily=storyFontCss(it.font);
+ $("stvBody").innerHTML=it.kind==="image"?`<img data-sb="stories-media" data-sp="${esc(it.media_path)}" src="${esc(signUrl("stories-media",it.media_path))}" alt="" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:12px">`+(it.body?`<span style="position:absolute;left:12px;right:12px;bottom:18px;text-align:center;font-size:20px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6);font-family:${storyFontCss(it.font)}">${esc(it.body)}</span>`:""):esc(it.body||"");
  requestAnimationFrame(()=>requestAnimationFrame(()=>{const bar=document.querySelector(`#stvBars i[data-bar="${STV.i}"]`);if(bar)bar.style.width="100%"}));
  STV.timer=setTimeout(stvNext,5000);
 }
@@ -2963,7 +2869,7 @@ function openChannels(){if(!sb||!S.user.uid){toast(t("sbOff"));return}openM("mCh
 async function loadChannels(){
  const me=S.user.uid;
  const {data:chans,error}=await sb.from("channels").select("id,owner_id,name,about,created_at").order("created_at",{ascending:false}).limit(100);
- if(error){$("chnLists").innerHTML=emptyBox("No channels yet.");return}
+ if(error){$("chnLists").innerHTML=emptyBox("Channels are not set up yet. Run the channels SQL first.");return}
  const {data:fol}=await sb.from("channel_follows").select("channel_id,last_read_at").eq("user_id",me);
  CHN.followed=new Map((fol||[]).map(f=>[f.channel_id,f.last_read_at]));
  CHN.unread=new Map();
@@ -3033,7 +2939,7 @@ async function setWallpaperSynced(k){
 async function loadStickers(){
  const grid=$("stkGrid");if(!grid)return;
  const {data,error}=await sb.from("stickers").select("id,media_path,created_at").eq("owner_id",S.user.uid).order("created_at",{ascending:false});
- if(error){grid.innerHTML=emptyBox("No stickers yet.");return}
+ if(error){grid.innerHTML=emptyBox("Stickers are not set up yet. Run the backend SQL first.");return}
  grid.innerHTML=(data||[]).map(s=>`<div class="relative"><img data-sb="stickers" data-sp="${esc(s.media_path)}" src="${esc(signUrl("stickers",s.media_path))}" alt="Sticker" class="w-full rounded-xl" style="aspect-ratio:1;object-fit:contain;background:var(--line)"><button type="button" onclick="deleteSticker('${esc(s.id)}','${esc(s.media_path)}')" class="absolute top-1 right-1 w-6 h-6 rounded-full text-white text-xs" style="background:#E11D48" aria-label="Delete sticker">&times;</button></div>`).join("")||emptyBox("No stickers yet. Pick a photo to make one.");
 }
 function makeSticker(file){
@@ -3073,49 +2979,46 @@ async function deleteSticker(id,path){
 let CHAT_READ_AT=0;
 function tsMs(x){return typeof x==="number"?x:(Date.parse(x)||0)}
 function chatKey(){if(chatK==="g")return"g";const f=S.fam[chatK];return f&&f.key?String(f.key):String(chatK)}
-function chatBubble(){try{return localStorage.getItem("lifeone.bubble."+chatKey())||"#0084FF"}catch(e){return"#0084FF"}}
+function chatBubble(){return "#16A34A"}
 function chatPartnerOnline(){const f=S.fam[chatK];return !!(f&&f.online===true)}
 function chatReadAt(k){const key=(k==="g")?"g":((S.fam[k]||{}).key||String(k));try{return Number(localStorage.getItem("lifeone.read."+key))||0}catch(e){return 0}}
 function chatMarkReadNow(k){const key=(k==="g")?"g":((S.fam[k]||{}).key||String(k));try{localStorage.setItem("lifeone.read."+key,String(Date.now()))}catch(e){}}
-function updatePresenceDot(){const d=$("chatDot");if(d)d.remove()}
+function updatePresenceDot(){
+ const av=$("chatAv");if(!av)return;av.style.position="relative";
+ let d=$("chatDot");if(!d){d=document.createElement("span");d.id="chatDot";d.style.cssText="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;border:2px solid #fff";av.appendChild(d)}
+ const on=chatPartnerOnline();d.style.background=on?"#22C55E":"#9CA3AF";d.setAttribute("aria-label",on?"Online":"Offline");
+}
 function toggleEmoji(){const e=$("emojiPick");if(e)e.classList.toggle("hidden")}
 function insertEmoji(em){const i=$("msgIn");if(!i)return;i.value=(i.value||"")+em;paintSendMic();i.focus()}
 function toggleAttachBar(){const b=$("attachBar");if(!b)return;b.classList.toggle("hidden");b.style.display=b.classList.contains("hidden")?"none":"flex"}
 function closeAttachBar(){const b=$("attachBar");if(b){b.classList.add("hidden");b.style.display="none"}}
-function openCallPlus(){const d=$("callDrop"),b=$("callPlusBtn");if(!d||!b)return;if(d.style.display==="block"){closeCallDrop();return}const r=b.getBoundingClientRect();d.style.top=(r.bottom+6)+"px";d.style.left="auto";d.style.right=Math.max(8,innerWidth-r.right)+"px";d.style.display="block";requestAnimationFrame(()=>d.classList.add("open"))}
-function closeCallDrop(){const d=$("callDrop");if(!d||d.style.display!=="block")return;d.classList.remove("open");setTimeout(()=>{if(!d.classList.contains("open"))d.style.display="none"},160)}
-document.addEventListener("pointerdown",e=>{const d=$("callDrop");if(d&&d.style.display==="block"&&!d.contains(e.target)&&!(e.target.closest&&e.target.closest("#callPlusBtn")))closeCallDrop()},true);
-async function openFabMenu(){openM("mFab");renderFabReq();try{await loadChatRelations()}catch(e){}renderFabReq()}
-function renderFabReq(){const box=$("fabReq");if(!box)return;const items=[...((REL&&REL.inc)||new Map()).entries()];const bd=$("fabReqBadge");if(bd){bd.textContent=items.length;bd.style.display=items.length?"inline-flex":"none"}
- box.innerHTML=items.length?items.map(([id,r])=>{const f=r.from||{};const name=f.full_name||f.username||"Someone";return `<div class="flex items-center gap-3 py-1">${avHTML(name,36,f.avatar_url||"")}<div class="flex-1 min-w-0"><b class="block truncate text-sm">${esc(name)}</b><span class="block text-xs" style="color:var(--mut)">Wants to start a chat</span></div><button type="button" class="btn sm ok" onclick="fabRespond('${esc(id)}','accepted')">Accept</button><button type="button" class="btn sm ghost" onclick="fabRespond('${esc(id)}','declined')">Decline</button></div>`}).join(""):'<p class="text-sm" style="color:var(--mut)">No pending requests.</p>'}
-async function fabRespond(id,st){await respondRequest(id,st);renderFabReq()}
-function renderFeedTab(){openFeed()}
+function openCallPlus(){openM("mCallPlus")}
 function forwardMeeting(){
  const id=Math.random().toString(36).slice(2,12);
  const link=location.origin+location.pathname+"#meet-"+id;
- closeCallDrop();
+ closeM("mCallPlus");
  const i=$("msgIn");if(i){i.value="Join my meeting: "+link;sendMsg()}
 }
-function openChatMenu(){const d=$("chatDrop"),b=document.querySelector('[onclick="openChatMenu()"]');if(!d||!b)return;if(d.style.display==="block"){closeChatDrop();return}
- let muted=false;try{muted=localStorage.getItem("lifeone.mute."+chatKey())==="1"}catch(e){}
- $("chatDropMute").textContent=muted?"Unmute notifications":"Mute notifications";
- const f=S.fam[chatK];const direct=!!(f&&f.key&&chatK!=="g"&&!isGK(chatK));
- $("chatDropBlock").style.display=direct?"":"none";
- if(direct)$("chatDropBlock").textContent=BLOCKS.has(f.key)?"Unblock user":"Block user";
- const r=b.getBoundingClientRect();d.style.top=(r.bottom+6)+"px";d.style.left="auto";d.style.right=Math.max(8,innerWidth-r.right)+"px";d.style.display="block";requestAnimationFrame(()=>d.classList.add("open"))}
-function closeChatDrop(){const d=$("chatDrop");if(!d||d.style.display!=="block")return;d.classList.remove("open");setTimeout(()=>{if(!d.classList.contains("open"))d.style.display="none"},160)}
-document.addEventListener("pointerdown",e=>{const d=$("chatDrop");if(d&&d.style.display==="block"&&!d.contains(e.target)&&!(e.target.closest&&e.target.closest('[onclick="openChatMenu()"]')))closeChatDrop()},true);
-let BLOCKS=new Set();
-function toggleBlock(){const f=S.fam[chatK];if(!f||!f.key)return;const k=f.key;const on=!BLOCKS.has(k);if(on)BLOCKS.add(k);else BLOCKS.delete(k);try{localStorage.setItem("lifeone.block."+k,on?"1":"0")}catch(e){}toast(on?"User blocked":"User unblocked");persistBlock(k,on)}
-async function persistBlock(k,on){if(!sb||!S.user.uid)return;const q=on?sb.from("user_blocks").upsert({blocker_id:S.user.uid,blocked_id:k},{onConflict:"blocker_id,blocked_id"}):sb.from("user_blocks").delete().eq("blocker_id",S.user.uid).eq("blocked_id",k);const {error}=await q;if(error)console.warn("user_blocks:",error.message)}
+function openChatMenu(){
+ const key=chatKey();const muted=(()=>{try{return localStorage.getItem("lifeone.mute."+key)==="1"}catch(e){return false}})();
+ $("chatMenuMute").textContent=muted?"Unmute notifications":"Mute notifications";
+ const direct=!!(S.fam[chatK]&&S.fam[chatK].key&&chatK!=="g"&&!isGK(chatK));
+ $("cmDirect").style.display=direct?"":"none";
+ if(direct){const id=S.fam[chatK].key;
+   $("cmPin").textContent=PINS.includes(id)?"Unpin chat":"Pin chat (max 3)";
+   $("cmFav").textContent=FAVS.has(id)?"Remove from favorites":"Add to favorites";
+   $("cmLock").textContent=LOCKS.has(id)?"Unlock chat":"Lock chat";
+ }
+ openM("mChatMenu");
+}
 function toggleMute(){
  const key=chatKey();let muted=false;
  try{muted=localStorage.getItem("lifeone.mute."+key)==="1";localStorage.setItem("lifeone.mute."+key,muted?"0":"1")}catch(e){}
- closeChatDrop();toast(muted?"Notifications on":"Notifications muted");
+ closeM("mChatMenu");toast(muted?"Notifications on":"Notifications muted");
 }
-function menuSearchChat(){closeChatDrop();openChatSearch()}
-function menuWallpaper(){closeChatDrop();openStyle()}
-function menuTheme(){closeChatDrop();
+function menuSearchChat(){closeM("mChatMenu");openChatSearch()}
+function menuWallpaper(){closeM("mChatMenu");openChatBg()}
+function menuTheme(){closeM("mChatMenu");
  $("chatThemePick").innerHTML=["#0084FF","#7C3AED","#E11D48","#059669","#D97706","#0891B2"].map(c=>`<button type="button" class="w-10 h-10 rounded-full border-2 border-white shadow" style="background:${c}" onclick="setChatBubble('${c}')" aria-label="Colour ${c}"></button>`).join("");
  openM("mChatTheme");
 }
@@ -3134,7 +3037,7 @@ async function openStickerPick(){
  closeAttachBar();STKPICK=null;$("stkPreview").innerHTML="";$("stkSendBtn").disabled=true;
  openM("mStickerPick");
  const {data,error}=await sb.from("stickers").select("id,media_path").eq("owner_id",S.user.uid).order("created_at",{ascending:false});
- $("stkPickGrid").innerHTML=error?emptyBox("No stickers yet."):((data||[]).map(x=>`<button type="button" onclick="pickSticker('${esc(x.id)}','${esc(x.media_path)}')" class="rounded-xl p-1" style="background:var(--bg)" aria-label="Sticker"><img data-sb="stickers" data-sp="${esc(x.media_path)}" src="${esc(signUrl("stickers",x.media_path))}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"></button>`).join("")||emptyBox("You have no stickers. Make one under Themes & stickers."));
+ $("stkPickGrid").innerHTML=error?emptyBox("Stickers are not set up yet."):((data||[]).map(x=>`<button type="button" onclick="pickSticker('${esc(x.id)}','${esc(x.media_path)}')" class="rounded-xl p-1" style="background:var(--bg)" aria-label="Sticker"><img data-sb="stickers" data-sp="${esc(x.media_path)}" src="${esc(signUrl("stickers",x.media_path))}" alt="" style="width:100%;aspect-ratio:1;object-fit:contain"></button>`).join("")||emptyBox("You have no stickers. Make one under Themes & stickers."));
 }
 function pickSticker(id,path){
  STKPICK={id,path};
@@ -3167,6 +3070,7 @@ let PRESS_T=null;
 function openFeed(){
  if(!sb||!S.user.uid){toast(t("sbOff"));return}
  $("feedQ").value="";$("feedSearchRes").classList.add("hidden");closeFeedMenus();
+ openM("mFeed");
  Promise.all([loadFollowSet(),loadSavedSet()]).then(()=>{$("feedModeLbl").textContent=FEED_MODE==="following"?"Following":"For You";loadFeed(true)});
 }
 function closeFeedMenus(){$("feedMenuL").classList.add("hidden");$("feedMenuR").classList.add("hidden")}
@@ -3203,7 +3107,7 @@ async function loadFeed(reset){
  if(FEED_MODE==="following")q=q.in("author_id",[...FEED_FOLLOW]);
  const {data,error}=await q.order("created_at",{ascending:false}).range(FEED.off,FEED.off+FEED_PAGE-1);
  FEED.busy=false;
- if(error){$("feedList").innerHTML=emptyBox("Nothing to show yet. Pull to refresh.");return}
+ if(error){$("feedList").innerHTML=emptyBox("The feed is not set up yet. Run the SQL files in order.");return}
  const rows=data||[];
  FEED.items=reset?rows:FEED.items.concat(rows);
  FEED.off+=rows.length;
@@ -3471,7 +3375,7 @@ function makeAdminStart(){
  const r=CH.members.find(x=>x.user_id===CH.target)||{};
  const cur={info:!!r.perm_info,members:!!r.perm_members,calls:!!r.perm_calls,post:!!r.perm_post};
  const rowsDef=[["info","Channel info edit","Edit name, bio or picture"],["members","Member control","View members and remove or block"],["calls","Audio / video calls","Start live sessions"],["post","Post access","Text, media and voice notes"]];
- $("permList").innerHTML=rowsDef.map(([k,l,d])=>`<label class="flex items-center justify-between gap-3 py-2" style="border-bottom:1px solid var(--line)"><span><b class="block text-sm">${l}</b><span class="text-xs" style="color:var(--mut)">${d}</span></span><input name="field_67" autocomplete="off" type="checkbox" data-perm="${k}" ${cur[k]?"checked":""} style="width:20px;height:20px"></label>`).join("");
+ $("permList").innerHTML=rowsDef.map(([k,l,d])=>`<label class="flex items-center justify-between gap-3 py-2" style="border-bottom:1px solid var(--line)"><span><b class="block text-sm">${l}</b><span class="text-xs" style="color:var(--mut)">${d}</span></span><input type="checkbox" data-perm="${k}" ${cur[k]?"checked":""} style="width:20px;height:20px" autocomplete="off"></label>`).join("");
  $("permErr").textContent="";
  closeM("mMemberAct");openM("mPerms");
 }
@@ -3538,9 +3442,8 @@ async function loadMsgExtras(){
  HIDDEN=new Set((h.data||[]).map(x=>x.message_id));
  STARRED_IDS=new Set((st.data||[]).map(x=>x.message_id));
  renderMsgs(true);
- loadHidesAndReacts();
 }
-function msgPress(ev,i){
+function msgPress(ev,i){PRESS={x:ev.clientX,y:ev.clientY,i,moved:false};try{ev.currentTarget.setPointerCapture(ev.pointerId)}catch(e){};
  if(ev.button&&ev.button!==0)return;
  clearTimeout(MSG_PT);
  MSG_PT=setTimeout(()=>{MSG_PT=null;showMsgBar(i)},450);
@@ -3553,49 +3456,22 @@ function showMsgBar(i){
  const r=b.getBoundingClientRect();
  const W=Math.min(340,innerWidth-16);
  const left=Math.max(8,Math.min(innerWidth-W-8,r.left+r.width/2-W/2));
- let top=r.top-58; if(top<110) top=r.bottom+54;
+ let top=r.top-112;
  const own=!!m.me, server=isServerMsg(m);
  const editable=canEditMsg(m);
  const btn=(act,icon,label,opts={})=>`<button type="button" onclick="msgAct('${act}',${i})" ${opts.disabled?"disabled":""} aria-label="${label}" title="${label}" class="flex flex-col items-center justify-center gap-0.5" style="width:44px;height:44px;border-radius:12px;color:${opts.red?"#E11D48":"var(--ink)"};opacity:${opts.disabled?".4":"1"};background:${opts.red?"rgba(225,29,72,.08)":"transparent"}"><span style="font-size:17px;line-height:1">${icon}</span><span style="font-size:9px;opacity:.7">${label}</span></button>`;
  const bar=document.createElement("div");
  bar.id="msgBar";bar.setAttribute("role","toolbar");
- bar.style.cssText=`position:fixed;top:0;left:0;right:0;z-index:95;display:flex;justify-content:space-evenly;align-items:center;gap:2px;padding:calc(env(safe-area-inset-top,0px) + 8px) 6px 8px;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.12)`;
- bar.innerHTML=btn("copy","📋","Copy")+btn("forward","↪","Forward",{disabled:!(m.t||m.file)})
+ bar.style.cssText=`position:fixed;left:${left}px;top:${top}px;width:${W}px;z-index:95;display:flex;justify-content:space-between;align-items:center;padding:6px 6px;border-radius:16px;background:var(--card);box-shadow:0 10px 30px rgba(0,0,0,.18);border:1px solid var(--line);transition:opacity .15s`;
+ bar.style.flexDirection="column-reverse";bar.style.gap="4px";bar.innerHTML=`<div style="display:flex;justify-content:space-around;width:100%;padding-bottom:4px;border-bottom:1px solid var(--line)">${REACT_EMOJI.map(em=>`<button type="button" onclick="reactMsg(${i},'${em}')" aria-label="React ${em}" style="font-size:22px;width:40px;height:40px;border-radius:999px">${em}</button>`).join("")}</div><div style="display:flex;justify-content:space-between;align-items:center;width:100%">`+btn("copy","📋","Copy")+btn("forward","↪","Forward",{disabled:!(m.t||m.file)})
    +(own?btn("edit","✎","Edit",{disabled:!editable}):btn("privatereply","💬","Private Reply",{disabled:!m.sid}))
    +btn("translate","🌐","Translate",{disabled:!m.t})
    +btn("star","★","Star",{disabled:!server})
-   +btn("delete","🗑","Delete",{disabled:!server&&!own,red:true});
- document.body.appendChild(bar);MSG_BAR=bar;
- closeMsgReact();
- const rx=document.createElement("div");rx.id="msgReact";
- rx.style.cssText=`position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 74px);z-index:96;display:flex;gap:6px;padding:6px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.18)`;
- rx.innerHTML=["👍","❤️","😂","😮","😢","🙏"].map(em=>`<button type="button" onclick="msgReact(${i},'${em}')" aria-label="React ${em}" style="font-size:22px;width:40px;height:40px;border-radius:999px;background:transparent">${em}</button>`).join("");
- document.body.appendChild(rx);MSG_REACT=rx;
+   +btn("delete","🗑","Delete",{disabled:!server&&!own,red:true})+`</div>`;
+ document.body.appendChild(bar);MSG_BAR=bar;{const bh=bar.offsetHeight;let t2=r.top-bh-6;let below=false;if(t2<64){t2=r.bottom+6;below=true}bar.style.top=t2+"px";bar.style.flexDirection=below?"column":"column-reverse"}
 }
-let MSG_REACT=null;
-function closeMsgReact(){if(MSG_REACT){MSG_REACT.remove();MSG_REACT=null}}
-function getRx(m){const k=m.id||m.ts;if(RX.has(k))return RX.get(k);try{return localStorage.getItem("lifeone.rx."+k)||""}catch(e){return ""}}
-async function msgReact(i,em){const m=(S.chats[chatK]||[])[i];closeMsgBar();if(!m)return;const k=m.id||m.ts;const next=getRx(m)===em?"":em;
- if(next)RX.set(k,next);else RX.delete(k);
- try{if(next)localStorage.setItem("lifeone.rx."+k,next);else localStorage.removeItem("lifeone.rx."+k)}catch(e){}
- renderMsgs(true);
- if(!isServerMsg(m)||!sb||!S.user.uid)return;
- const {error}=next?await sb.from("message_reactions").upsert({message_id:m.id,user_id:S.user.uid,emoji:next},{onConflict:"message_id,user_id"})
-   :await sb.from("message_reactions").delete().eq("message_id",m.id).eq("user_id",S.user.uid);
- if(error)console.warn("reaction:",error.message);
-}
-async function loadHidesAndReacts(){
- if(!sb||!S.user.uid)return;const me=S.user.uid;
- const [h,r,bl]=await Promise.all([sb.from("chat_hides").select("chat_key,hidden_at").eq("user_id",me),sb.from("message_reactions").select("message_id,emoji").eq("user_id",me),sb.from("user_blocks").select("blocked_id").eq("blocker_id",me)]);
- if(!bl.error&&bl.data)BLOCKS=new Set(bl.data.map(x=>x.blocked_id));
- if(!h.error&&h.data)HIDE=new Map(h.data.map(x=>[x.chat_key,Date.parse(x.hidden_at)||0]));
- S.fam.forEach((f,k)=>{const hh=getHide(f);if(hh&&S.chats[k])S.chats[k]=S.chats[k].filter(m=>!m.ts||Date.parse(m.ts)>hh)});
- if(!r.error&&r.data)RX=new Map(r.data.map(x=>[x.message_id,x.emoji]));
- renderChatsPanel();renderMsgs(true);
-}
-function rxChip(m){const e=getRx(m);return e?`<div class="mt-0.5 flex ${m.me?"justify-end":"justify-start"}"><span class="px-1.5 py-0.5 rounded-full text-sm" style="background:var(--card);border:1px solid var(--line)">${e}</span></div>`:""}
-function closeMsgBar(){if(MSG_BAR){MSG_BAR.remove();MSG_BAR=null}closeMsgReact()}
-document.addEventListener("pointerdown",e=>{if(MSG_BAR&&!MSG_BAR.contains(e.target)&&!(MSG_REACT&&MSG_REACT.contains(e.target)))closeMsgBar()},true);
+function closeMsgBar(){if(MSG_BAR){MSG_BAR.remove();MSG_BAR=null}}
+document.addEventListener("pointerdown",e=>{if(MSG_BAR&&!MSG_BAR.contains(e.target))closeMsgBar()},true);
 function msgAct(act,i){
  closeMsgBar();
  const m=(S.chats[chatK]||[])[i];if(!m)return;
@@ -3725,7 +3601,7 @@ async function loadChatPrefs(){
 function showPinLimit(){openM("mPinLimit")}
 async function togglePinChat(){
  const id=S.fam[chatK]&&S.fam[chatK].key;if(!id)return;
- closeChatDrop();
+ closeM("mChatMenu");
  if(PINS.includes(id))return unpinChat(id);
  if(PINS.length>=PIN_MAX)return showPinLimit();
  const {error}=await sb.from("chat_pins").insert({user_id:S.user.uid,peer_id:id});
@@ -3738,7 +3614,7 @@ async function unpinChat(id){
  await loadChatPrefs();
 }
 async function toggleFavChat(){
- const id=S.fam[chatK]&&S.fam[chatK].key;if(!id)return;closeChatDrop();
+ const id=S.fam[chatK]&&S.fam[chatK].key;if(!id)return;closeM("mChatMenu");
  const on=FAVS.has(id);
  const {error}=on?await sb.from("chat_favorites").delete().eq("user_id",S.user.uid).eq("peer_id",id):await sb.from("chat_favorites").insert({user_id:S.user.uid,peer_id:id});
  if(error){toast("Could not update favorites.");return}
@@ -3825,7 +3701,7 @@ function openLockedFolder(){
  },"Locked chats");
 }
 function toggleLockChat(){
- const id=S.fam[chatK]&&S.fam[chatK].key;if(!id)return;closeChatDrop();
+ const id=S.fam[chatK]&&S.fam[chatK].key;if(!id)return;closeM("mChatMenu");
  if(LOCKS.has(id))return unlockChat(id);
  requireAuth(()=>lockChatNow(id),"locked chats");
 }
@@ -3853,7 +3729,7 @@ async function vaultNameDec(enc){try{return new TextDecoder().decode(await vault
 async function loadVault(){
  const box=$("vaultGrid");
  const {data,error}=await sb.from("vault_items").select("id,path,name,mime,size,created_at").order("created_at",{ascending:false});
- if(error){box.innerHTML=emptyBox("Nothing here yet.");return}
+ if(error){box.innerHTML=emptyBox("The vault is not set up yet. Run the vault SQL first.");return}
  VAULT_ROWS=data||[];
  if(!VAULT_ROWS.length){box.innerHTML=emptyBox("Your vault is empty. Tap + to add photos, videos or files.");return}
  const names=await Promise.all(VAULT_ROWS.map(r=>vaultNameDec(r.name)));
@@ -4054,6 +3930,168 @@ async function checkUpdates(){
  if(error||!data){$("updState").textContent="Cannot check now";return}
  $("updState").textContent=data.value===APP_VERSION?"Latest version":"Update available: v"+data.value;
 }
+/* ---------- pencil menu, message requests, reactions ---------- */
+const REACT_EMOJI=["👍","❤️","😂","😮","😢","🙏"];
+let REACTS=new Map();
+function openPencil(){
+ const p=$("pencilPop");if(!p)return;
+ const open=p.style.display==="flex";
+ p.style.display=open?"none":"flex";
+ if(!open){setTimeout(()=>document.addEventListener("pointerdown",closePencilOutside,{once:true,capture:true}),0)}
+}
+function closePencilOutside(e){
+ const p=$("pencilPop");if(!p)return;
+ if(p.contains(e.target)||e.target.closest&&e.target.closest("#fabAdd"))return;
+ p.style.display="none";
+}
+function closePencil(){const p=$("pencilPop");if(p)p.style.display="none"}
+function pencilAddMember(){closePencil();openSearchModal()}
+function pencilStickers(){closePencil();openStyle()}
+function pencilRequests(){closePencil();openRequests()}
+function openRequests(){loadChatRelations();openM("mRequests")}
+function paintRequestBadge(n){
+ const b=$("fabBadge");if(b){b.textContent=n>99?"99+":String(n);b.style.display=n?"":"none"}
+ const r=$("pcReqCount");if(r)r.textContent=n?String(n):"";
+}
+async function loadReactions(){
+ if(!sb||!S.user.uid||chatK==="g")return;
+ const ids=(S.chats[chatK]||[]).filter(isServerMsg).map(m=>m.id);
+ if(!ids.length){REACTS=new Map();return}
+ const {data,error}=await sb.from("message_reactions").select("message_id,user_id,emoji").in("message_id",ids);
+ if(error)return;
+ const next=new Map();
+ (data||[]).forEach(r=>{
+   if(!next.has(r.message_id))next.set(r.message_id,new Map());
+   const e=next.get(r.message_id);
+   const cur=e.get(r.emoji)||{n:0,mine:false};
+   cur.n++; if(r.user_id===S.user.uid)cur.mine=true; e.set(r.emoji,cur);
+ });
+ REACTS=next;renderMsgs(true);
+}
+function reactHTML(m){
+ const e=REACTS.get(m.id);if(!e||!e.size)return "";
+ return `<div class="flex flex-wrap gap-1 mt-1">${[...e.entries()].map(([em,v])=>`<span class="text-xs px-1.5 py-0.5 rounded-full" style="background:var(--card);border:1px solid ${v.mine?"#0084FF":"var(--line)"}">${em} ${v.n}</span>`).join("")}</div>`;
+}
+async function reactMsg(i,em){
+ closeMsgBar();
+ const m=(S.chats[chatK]||[])[i];if(!m)return;
+ if(!isServerMsg(m)){toast("This message is still sending.");return}
+ const mine=REACTS.get(m.id)&&REACTS.get(m.id).get(em)&&REACTS.get(m.id).get(em).mine;
+ const {error}=mine
+   ? await sb.from("message_reactions").delete().eq("message_id",m.id).eq("user_id",S.user.uid)
+   : await sb.from("message_reactions").upsert({message_id:m.id,user_id:S.user.uid,emoji:em},{onConflict:"message_id,user_id"});
+ if(error){toast("Could not add the reaction.");return}
+ loadReactions();
+}
+/* ---------- per-chat wallpaper / background ---------- */
+const BG_SOLIDS=["#FFFFFF","#F3F4F6","#E0F2FE","#DCFCE7","#FEF9C3","#FCE7F3","#EDE9FE","#1F2937"];
+const BG_GRADS=["linear-gradient(160deg,#A5B4FC,#67E8F9)","linear-gradient(160deg,#FDE68A,#FCA5A5)","linear-gradient(160deg,#86EFAC,#38BDF8)","linear-gradient(160deg,#312E81,#0F172A)"];
+function chatBgKey(){return "lifeone.chatbg."+chatKey()}
+function getChatBg(){try{return JSON.parse(localStorage.getItem(chatBgKey())||"null")}catch(e){return null}}
+function applyChatBg(){
+ const w=$("msgs");if(!w)return;
+ const bg=getChatBg();
+ if(!bg){w.style.background="";w.style.backgroundImage="";w.style.backgroundSize="";return}
+ if(bg.type==="image"){w.style.backgroundImage=`url("${bg.value}")`;w.style.backgroundSize="cover";w.style.backgroundPosition="center";w.style.backgroundColor=""}
+ else{w.style.backgroundImage=bg.value.startsWith("linear")?bg.value:"";w.style.backgroundColor=bg.value.startsWith("linear")?"":bg.value;w.style.backgroundSize=""}
+}
+function openChatBg(){
+ $("cbSolids").innerHTML=BG_SOLIDS.map(c=>`<button type="button" aria-label="Colour ${c}" onclick="setChatBg('solid','${c}')" class="w-10 h-10 rounded-full border border-slate-300" style="background:${c}"></button>`).join("");
+ $("cbGrads").innerHTML=BG_GRADS.map(g=>`<button type="button" aria-label="Gradient" onclick="setChatBg('grad','${g}')" class="w-10 h-10 rounded-full border border-slate-300" style="background:${g}"></button>`).join("");
+ openM("mChatBg");
+}
+function setChatBg(kind,value){
+ try{localStorage.setItem(chatBgKey(),JSON.stringify({type:kind==="grad"?"grad":"solid",value}))}catch(e){toast("Could not save the background.");return}
+ applyChatBg();toast("Background changed");
+}
+async function setChatBgImage(input){
+ const f=(input.files||[])[0];input.value="";if(!f)return;
+ if(!f.type.startsWith("image/")){toast("Choose an image file.");return}
+ try{
+   const blob=await compressImage(f);
+   const dataUrl=await blobToDataURL(blob);
+   localStorage.setItem(chatBgKey(),JSON.stringify({type:"image",value:dataUrl}));
+   applyChatBg();toast("Background changed");
+ }catch(e){toast("That image could not be used. Try a smaller one.")}
+}
+function resetChatBg(){try{localStorage.removeItem(chatBgKey())}catch(e){}applyChatBg();toast("Default background restored")}
+/* ---------- swipe to reply, quotes, story composer ---------- */
+let REPLY=null, PRESS=null;
+const STORY_GRADS={g1:"linear-gradient(135deg,#0084FF,#7C3AED)",g2:"linear-gradient(135deg,#F59E0B,#EF4444)",g3:"linear-gradient(135deg,#10B981,#0EA5E9)",g4:"linear-gradient(135deg,#EC4899,#8B5CF6)",g5:"linear-gradient(135deg,#111827,#374151)",g6:"linear-gradient(135deg,#FDE68A,#FCA5A5)"};
+const STORY_FONTS=[["system-ui,sans-serif","Modern","modern"],["Georgia,serif","Classic","classic"],["'Courier New',monospace","Typewriter","typewriter"],["'Brush Script MT',cursive","Script","script"],["Impact,sans-serif","Bold","bold"]];
+const STORY_FONT_CSS={modern:"system-ui,sans-serif",classic:"Georgia,serif",typewriter:"'Courier New',monospace",script:"'Brush Script MT',cursive",bold:"Impact,sans-serif"};
+function storyFontCss(k){return STORY_FONT_CSS[k]||STORY_FONT_CSS.modern}
+let STFONT=0, STBGKEY="g1", STPHOTO=null;
+function storyBgCss(k){return STORY_GRADS[k]||STORY_GRADS.g1}
+function quoteHTML(m){
+ if(!m.replyTo)return "";
+ const q=(S.chats[chatK]||[]).find(x=>x.id===m.replyTo);
+ const txt=q?(q.v?"Voice message":q.file?"Attachment":(q.t||"")):(m.replyText||"Message");
+ return `<div style="border-left:3px solid ${m.me?"rgba(255,255,255,.7)":"#16A34A"};padding:2px 8px;margin-bottom:4px;border-radius:6px;background:${m.me?"rgba(255,255,255,.14)":"rgba(0,0,0,.05)"};font-size:12px;opacity:.9" class="truncate">${esc(String(txt).slice(0,120))}</div>`;
+}
+function msgMove(ev,i){
+ if(!PRESS||PRESS.i!==i||PRESS.moved)return;
+ const dx=ev.clientX-PRESS.x, dy=ev.clientY-PRESS.y;
+ if(Math.abs(dx)>48&&Math.abs(dy)<28){PRESS.moved=true;msgPressEnd();setReply(i)}
+}
+function setReply(i){
+ const m=(S.chats[chatK]||[])[i];if(!m)return;
+ if(!isServerMsg(m)){toast("Wait until the message is sent.");return}
+ REPLY={id:m.id,text:(m.v?"Voice message":m.file?"Attachment":(m.t||"")).slice(0,120)};
+ paintReply();$("msgIn").focus();
+}
+function paintReply(){
+ const b=$("replyBar");if(!b)return;
+ if(!REPLY){b.style.display="none";b.innerHTML="";return}
+ b.style.display="flex";
+ b.innerHTML=`<div class="min-w-0 flex-1" style="border-left:3px solid #16A34A;padding-left:8px"><span class="block text-[11px] font-semibold" style="color:#16A34A">Replying</span><span class="block truncate text-xs">${esc(REPLY.text)}</span></div><button type="button" onclick="clearReply()" aria-label="Cancel reply" class="w-7 h-7 rounded-full" style="background:var(--bg)">&times;</button>`;
+}
+function clearReply(){REPLY=null;paintReply()}
+/* story composer: typed straight onto the coloured canvas */
+function openStoryNew(){
+ $("stNewErr").textContent="";$("stCanvas").textContent="";STPHOTO=null;STBGKEY="g1";STFONT=0;
+ paintStoryCanvas();
+ openM("mStoryNew");
+ setTimeout(()=>$("stCanvas").focus(),80);
+}
+function paintStoryCanvas(){
+ const c=$("stCanvas");
+ c.style.fontFamily=STORY_FONTS[STFONT][0];
+ if(STPHOTO){c.style.background=`url("${STPHOTO.url}") center/cover no-repeat`}
+ else{c.style.background=storyBgCss(STBGKEY)}
+ $("stSwatches").innerHTML=Object.keys(STORY_GRADS).map(k=>`<button type="button" aria-label="Background ${k}" onclick="storySetBg('${k}')" class="w-8 h-8 rounded-full border-2 ${(!STPHOTO&&STBGKEY===k)?"border-white":"border-transparent"}" style="background:${STORY_GRADS[k]}"></button>`).join("")+
+   `<button type="button" onclick="$('stNewFile').click()" class="btn out rounded-full px-3 py-1 text-xs ms-auto">Photo</button>`;
+ $("stAa").textContent="Aa";$("stAa").title=STORY_FONTS[STFONT][1];
+}
+function storyCycleFont(){STFONT=(STFONT+1)%STORY_FONTS.length;paintStoryCanvas();toast(STORY_FONTS[STFONT][1]+" font")}
+function storySetBg(k){STBGKEY=k;STPHOTO=null;paintStoryCanvas()}
+async function storyPickPhoto(input){
+ const f=(input.files||[])[0];input.value="";if(!f)return;
+ try{const blob=await compressImage(f);const url=await blobToDataURL(blob);STPHOTO={url,blob};paintStoryCanvas()}
+ catch(e){$("stNewErr").textContent="That photo could not be read."}
+}
+async function postStory(){
+ const text=($("stCanvas").innerText||"").replace(/\u00a0/g," ").trim().slice(0,200);
+ const err=$("stNewErr");err.textContent="";
+ if(!sb||!S.user.uid){err.textContent=t("sbOff");return}
+ if(!STPHOTO&&!text){err.textContent="Type something or add a photo.";return}
+ const tryInsert=async(row)=>{let r=await sb.from("stories").insert(row);if(r.error&&/font/i.test(String(r.error.message||""))){const {font,...rest}=row;r=await sb.from("stories").insert(rest)}return r};
+ try{
+   if(STPHOTO){
+     const path=S.user.uid+"/"+Date.now()+"_s.jpg";
+     const {error:uerr}=await sb.storage.from("stories-media").upload(path,STPHOTO.blob,{contentType:"image/jpeg",cacheControl:"3600"});
+     if(uerr){err.textContent="Photo upload failed.";return}
+     const row={owner_id:S.user.uid,kind:"image",media_path:path,font:STORY_FONTS[STFONT][2]};if(text)row.body=text;
+     const {error}=await tryInsert(row);
+     if(error){err.textContent="Could not share the story.";return}
+   }else{
+     const fontKey=STORY_FONTS[STFONT][2];
+     const {error}=await tryInsert({owner_id:S.user.uid,kind:"text",body:text,bg:STBGKEY,font:fontKey});
+     if(error){err.textContent="Could not share the story.";return}
+   }
+   closeM("mStoryNew");toast("Story shared");await loadStories();
+ }catch(e){err.textContent="Could not share the story."}
+}
 /* ---------- boot ---------- */
 document.addEventListener("visibilitychange",()=>{if(S.shareOn&&!document.hidden&&!geoOK()&&S.geo.st!=="loading")startGeo()});
 const SUN_IC='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
@@ -4079,7 +4117,7 @@ function boot(){const step=f=>{try{f()}catch(e){console.error(e)}};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
 window.addEventListener("load",()=>{if(!document.querySelector(".tab-content.active"))go(savedTab())});
 
-Object.assign(T.en,{navStatus:"Status",navFeed:"Feed"});
+Object.assign(T.en,{navStatus:"Status"});
 </script>
 </body>
 </html>

@@ -1545,4 +1545,83 @@ window.toggleFollow=async function(e){
   return e.kind==="text"&&/^bg:#/.test(e.media_path||"")?`<div style="background:${e.media_path.slice(3)};border-radius:16px;overflow:hidden">${h}</div>`:h};
 })();
 </script>
+<script>
+/* STORIES: like + reply in the viewer, live tray and live viewer updates. Uses story_likes and story_replies (see lifeone_stories.sql). */
+(function(){
+ const BTN="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:14px;font-weight:600;cursor:pointer;flex:none";
+ const cur=()=>STV.items[STV.i];
+ let liked=!1,stT=null,stLive=null,stUid=null;
+
+ async function act(e){
+  if(!sb||!e||!e.id)return;
+  const own=e.owner_id===S.user.uid;
+  const q=[
+   sb.from("story_likes").select("user_id",{count:"exact",head:!0}).eq("story_id",e.id),
+   sb.from("story_likes").select("user_id").eq("story_id",e.id).eq("user_id",S.user.uid).limit(1)];
+  if(own)q.push(sb.from("story_replies").select("id,body,created_at,author:profiles!story_replies_author_id_fkey(full_name,username,avatar_url)").eq("story_id",e.id).order("created_at",{ascending:!1}).limit(30));
+  const[lk,mine,rp]=await Promise.all(q);
+  const c=cur();if(!c||c.id!==e.id||!$("stvAct"))return;
+  liked=!!(mine.data&&mine.data.length);
+  const n=$("stvLkN"),i=$("stvLkI");
+  n&&(n.textContent=lk.count||0);
+  i&&(i.textContent=liked?"\u2665":"\u2661",i.style.color=liked?"#FB7185":"#fff");
+  if(own){
+   const rows=(rp&&rp.data)||[],cnt=$("stvRpN"),list=$("stvRpList");
+   cnt&&(cnt.textContent=rows.length+(rows.length===1?" reply":" replies"));
+   list&&(list.innerHTML=rows.length?rows.map(r=>{const a=r.author||{};return`<div style="display:flex;gap:8px;align-items:baseline"><b style="flex:none">${esc(a.full_name||a.username||"Someone")}</b><span style="min-width:0;word-break:break-word">${esc(r.body||"")}</span></div>`}).join(""):'<span style="opacity:.6">No replies yet</span>')}
+ }
+
+ function mount(e){
+  const f=$("stvFoot");if(!f)return;
+  const own=e.owner_id===S.user.uid;
+  const bar=document.createElement("div");
+  bar.id="stvAct";
+  bar.style.cssText="width:100%;display:flex;flex-direction:column;gap:8px;margin-top:8px";
+  bar.innerHTML=`<div style="display:flex;align-items:center;gap:8px">`+
+   `<button id="stvLk" type="button" onclick="stvToggleLike()" aria-label="Like" style="${BTN}"><span id="stvLkI" style="font-size:17px;line-height:1">\u2661</span><span id="stvLkN">0</span></button>`+
+   (own?`<span id="stvRpN" style="font-size:13px;opacity:.85;flex:1">0 replies</span>`
+    :`<input id="stvRp" type="text" maxlength="500" placeholder="Reply…" autocomplete="off" onfocus="stvHold(!0)" onblur="stvHold(!1)" onkeydown="if(event.key==='Enter')stvSendReply()" style="flex:1;min-width:0;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;outline:none;font-size:14px"><button type="button" onclick="stvSendReply()" aria-label="Send reply" style="${BTN}">Send</button>`)+
+   `</div>`+(own?`<div id="stvRpList" style="max-height:110px;overflow:auto;font-size:13px;display:flex;flex-direction:column;gap:6px"></div>`:"");
+  f.appendChild(bar)}
+
+ window.stvToggleLike=async function(){
+  const e=cur();if(!e||!sb||!S.user.uid)return;
+  const was=liked;liked=!was;
+  const i=$("stvLkI"),n=$("stvLkN");
+  if(i){i.textContent=liked?"\u2665":"\u2661";i.style.color=liked?"#FB7185":"#fff"}
+  if(n)n.textContent=Math.max(0,(+n.textContent||0)+(liked?1:-1));
+  const r=was?await sb.from("story_likes").delete().eq("story_id",e.id).eq("user_id",S.user.uid)
+            :await sb.from("story_likes").insert({story_id:e.id,user_id:S.user.uid});
+  if(r.error&&r.error.code!=="23505"){liked=was;toast("Could not update like. Try again.")}
+  act(e)};
+
+ window.stvSendReply=async function(){
+  const e=cur(),inp=$("stvRp");if(!e||!inp||!sb||!S.user.uid)return;
+  const body=(inp.value||"").trim();if(!body)return;
+  inp.value="";
+  const r=await sb.from("story_replies").insert({story_id:e.id,author_id:S.user.uid,body});
+  if(r.error){inp.value=body;toast("Reply not sent. Try again.");return}
+  toast("Reply sent");act(e)};
+
+ window.stvHold=function(on){
+  clearTimeout(STV.timer);
+  const v=$("stvBody")&&$("stvBody").querySelector("video");
+  if(v){on?v.pause():v.play().catch(()=>{})}
+  else if(!on)STV.timer=setTimeout(stvNext,3e3)};
+
+ const _sff=stvFootFor;
+ window.stvFootFor=function(e){_sff(e);if(e&&e.id){liked=!1;mount(e);act(e)}};
+
+ function live(){
+  if(!sb||!S.user.uid||stUid===S.user.uid)return;
+  stUid=S.user.uid;
+  try{stLive&&sb.removeChannel(stLive)}catch(x){}
+  stLive=sb.channel("st-live-"+stUid)
+   .on("postgres_changes",{event:"*",schema:"public",table:"stories"},()=>{clearTimeout(stT);stT=setTimeout(()=>loadStories(),300)})
+   .on("postgres_changes",{event:"*",schema:"public",table:"story_likes"},()=>{const e=cur();e&&$("stvAct")&&act(e)})
+   .on("postgres_changes",{event:"*",schema:"public",table:"story_replies"},()=>{const e=cur();e&&$("stvAct")&&act(e)})
+   .subscribe()}
+ setInterval(live,2000);
+})();
+</script>
 </body></html>

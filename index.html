@@ -1890,4 +1890,34 @@ window.toggleFollow=async function(e){
    .replace(/<img /g,'<img loading="lazy" decoding="async" ')};
 })();
 </script>
+<script>
+/* NEW POST ENTRY POINT: the feed modal (#mFeed, z-index 80) stays open underneath the composer,
+   so the composer and the comments sheet are raised above it. The header plus button uses one
+   logged entry point, openNewPost(), instead of an inline onclick. */
+(function(){
+ const st=document.createElement("style");
+ st.id="npStackCss";
+ st.textContent="#crPage{z-index:95!important}#mComments{z-index:90!important}";
+ document.head.appendChild(st);
+ window.openNewPost=function(){
+  try{
+   crEnsure();
+   crReset();
+   const cap=$("crCap");if(cap)cap.value="";
+   const msg=$("crSt");if(msg)msg.textContent="";
+   crPaint();
+   openM("crPage");
+  }catch(err){
+   console.error("openNewPost:",err);
+   toast("Could not open New Post. Please reload the app.");
+  }
+ };
+ window.menuUpload=window.openNewPost;
+ const plus=$("hdrAdd");
+ if(plus){
+  plus.removeAttribute("onclick");
+  plus.addEventListener("click",function(e){e.preventDefault();openNewPost()});
+ }
+})();
+</script>
 </body></html>

@@ -1857,4 +1857,22 @@ window.toggleFollow=async function(e){
   return _fileCard(e)};
 })();
 </script>
+<script>
+/* CHAT IMAGES: reserved 4:3 box (no layout shift), no lazy-load stagger, no empty src,
+   images already loaded this session re-render instantly with no white flash. */
+(function(){
+ const READY=new Set();
+ const _card=fileCard;
+ window.chImgReady=function(im){
+  const k=im.getAttribute("data-key");if(k)READY.add(k);
+  im.style.opacity="1";
+  const box=im.parentNode;if(box&&box.style)box.style.background="transparent"};
+ window.fileCard=function(e){
+  if(!e||e.uploading||!/^image\//.test(e.ft||""))return _card(e);
+  const key=e.url||"",src=fileSrc(e),attr=fileAttr(e),ok=READY.has(key);
+  const hrefAttr=src?` href="${esc(src)}"`:"";
+  const srcAttr=src?` src="${esc(src)}"`:"";
+  return `<a${hrefAttr}${attr} target="_blank" rel="noopener" style="display:block;width:min(260px,100%);aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:transparent;contain:layout paint"><img${srcAttr}${attr} alt="${esc(e.name||"Photo")}" data-key="${esc(key)}" decoding="async" onload="chImgReady(this)" style="width:100%;height:100%;object-fit:cover;display:block;opacity:${ok?1:0};transition:opacity .15s ease"></a>`};
+})();
+</script>
 </body></html>

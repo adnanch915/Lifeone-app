@@ -2147,4 +2147,83 @@ window.toggleFollow=async function(e){
  },true);
 })();
 </script>
+<script>
+/* PGRST205 FIX: comments and text posts. Loaded last, so these replace the earlier definitions. */
+(function(){
+ var CMT_TABLE="post_comments"; /* must match the table name in Supabase exactly */
+ var CMT_ERR={"42501":"You are not allowed to comment. Sign in again.","23503":"This post no longer exists.","23514":"Comments must be 1 to 500 characters.","PGRST205":"Comments are not set up in the database yet.","42P01":"Comments are not set up in the database yet."};
+ function h(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+ function say(m){var el=document.getElementById("cmtErr");if(el)el.textContent=m||""}
+ function errText(e,fallback){var code=e&&(e.code||e.status)?String(e.code||e.status):"";return CMT_ERR[code]||(fallback+(code?" ("+code+")":"")+".")}
+
+ window.openComments=async function(postId){
+  var pid=String(postId||"");
+  if(!pid){toast("Could not load comments.");return}
+  try{
+   if(!sb)throw new Error("Supabase client is not available");
+   var r=await sb.from(CMT_TABLE).select("id,post_id,author_id,body,created_at").eq("post_id",pid).order("created_at",{ascending:true});
+   if(r.error)throw r.error;
+   var list=r.data||[];
+   var prof=new Map();
+   var ids=Array.from(new Set(list.map(function(x){return x.author_id}).filter(Boolean)));
+   if(ids.length){
+    var p=await sb.from("profiles").select("id,full_name,username,avatar_url").in("id",ids);
+    if(p.error)console.warn("openComments profiles:",p.error);
+    (p.data||[]).forEach(function(x){prof.set(String(x.id),x)});
+   }
+   document.getElementById("cmtList").innerHTML=list.map(function(o){
+    var i=prof.get(String(o.author_id))||{};
+    var l="closeM('mComments');openUserProfile('"+h(o.author_id)+"')";
+    return '<div class="flex items-start gap-2.5 py-1.5"><button type="button" class="shrink-0" onclick="'+l+'" aria-label="Open profile">'+avHTML(i.full_name||"Member",34,i.avatar_url||"")+'</button><div class="min-w-0 flex-1"><button type="button" class="block text-sm font-semibold text-start truncate max-w-full" onclick="'+l+'">'+h(i.full_name||"Member")+'</button><p class="text-sm break-words">'+h(o.body)+'</p></div></div>';
+   }).join("")||'<p class="text-sm" style="color:var(--mut)">No comments yet.</p>';
+   document.getElementById("cmtPost").dataset.pid=pid;
+   document.getElementById("cmtText").value="";
+   say("");
+   openM("mComments");
+  }catch(err){
+   console.error("openComments:",err);
+   toast(errText(err,"Could not load comments"));
+  }
+ };
+
+ window.sendComment=async function(){
+  var inp=document.getElementById("cmtText");
+  var pid=(document.getElementById("cmtPost").dataset.pid)||"";
+  var body=((inp&&inp.value)||"").trim();
+  if(!body){say("Write a comment first.");return}
+  if(body.length>500){say("Keep it under 500 characters.");return}
+  if(!pid){say("Close and reopen the comments, then try again.");return}
+  if(!sb){say("Please reload the app.");return}
+  say("");
+  try{
+   var g=await sb.auth.getUser();
+   if(g.error||!g.data||!g.data.user){say("Sign in again to comment.");return}
+   var ins=await sb.from(CMT_TABLE).insert({post_id:pid,author_id:g.data.user.id,body:body});
+   if(ins.error){console.error("sendComment:",ins.error);say(errText(ins.error,"Could not post the comment"));return}
+  }catch(e){console.error("sendComment:",e);say("Could not post the comment.");return}
+  /* Saved at this point. A refresh failure must not be reported as a failed post. */
+  if(inp)inp.value="";
+  try{await window.openComments(pid)}catch(e){console.error("refresh comments:",e)}
+  try{if(typeof loadFeed==="function")await loadFeed(true)}catch(e){console.error("refresh feed:",e)}
+ };
+
+ window.feedPostText=async function(){
+  if(!sb||!S||!S.user||!S.user.uid)return;
+  var txt=((document.getElementById("feedText")||{}).value||"").trim();
+  if(!txt){feedStatus("Write something first.");return}
+  if(txt.length>500){feedStatus("Keep it under 500 characters.");return}
+  var loc=((document.getElementById("feedLoc")||{}).value||"").trim()||null;
+  var row={author_id:S.user.uid,kind:"text",media_path:null,caption:txt,location:loc};
+  var bg=(typeof FEED_BG!=="undefined"&&FEED_BG)?FEED_BG:null;
+  var res=await sb.from("posts").insert(bg?Object.assign({},row,{bg:bg}):row);
+  /* If the posts table has no bg column yet, retry the text post without it. */
+  if(res.error&&bg){console.warn("posts insert with bg failed, retrying without bg:",res.error);res=await sb.from("posts").insert(row)}
+  if(res.error){console.error("feedPostText:",res.error);feedStatus("Could not publish your post ("+(res.error.code||"error")+").");return}
+  var t=document.getElementById("feedText");if(t)t.value="";
+  var l=document.getElementById("feedLoc");if(l)l.value="";
+  feedStatus("");
+  try{if(typeof loadFeed==="function")await loadFeed(true)}catch(e){console.error("refresh feed:",e)}
+ };
+})();
+</script>
 </body></html>

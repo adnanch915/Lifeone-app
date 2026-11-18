@@ -1148,6 +1148,7 @@ const nameOf=a=>(a&&(a.full_name||a.name||a.username))||"";
 const mediaAttr=p=>`data-sb="posts-media" data-sp="${esc(p)}" src="${esc(signUrl("posts-media",p))}"`;
 function remember(list){(list||[]).forEach(r=>{if(r&&r.author_id&&r.author&&nameOf(r.author))AU.set(r.author_id,r.author)})}
 function page(id,html){if(!Q("#"+id))document.body.insertAdjacentHTML("beforeend",`<div id="${id}" class="modal pg"><div class="pgw">${html}</div></div>`)}
+window.page=page;
 POPUP_PARENT.ufPage=["srPage"];POPUP_PARENT.mReels=["ufPage","srPage"];POPUP_PARENT.crPage=[];
 
 /* 1. SILENT BACKGROUND DOWNLOAD */
@@ -1278,6 +1279,7 @@ window.toggleHdrSearch=function(e){
 /* 5. FULL-SCREEN POST CREATION */
 const CR={file:null,kind:null,url:null};
 function crReset(){if(CR.url)try{URL.revokeObjectURL(CR.url)}catch(e){}CR.file=CR.kind=CR.url=null}
+window.CR=CR;window.crReset=crReset;
 window.crPick=function(el,kind){
  const f=(el.files||[])[0];el.value="";if(!f)return;
  if(kind==="video"&&f.size>FEED_VIDEO_MAX){$("crSt").textContent="Video must be 25 MB or smaller.";return}
@@ -1551,6 +1553,7 @@ window.toggleFollow=async function(e){
 /* PATCH: New Post (compact bottom media toolbar, gradient swatches, media card, @/# caption),
    comment posting (auth lookup, error logging, instant refresh), chat media (no echo duplicate, spinner then tick). */
 (function(){
+ const CR=window.CR,crReset=window.crReset,page=window.page;
  const BG=["linear-gradient(135deg,#128C7E,#075E54)","linear-gradient(135deg,#25D366,#128C7E)","linear-gradient(135deg,#34B7F1,#6A4C9C)","linear-gradient(135deg,#FF9A8B,#FF6A88)","linear-gradient(135deg,#F7971E,#FFD200)","linear-gradient(135deg,#8E2DE2,#4A00E0)","linear-gradient(135deg,#1F2C34,#000000)","linear-gradient(135deg,#FC466B,#3F5EFB)"];
  const SAFE=/^linear-gradient\(135deg,#[0-9A-Fa-f]{6},#[0-9A-Fa-f]{6}\)$/;
  if(!CR.bg||!SAFE.test(CR.bg))CR.bg=BG[0];

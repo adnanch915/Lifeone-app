@@ -373,6 +373,11 @@ html.dark .thk{transform:translateX(22px);background:#0B1120;color:#5eead4}
 .wa-dl{position:absolute;top:6px;right:6px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none}
 div[style*="border-radius:24px"]:has(.wa-media){padding:4px!important}
 </style>
+<style>
+img.wa-img:not([src]),img.wa-img[src=""]{width:min(240px,100%);height:160px;object-fit:cover;border-radius:12px;background:linear-gradient(90deg,var(--line) 25%,var(--card) 50%,var(--line) 75%);background-size:200% 100%;animation:waShim 1.2s linear infinite;color:transparent}
+@keyframes waShim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){img.wa-img:not([src]),img.wa-img[src=""]{animation:none}}
+</style>
 <script>
 /* CHAT MEDIA: previews use clean labels, never raw file names or codes. Defined before the app runs. */
 window.mediaPreviewLabel=function(e){
@@ -1847,7 +1852,7 @@ window.toggleFollow=async function(e){
    - windowed rendering: only the visible tail of each chat is in the DOM, with scroll anchoring
    - lazy media: images load near the viewport, videos fetch no data until played */
 (function(){
- const PAGE=50,LATEST=200,WIN0=60,WIN_STEP=40;
+ const PAGE=30,LATEST=100,WIN0=60,WIN_STEP=40;
  const VIEW={win:{},more:{},busy:{},loaded:{}};
  let LOCK=!1;
  const viewN=key=>VIEW.win[key]||WIN0;
@@ -2888,6 +2893,101 @@ window.FWD_SRC=null;
   closeM("mForward");
   toast("Forwarded");
  };
+})();
+</script>
+<script>
+/* CHAT SPEED: instant history from the device cache, cached media links, and warm media on startup. */
+(function(){
+ const CACHE_N=60, SIGNS_KEY="lifeone.signs";
+ const me=()=>(S&&S.user&&S.user.uid)||"";
+ const cacheKey=k=>"lifeone.mc."+me()+"."+k;
+
+ /* 1. Signed media links are kept on the device, so images appear without waiting to be signed again. */
+ try{
+  const raw=JSON.parse(localStorage.getItem(SIGNS_KEY)||"{}"), now=Date.now();
+  Object.keys(raw).forEach(k=>{const v=raw[k];if(v&&v.url&&v.exp>now+60000)SIGN2.set(k,v)});
+ }catch(e){}
+ let savedSigns=-1;
+ setInterval(()=>{
+  if(SIGN2.size===savedSigns)return;
+  savedSigns=SIGN2.size;
+  try{
+   const now=Date.now(),out={};
+   [...SIGN2.entries()].filter(([,v])=>v&&v.exp>now).slice(-300).forEach(([k,v])=>{out[k]=v});
+   localStorage.setItem(SIGNS_KEY,JSON.stringify(out));
+  }catch(e){}
+ },4000);
+
+ /* 2. Recent messages of each direct chat are cached on the device. Group chats load from the network. */
+ const direct=key=>key!=="g"&&!isGK(key)&&S.fam[key]&&S.fam[key].key;
+ function tidy(key){
+  const list=S.chats[key];
+  if(!Array.isArray(list)||list.length<2)return;
+  const seen=new Set();
+  S.chats[key]=list
+   .filter(m=>{if(!m.id)return true;if(seen.has(m.id))return false;seen.add(m.id);return true})
+   .sort((a,b)=>tsMs(a.ts)-tsMs(b.ts));
+ }
+ function cacheSave(key){
+  if(!direct(key))return;
+  try{localStorage.setItem(cacheKey(S.fam[key].key),JSON.stringify((S.chats[key]||[]).slice(-CACHE_N)))}catch(e){}
+ }
+ let saveT=null;
+ function cacheSoon(){clearTimeout(saveT);saveT=setTimeout(()=>{try{cacheSave(chatK)}catch(e){}},600)}
+ function cacheRestore(key){
+  if(!direct(key))return false;
+  if(S.chats[key]&&S.chats[key].length)return false;
+  try{
+   const arr=JSON.parse(localStorage.getItem(cacheKey(S.fam[key].key))||"null");
+   if(!Array.isArray(arr)||!arr.length)return false;
+   S.chats[key]=arr;
+   return true;
+  }catch(e){return false}
+ }
+
+ /* Render: remove duplicates and keep messages in time order, then cache them. */
+ const _rm=window.renderMsgs;
+ if(typeof _rm==="function"){
+  window.renderMsgs=function(){
+   try{tidy(chatK)}catch(e){}
+   const r=_rm.apply(this,arguments);
+   cacheSoon();
+   return r;
+  };
+ }
+
+ /* Opening a chat paints its cached history at once; the network fills in anything newer. */
+ const _oc=window.openChat;
+ if(typeof _oc==="function"){
+  window.openChat=function(){
+   const r=_oc.apply(this,arguments);
+   try{if(cacheRestore(chatK))renderMsgs(true)}catch(e){console.warn("chat cache:",e)}
+   return r;
+  };
+ }
+
+ /* Startup: show cached previews first, then load fresh data and warm the most recent media links. */
+ function warmMedia(){
+  try{
+   Object.keys(S.chats).forEach(k=>{
+    (S.chats[k]||[]).slice(-12).forEach(m=>{
+     if(m.file&&m.url&&!/^https?:/.test(m.url))signUrl("chat-media",m.url);
+    });
+   });
+  }catch(e){}
+ }
+ const _lm=window.loadMessages;
+ if(typeof _lm==="function"){
+  window.loadMessages=async function(){
+   try{
+    for(let i=0;i<S.fam.length;i++)cacheRestore(i);
+    renderAll();
+   }catch(e){console.warn("startup cache:",e)}
+   const r=await _lm.apply(this,arguments);
+   warmMedia();
+   return r;
+  };
+ }
 })();
 </script>
 <script>

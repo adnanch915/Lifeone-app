@@ -1945,12 +1945,12 @@ window.toggleFollow=async function(e){
    var ins=await sb.from("post_comments").insert({post_id:pid,author_id:got.data.user.id,body:body});
    if(ins.error){
     console.error("sendComment insert failed:",ins.error);
-    cmtSay(CMT_ERR[ins.error.code]||"Could not post the comment. Try again.");
+    cmtSay(CMT_ERR[ins.error.code]||("Could not post the comment ("+(ins.error.code||"error")+": "+(ins.error.message||"unknown")+")."));
     return;
    }
   }catch(e){
    console.error("sendComment unexpected:",e);
-   cmtSay("Could not post the comment. Try again.");
+   cmtSay("Could not post the comment: "+(e&&e.message?e.message:"unexpected error")+".");
    return;
   }
   /* The comment is saved at this point. A refresh failure must not be reported as a failed post. */

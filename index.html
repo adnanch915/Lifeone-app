@@ -1986,4 +1986,127 @@ window.toggleFollow=async function(e){
  },true);
 })();
 </script>
+<style id="mdlCss">
+.mdl-wrap{position:relative;display:inline-block;max-width:100%;vertical-align:top}
+.mdl-tap{position:absolute;inset:0;width:100%;height:100%;background:transparent;border:0;padding:0;margin:0;cursor:pointer;z-index:2;border-radius:14px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.mdl-play{width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.mdl-ph{width:min(260px,100%);aspect-ratio:4/3;border-radius:14px;background:var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--mut);font-size:13px;font-weight:600}
+.mdl-dl{width:52px;height:52px;border-radius:50%;background:#008080;color:#fff;border:0;padding:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;transition:transform .15s}
+.mdl-dl:active{transform:scale(.92)}
+#mdlLB{position:fixed;inset:0;z-index:99999;background:#000;display:none;flex-direction:column}
+#mdlLB.on{display:flex}
+#mdlLB .mdlBar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;z-index:3;pointer-events:none}
+#mdlLB .mdlBtn{pointer-events:auto;width:44px;height:44px;border-radius:50%;border:0;padding:0;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#mdlLB .mdlBtn:active{transform:scale(.92)}
+#mdlLBmed{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0px) 8px env(safe-area-inset-bottom,0px)}
+#mdlLBmed img,#mdlLBmed video{max-width:100%;max-height:100%;object-fit:contain}
+</style>
+<script>
+/* IN-APP MEDIA: chat photos/videos open in a dark full-screen lightbox (never a new tab), and incoming
+   media loads only after the user taps Download (WhatsApp-style). Loaded last; wraps the current fileCard. */
+(function(){
+ const REVEALED=new Set();
+ const DL_SVG='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>';
+ const X_SVG='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+ const PLAY_SVG='<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+
+ /* ---- Lightbox (built once, appended to body so it never sits inside the chat list) ---- */
+ const lb=document.createElement("div");
+ lb.id="mdlLB";
+ lb.setAttribute("role","dialog");
+ lb.setAttribute("aria-modal","true");
+ lb.innerHTML='<div class="mdlBar"><button type="button" class="mdlBtn" data-mdl-close aria-label="Close">'+X_SVG+'</button><button type="button" class="mdlBtn" data-mdl-save aria-label="Download">'+DL_SVG+'</button></div><div id="mdlLBmed"></div>';
+ document.body.appendChild(lb);
+
+ function lbClose(){
+  lb.classList.remove("on");
+  const box=document.getElementById("mdlLBmed");
+  if(box)box.innerHTML="";
+  document.body.style.overflow="";
+ }
+ function lbOpen(wrap){
+  const media=wrap&&wrap.querySelector("img,video");
+  const src=media&&(media.currentSrc||media.src);
+  if(!src){toast("Still loading, try again in a moment.");return}
+  const isV=media.tagName==="VIDEO";
+  const box=document.getElementById("mdlLBmed");
+  box.innerHTML=isV
+   ?'<video src="'+esc(src)+'" controls playsinline autoplay></video>'
+   :'<img src="'+esc(src)+'" alt="">';
+  lb.dataset.src=src;
+  lb.dataset.name=wrap.dataset.name||"media";
+  lb.classList.add("on");
+  document.body.style.overflow="hidden";
+ }
+ async function lbDownload(){
+  const src=lb.dataset.src,name=lb.dataset.name||"media";
+  if(!src)return;
+  try{
+   const r=await fetch(src);
+   if(!r.ok)throw new Error("HTTP "+r.status);
+   const url=URL.createObjectURL(await r.blob());
+   const a=document.createElement("a");
+   a.href=url;a.download=name;
+   document.body.appendChild(a);a.click();a.remove();
+   setTimeout(function(){URL.revokeObjectURL(url)},4000);
+  }catch(e){
+   console.error("media download:",e);
+   toast("Download failed. Try again.");
+  }
+ }
+ lb.querySelector("[data-mdl-close]").addEventListener("click",lbClose);
+ lb.querySelector("[data-mdl-save]").addEventListener("click",lbDownload);
+ document.addEventListener("keydown",function(e){if(e.key==="Escape"&&lb.classList.contains("on"))lbClose()});
+
+ /* ---- Chat card rendering ---- */
+ function mdlWrap(e,html){
+  const isV=/^video\//.test(e.ft||"");
+  const inner=html
+   .replace(/<a href="[^"]*"/,"<a")
+   .replace(/ target="_blank"/,"")
+   .replace(/ rel="noopener"/,"");
+  return '<span class="mdl-wrap" data-name="'+esc(e.name||"media")+'">'+inner+
+   '<button type="button" class="mdl-tap" data-mdl-open aria-label="Open '+(isV?"video":"photo")+'">'+
+   (isV?'<span class="mdl-play">'+PLAY_SVG+'</span>':"")+'</button></span>';
+ }
+ function mdlPlaceholder(e){
+  const isV=/^video\//.test(e.ft||"");
+  const label=isV?"Video":"Photo";
+  return '<div class="mdl-ph"><button type="button" class="mdl-dl" data-mdl-dl="'+esc(e.url)+'" aria-label="Download '+label+'">'+DL_SVG+'</button><span>'+label+' · tap to download</span></div>';
+ }
+
+ const _fileCard=window.fileCard;
+ window.fileCard=function(e){
+  const isMedia=!!(e&&!e.uploading&&e.url&&/^(image|video)\//.test(e.ft||""));
+  if(isMedia&&!e.me&&!REVEALED.has(e.url))return mdlPlaceholder(e);
+  const html=_fileCard(e);
+  return isMedia?mdlWrap(e,html):html;
+ };
+
+ /* ---- Delegated handlers (capture phase, so no media link can navigate away) ---- */
+ document.addEventListener("click",function(ev){
+  const t=ev.target;
+  if(!t||!t.closest)return;
+  const dl=t.closest("[data-mdl-dl]");
+  if(dl){
+   ev.preventDefault();ev.stopPropagation();
+   REVEALED.add(dl.getAttribute("data-mdl-dl"));
+   try{renderMsgs(!0)}catch(err){console.error("reveal media:",err)}
+   return;
+  }
+  const op=t.closest("[data-mdl-open]");
+  if(op){
+   ev.preventDefault();ev.stopPropagation();
+   lbOpen(op.closest(".mdl-wrap"));
+   return;
+  }
+  /* Only image/video cards are guarded. Document and APK attachments keep their own handlers. */
+  const link=t.closest("#msgs a");
+  if(link&&link.querySelector("img,video")){
+   ev.preventDefault();ev.stopPropagation();
+   if(link.querySelector("img"))lbOpen(link.closest(".mdl-wrap")||link);
+  }
+ },true);
+})();
+</script>
 </body></html>

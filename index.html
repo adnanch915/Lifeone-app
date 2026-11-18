@@ -2795,4 +2795,99 @@ window.STM={ids:[],names:{}};
  paintNotifBadge();
 })();
 </script>
+<style>
+#mForward.on{align-items:flex-end!important}
+#mForward .sheet{width:100%!important;max-width:520px!important;border-radius:22px 22px 0 0!important;margin:0!important}
+</style>
+<script>
+/* MESSAGE ACTIONS: star, delete for me, delete for everyone, and forward (text, photo, video, voice). */
+window.FWD_SRC=null;
+(function(){
+ const msgOf=idx=>(S.chats[chatK]||[])[idx];
+ const clearChoice=()=>{try{DEL_CHOICE=null}catch(e){}};
+ const logErr=(where,e)=>console.error(where,{code:e&&e.code,message:e&&e.message,details:e&&e.details,hint:e&&e.hint});
+
+ window.toggleStarMsg=async function(idx){
+  const m=msgOf(idx);
+  if(!m||!m.id)return;
+  const was=STARRED_IDS.has(m.id);
+  const r=was
+   ? await sb.from("message_stars").delete().eq("user_id",S.user.uid).eq("message_id",m.id)
+   : await sb.from("message_stars").upsert({user_id:S.user.uid,message_id:m.id},{onConflict:"user_id,message_id"});
+  if(r.error){logErr("toggleStarMsg",r.error);toast("Could not update the star.");return}
+  if(was)STARRED_IDS.delete(m.id);else STARRED_IDS.add(m.id);
+  renderMsgs(true);
+  toast(was?"Removed from starred":"Starred");
+ };
+
+ window.deleteForMe=async function(idx){
+  const m=msgOf(idx);
+  if(!m||!m.id)return;
+  const r=await sb.from("message_hides").upsert({user_id:S.user.uid,message_id:m.id},{onConflict:"user_id,message_id"});
+  if(r.error){logErr("deleteForMe",r.error);toast("Could not delete for you.");return}
+  HIDDEN.add(m.id);
+  clearChoice();
+  renderMsgs(true);
+  toast("Deleted for you");
+ };
+
+ window.deleteForEveryone=async function(idx){
+  const m=msgOf(idx);
+  if(!m||!m.id)return;
+  const r=await sb.from("messages")
+   .update({deleted_for_everyone:true,content:"",media_url:null,voice_url:null})
+   .eq("id",m.id).eq("sender_id",S.user.uid).select("id");
+  if(r.error){
+   logErr("deleteForEveryone",r.error);
+   const window48=/delete_window_closed/.test(String(r.error.message||""));
+   toast(window48?"You can delete for everyone within 48 hours.":"Could not delete for everyone.");
+   return;
+  }
+  if(!r.data||!r.data.length){logErr("deleteForEveryone: no row updated (check RLS policy)",null);toast("Could not delete for everyone.");return}
+  m.deleted=true;m.t="";m.file=false;m.v=false;m.url="";
+  clearChoice();
+  renderMsgs(true);
+  toast("Deleted for everyone");
+ };
+
+ /* Forward: keep the source message, show its label, and send the right payload. */
+ const _openForward=window.openForward;
+ window.openForward=function(idx){
+  const m=msgOf(idx);
+  FWD_SRC=m||null;
+  const r=(typeof _openForward==="function")?_openForward.apply(this,arguments):undefined;
+  const p=document.getElementById("fwdText");
+  if(p&&m){
+   p.textContent=m.v?"🎤 Voice message":m.file?mediaPreviewLabel(m):(plainPreviewText(m.t)||"");
+  }
+  return r;
+ };
+ window.forwardTo=async function(receiverId){
+  const src=FWD_SRC;
+  const err=document.getElementById("fwdErr");
+  const fail=msg=>{if(err)err.textContent=msg};
+  if(!src){fail("Nothing to forward.");return}
+  const row={sender_id:S.user.uid,receiver_id:receiverId,sender_name:S.user.name};
+  if(src.v&&src.url){
+   row.voice_url=src.url;row.voice_dur=src.d||1;row.content="";
+  }else if(src.file&&src.url){
+   row.media_url=src.url;row.media_type=src.ft||"";row.media_name=src.name||"File";row.content="";
+  }else{
+   const txt=String(src.t||"").trim();
+   if(!txt){fail("Nothing to forward.");return}
+   row.content=txt;
+  }
+  const r=await sb.from("messages").insert(row);
+  if(r.error){
+   logErr("forwardTo",r.error);
+   fail(/chat_request_not_accepted/.test(String(r.error.message||""))
+    ?"You can forward to them after they accept your chat request."
+    :"Could not forward this message.");
+   return;
+  }
+  closeM("mForward");
+  toast("Forwarded");
+ };
+})();
+</script>
 </body></html>

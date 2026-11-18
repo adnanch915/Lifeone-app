@@ -2278,4 +2278,77 @@ window.toggleFollow=async function(e){
  };
 })();
 </script>
+<style>
+.bgpost{text-shadow:0 1px 3px rgba(0,0,0,.28);overflow-wrap:anywhere}
+</style>
+<script>
+/* FEED BACKGROUND FIX: text posts show their background colour or gradient in the feed.
+   Accepts the composer's gradients, hex colours and older "bg:" posts. A failed background save is reported, never hidden. */
+(function(){
+ function okBg(v){
+  if(typeof v!=="string")return false;
+  var s=v.trim();
+  if(!s||s.length>300)return false;
+  if(/^#[0-9A-Fa-f]{3,8}$/.test(s))return true;
+  return /^(linear|radial)-gradient\([#0-9A-Za-z(),.%\s-]*\)$/.test(s);
+ }
+
+ /* The feed card paints a text post with storyBgCss(post.bg). Use the value directly when it is a valid colour or gradient. */
+ var _sbc=window.storyBgCss;
+ window.storyBgCss=function(v){
+  if(okBg(v))return v.trim();
+  return _sbc?_sbc(v):v;
+ };
+
+ /* Older text posts stored their background as media_path "bg:<gradient>". Feed them through the same bg path. */
+ var _fc=window.feedCard;
+ window.feedCard=function(e){
+  if(e&&e.kind==="text"&&!e.bg&&/^bg:/.test(e.media_path||"")){
+   e=Object.assign({},e,{bg:String(e.media_path).slice(3)});
+  }
+  return _fc(e);
+ };
+
+ /* Text publishing: the background is saved in the bg column, media_path stays null. */
+ var _pub=window.crPublish;
+ window.crPublish=async function(){
+  var CRs=window.CR;
+  if(!CRs||CRs.file||typeof sb==="undefined"||!sb)return _pub.apply(this,arguments);
+  var b=document.getElementById("crPub"),st=document.getElementById("crSt");
+  var txt=((document.getElementById("crCap")||{}).value||"").trim();
+  if(!txt){if(st)st.textContent="Write something first.";return}
+  if(txt.length>2200){if(st)st.textContent="Keep it under 2200 characters.";return}
+  if(b&&b.disabled)return;
+  if(b){b.disabled=true;b.textContent="Publishing…"}
+  if(st)st.textContent="";
+  var bg=okBg(CRs.bg)?CRs.bg.trim():null;
+  var bgDropped=false;
+  try{
+   var got=await sb.auth.getUser();
+   if(got.error||!got.data||!got.data.user){if(st)st.textContent="Sign in again to publish.";return}
+   var row={author_id:got.data.user.id,kind:"text",media_path:null,caption:txt};
+   var ins=await sb.from("posts").insert(bg?Object.assign({},row,{bg:bg}):row);
+   if(ins.error&&bg){
+    /* The database rejected the background. Log the exact error, then post the text so it is not lost. */
+    console.error("posts insert with background failed:",ins.error.code,ins.error.message,ins.error.details,ins.error.hint,ins.error);
+    bgDropped=true;
+    ins=await sb.from("posts").insert(row);
+   }
+   if(ins.error){
+    console.error("posts insert (text) failed:",ins.error.code,ins.error.message,ins.error.details,ins.error.hint,ins.error);
+    if(st)st.textContent="Could not publish. Try again."+(ins.error.code?" ("+ins.error.code+")":"");
+    return;
+   }
+   try{window.crClose&&window.crClose()}catch(e){console.error("crClose:",e)}
+   toast(bgDropped?"Posted without a background. Run the background SQL in Supabase.":"Posted");
+   try{loadFeed(true)}catch(e){console.error("refresh feed:",e)}
+  }catch(err){
+   console.error("crPublish (text) error:",err);
+   if(st)st.textContent="Could not publish. Try again.";
+  }finally{
+   if(b){b.textContent="Publish";b.disabled=false}
+  }
+ };
+})();
+</script>
 </body></html>

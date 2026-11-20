@@ -3314,4 +3314,74 @@ html.dark #chats_list>div.card{border-color:rgba(255,255,255,.06)}
  .wa-media:not(.is-ready):not(.is-err){animation:none}
 }
 </style>
+<style id="v3-chat-stories">
+/* ===== v3: distinct mobile chat look. Styling only; no logic or data changes. ===== */
+
+/* Outgoing: a rich brand gradient with a tucked tail. Incoming: a crisp card. */
+.flex.justify-end>div>div[data-bi]{
+ background:linear-gradient(135deg,#12A29A 0%,#0B7A75 100%)!important;
+ color:#FFFFFF!important;
+ border-radius:22px 22px 6px 22px!important;
+ box-shadow:0 10px 24px rgba(11,122,117,.28),inset 0 1px 0 rgba(255,255,255,.18)!important;
+ border:0!important;
+}
+.flex.justify-start>div>div[data-bi]{
+ background:var(--card)!important;
+ color:var(--ink)!important;
+ border-radius:22px 22px 22px 6px!important;
+ border:1px solid rgba(15,23,42,.07)!important;
+ box-shadow:0 8px 20px rgba(15,23,42,.08)!important;
+}
+html.dark .flex.justify-start>div>div[data-bi]{border-color:rgba(255,255,255,.08)!important;box-shadow:0 10px 24px rgba(0,0,0,.35)!important}
+.flex.justify-end>div>div[data-bi] div[style*="color:#D1D1D1"],
+.flex.justify-end>div>div[data-bi] div[style*="color:#D6E7EE"]{color:rgba(255,255,255,.78)!important}
+.flex.justify-start>div>div[data-bi] div[style*="color:#D1D1D1"]{color:var(--mut)!important}
+.flex.justify-end>div>div[data-bi] div[style*="color:#D6E7EE"]{color:rgba(255,255,255,.78)!important}
+
+/* Header: a frosted bar with a soft lower edge */
+div:has(> div > #chatHead){
+ border-bottom-left-radius:18px!important;border-bottom-right-radius:18px!important;
+ box-shadow:0 10px 26px rgba(15,23,42,.07);
+}
+#chatHead{border-radius:16px;padding:4px 6px 4px 2px;transition:background .2s ease}
+#chatHead:active{background:var(--pri2)}
+
+/* Composer: a floating glass pill, with a clearly distinct voice control */
+#inBar{padding-top:10px!important}
+.inpRow{
+ border-radius:999px!important;
+ background:var(--card)!important;
+ border:1px solid rgba(15,23,42,.08)!important;
+ box-shadow:0 12px 28px rgba(15,23,42,.10)!important;
+ padding:5px 6px!important;
+}
+html.dark .inpRow{border-color:rgba(255,255,255,.08)!important;box-shadow:0 14px 30px rgba(0,0,0,.40)!important}
+#inBar button[aria-label="Voice"],#inBar button[aria-label="Record voice"],#inBar button[aria-label="Send voice"]{
+ box-shadow:0 8px 18px rgba(11,122,117,.35);
+}
+
+/* Chat list rows: distinct cards with a clear hierarchy */
+[data-chat-row]{
+ border-radius:20px!important;
+ border:1px solid rgba(15,23,42,.05);
+ box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 22px rgba(15,23,42,.07);
+ padding:12px 14px;
+ transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+html.dark [data-chat-row]{border-color:rgba(255,255,255,.06)}
+[data-chat-row] b.block{font-weight:700;letter-spacing:-.01em}
+[data-chat-row]:active{transform:scale(.985)}
+@media (hover:hover){
+ [data-chat-row]:hover{box-shadow:0 2px 6px rgba(15,23,42,.06),0 14px 30px rgba(15,23,42,.11)}
+}
+
+/* Story rings: a small lift and press feedback; the ring logic is untouched */
+.sr{transition:transform .2s ease;border-radius:50%}
+.sr:active{transform:scale(.93)}
+.sr.u{filter:drop-shadow(0 6px 12px rgba(214,41,118,.28))}
+
+@media (prefers-reduced-motion:reduce){
+ [data-chat-row],.sr{transition:none!important}
+}
+</style>
 </body></html>
